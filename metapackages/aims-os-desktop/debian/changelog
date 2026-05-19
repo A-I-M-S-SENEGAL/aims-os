@@ -1,0 +1,12 @@
+aims-os-desktop (1.0) bookworm; urgency=medium
+
+  * Initial release.
+    + Pulls the AIMS OS user-facing layer: GNOME desktop
+      (task-gnome-desktop), Calamares installer, Plymouth, Firefox
+      ESR + Chromium with French/English locales, full LibreOffice
+      with French dictionaries, GIMP / Inkscape / VLC / Evolution,
+      Flatpak with the Software plugin, NetworkManager with OpenVPN,
+      KeepassXC / fish / zsh / ripgrep / fzf / bat utilities, the
+      GStreamer codec stack.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 19 May 2026 12:00:00 +0000

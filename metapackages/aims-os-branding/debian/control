@@ -1,0 +1,36 @@
+Source: aims-os-branding
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-branding
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-core,
+ plymouth,
+ plymouth-themes,
+ plymouth-label,
+Description: AIMS OS — boot splash, login theme, wallpapers and icons
+ This metapackage carries the AIMS Senegal visual identity that
+ transforms a default Debian + GNOME installation into AIMS OS:
+ .
+   * a Plymouth boot splash with the AIMS circular Africa logo
+   * a GRUB bootloader theme matching the AIMS visual identity
+   * default and lock-screen wallpapers
+   * a GNOME shell theme accent colour aligned with AIMS terracotta
+   * /etc/os-release / /etc/issue / /etc/motd identifying AIMS OS 1.0
+   * the AIMS application icon for the GNOME launcher
+ .
+ None of the dconf or GNOME settings shipped here are LOCKED; users
+ remain free to change wallpaper, theme, icons and everything else
+ to taste. Removing this package leaves a vanilla GNOME desktop on
+ top of the AIMS OS scientific stack.

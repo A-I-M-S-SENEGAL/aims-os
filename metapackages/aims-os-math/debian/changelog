@@ -1,0 +1,14 @@
+aims-os-math (1.0) bookworm; urgency=medium
+
+  * Initial release.
+    + Pulls the AIMS OS scientific computing stack: Python SciPy
+      ecosystem (numpy, scipy, pandas, matplotlib, sympy, sklearn,
+      statsmodels, networkx), JupyterLab + ipywidgets, SageMath with
+      fr/en docs, Maxima/wxMaxima, GNU Octave plus the scientific
+      add-on modules, R with the tidyverse and rmarkdown, full TeX
+      Live with French and English language packs, TeXstudio and
+      biber, GeoGebra and gnuplot, gdb / valgrind and the
+      OpenBLAS / LAPACK / FFTW / HDF5 / GMP / MPFR development
+      headers for numerical software.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 19 May 2026 12:00:00 +0000

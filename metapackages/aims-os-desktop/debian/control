@@ -1,0 +1,111 @@
+Source: aims-os-desktop
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-desktop
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-core,
+# --- GNOME desktop ----------------------------------------------------
+ task-gnome-desktop,
+ gnome-tweaks,
+ gnome-shell-extensions,
+ gnome-shell-extension-manager,
+ dconf-cli,
+ dconf-editor,
+# --- Calamares graphical installer -----------------------------------
+ calamares,
+ calamares-settings-debian,
+ qml-module-qtquick-controls,
+ qml-module-qtquick-controls2,
+# --- Boot splash (themed by aims-os-branding) ------------------------
+ plymouth,
+ plymouth-themes,
+ plymouth-label,
+# --- Browsers (Firefox ESR + Chromium, French + English locales) -----
+ firefox-esr,
+ firefox-esr-l10n-fr,
+ chromium,
+ chromium-l10n,
+# --- Office: LibreOffice + dictionaries ------------------------------
+ libreoffice,
+ libreoffice-l10n-fr,
+ libreoffice-help-fr,
+ libreoffice-l10n-en-gb,
+ hunspell-fr,
+ hunspell-en-us,
+ hyphen-fr,
+ hyphen-en-us,
+ mythes-fr,
+ mythes-en-us,
+# --- Fonts ------------------------------------------------------------
+ fonts-liberation,
+ fonts-noto,
+ fonts-noto-cjk,
+ fonts-noto-color-emoji,
+ fonts-firacode,
+# --- Documents, images, media ----------------------------------------
+ evince,
+ gimp,
+ inkscape,
+ shotwell,
+ vlc,
+ gnome-text-editor,
+ evolution,
+# --- Flatpak (Flathub remote added by chroot hook 0050) --------------
+ flatpak,
+ gnome-software-plugin-flatpak,
+# --- Network management ----------------------------------------------
+ network-manager,
+ network-manager-gnome,
+ network-manager-openvpn,
+ network-manager-openvpn-gnome,
+# --- Nice-to-have user-facing tools (was 40-extras list) -------------
+ ghostwriter,
+ keepassxc,
+ fish,
+ zsh,
+ neofetch,
+ ripgrep,
+ fzf,
+ fd-find,
+ bat,
+ p7zip-full,
+ p7zip-rar,
+ gnome-screenshot,
+ flameshot,
+# --- Multimedia codecs (free + non-free) -----------------------------
+ gstreamer1.0-plugins-base,
+ gstreamer1.0-plugins-good,
+ gstreamer1.0-plugins-bad,
+ gstreamer1.0-plugins-ugly,
+ gstreamer1.0-libav,
+Description: AIMS OS — GNOME desktop, installer and user applications
+ This metapackage installs the AIMS OS user-facing layer: the GNOME
+ desktop (task-gnome-desktop scope — desktop shell, GDM, Files, Web,
+ Terminal — without the gnome metapackage's games and bloat), the
+ Calamares graphical installer plus its Debian settings, the Plymouth
+ boot splash framework (themed by aims-os-branding), Firefox ESR and
+ Chromium with French and English locales, the complete LibreOffice
+ suite with French and English dictionaries and thesauri, the standard
+ GNOME tools (Evince, GIMP, Inkscape, Shotwell, VLC, GNOME Text
+ Editor, Evolution), Flatpak with the GNOME Software plugin (Flathub
+ remote registered by an AIMS-specific first-boot service), the
+ NetworkManager stack with OpenVPN support, a small set of useful
+ utilities (KeepassXC, ghostwriter, fish, zsh, ripgrep, fzf, bat,
+ p7zip, screenshots), and the GStreamer codecs for media playback.
+ .
+ The fr_FR.UTF-8 locale and Africa/Dakar timezone are configured at
+ the system level by aims-os-core; this metapackage adds the matching
+ French desktop locales for LibreOffice, Firefox, hunspell, hyphen
+ and mythes.

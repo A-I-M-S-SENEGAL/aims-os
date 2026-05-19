@@ -1,0 +1,11 @@
+aims-os-branding (1.0) bookworm; urgency=medium
+
+  * Initial release.
+    + Pure-metadata skeleton declaring the AIMS OS visual identity
+      surface and depending on plymouth + plymouth-themes so the
+      boot-splash framework is present.
+    + Branding payload (Plymouth theme files, GRUB theme, wallpapers,
+      logos, /etc/os-release patch, application icon) will land in
+      this package's debian/install in the next commit (step 5).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 19 May 2026 12:00:00 +0000
