@@ -31,25 +31,30 @@ Depends:
  python3-seaborn,
  python3-sympy,
  python3-statsmodels,
- python3-scikit-learn,
+ python3-sklearn,
  python3-networkx,
  python3-requests,
  python3-bs4,
  python3-lxml,
  python3-h5py,
  python3-pillow,
-# --- Jupyter ---------------------------------------------------------
+# --- Jupyter (classic Notebook from Debian; JupyterLab via pipx/mamba) ---
+# Note: Debian Bookworm does not ship python3-jupyterlab — the JupyterLab
+# UI is not packaged. Users install it on demand:
+#     pipx install jupyterlab
+#   or
+#     mamba install -c conda-forge jupyterlab
+# What we ship is the classic Jupyter Notebook + the ecosystem libs.
  jupyter,
  jupyter-notebook,
  jupyter-core,
  jupyter-server,
- python3-jupyterlab,
+ python3-jupyterlab-server,
  python3-ipywidgets,
  python3-nbconvert,
 # --- Computer algebra & numerical computing --------------------------
  sagemath,
- sagemath-doc-en,
- sagemath-doc-fr,
+ sagemath-doc,
  maxima,
  maxima-doc,
  wxmaxima,
@@ -101,8 +106,11 @@ Description: AIMS OS — scientific and mathematical software stack
  This metapackage installs the scientific computing layer that
  justifies AIMS OS's existence: the Python SciPy ecosystem (numpy,
  scipy, pandas, matplotlib, seaborn, sympy, scikit-learn, statsmodels,
- networkx) with JupyterLab and ipywidgets; SageMath with French and
- English documentation; Maxima and wxMaxima for symbolic computation;
+ networkx) with the classic Jupyter Notebook + ipywidgets + the
+ JupyterLab back-end libs (the JupyterLab UI itself is install-on-
+ demand via `pipx install jupyterlab` since Debian does not yet
+ package it); SageMath with consolidated multilingual documentation;
+ Maxima and wxMaxima for symbolic computation;
  GNU Octave with the scientific add-on modules (symbolic, statistics,
  optim, control, signal); R with the tidyverse, ggplot2, knitr and
  rmarkdown packages; the full TeX Live distribution with French and
