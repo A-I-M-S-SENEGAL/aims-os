@@ -115,8 +115,30 @@ log "generating Plymouth assets ..."
 compose_centered 400 400 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 360 \
     "${OUT_DIR}/plymouth/aims-circle.png"
 
-# A 4-px-tall progress bar in the accent terracotta, on cream. The Plymouth
-# script will crop a horizontal slice of this at runtime.
+# Ray ring — 12 short terracotta dashes arranged on a 600×600 canvas
+# around an empty 440×440 center (so the logo will fit inside cleanly).
+# Plymouth's refresh callback rotates this image around its centre; the
+# logo sprite renders ON TOP and stays motionless. Coordinates below are
+# computed for canvas center (300,300), inner radius 220, outer radius 280.
+convert -size 600x600 xc:transparent \
+    -stroke "${COLOR_BRAND_PRIMARY}" -strokewidth 10 -fill none \
+    -draw "stroke-linecap round
+           line 300,80  300,20
+           line 410,110 440,58
+           line 491,190 543,160
+           line 520,300 580,300
+           line 491,410 543,440
+           line 410,490 440,542
+           line 300,520 300,580
+           line 190,490 160,542
+           line 109,410 58,440
+           line 80,300  20,300
+           line 109,190 58,160
+           line 190,110 160,58" \
+    -strip "${OUT_DIR}/plymouth/ray-ring.png"
+optipng -quiet -o2 "${OUT_DIR}/plymouth/ray-ring.png" 2>/dev/null || true
+
+# Optional secondary progress bar (kept for potential future use)
 convert -size 600x4 "xc:${COLOR_BRAND_ACCENT}" \
     -strip "${OUT_DIR}/plymouth/progress-bar-fg.png"
 convert -size 600x4 "xc:#E6D8C8" \
