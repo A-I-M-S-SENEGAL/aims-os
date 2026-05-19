@@ -1,0 +1,21 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0090: compile the GNOME dconf system defaults database
+# =============================================================================
+# /etc/dconf/db/local.d/00-aims-os holds the GNOME defaults we ship.
+# dconf does NOT read those files directly at runtime; it reads the
+# compiled binary database at /etc/dconf/db/local. The `dconf update`
+# command (re)compiles every db/<name>.d/ directory into the matching
+# db/<name> binary, picking up our settings.
+#
+# Without this step, new user accounts would inherit upstream GNOME
+# defaults instead of ours.
+# =============================================================================
+set -e
+
+if command -v dconf >/dev/null 2>&1; then
+    dconf update
+    echo "[aims-os/hook] dconf database recompiled — GNOME defaults active"
+else
+    echo "[aims-os/hook] dconf binary not found; skipping (no GNOME?)" >&2
+fi

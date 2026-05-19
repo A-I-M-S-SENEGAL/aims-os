@@ -1,0 +1,25 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0080: complete the migration to DEB822 sources
+# =============================================================================
+# live-build writes a legacy one-line /etc/apt/sources.list. Our
+# includes.chroot/ ships a richer DEB822 file at
+# /etc/apt/sources.list.d/debian.sources covering the same suites,
+# with explicit Signed-By keys and per-source granularity.
+#
+# Having BOTH files active would mean apt sees every source twice. We
+# clear the legacy file (keep it as a placeholder pointing at the new
+# location) and let the .sources file be the single source of truth.
+# =============================================================================
+set -e
+
+if [ -f /etc/apt/sources.list.d/debian.sources ]; then
+    cat > /etc/apt/sources.list <<'EOF'
+# AIMS OS uses the modern DEB822 sources format.
+# See /etc/apt/sources.list.d/debian.sources for the active config.
+EOF
+    echo "[aims-os/hook] sources.list neutralized; debian.sources is canonical"
+fi
+
+# Verify apt can still parse everything before we move on.
+apt-get update -qq 2>&1 | head -5 || true

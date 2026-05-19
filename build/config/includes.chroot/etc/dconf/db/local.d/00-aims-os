@@ -1,0 +1,60 @@
+# =============================================================================
+# AIMS OS — GNOME default settings (dconf local database)
+# =============================================================================
+# These set the OUT-OF-THE-BOX defaults a new user sees the first time
+# they log in. They are NOT locked — users are free to change anything
+# from GNOME Settings or via dconf-editor. The corresponding /locks/
+# directory is deliberately absent (philosophy: "starting point, not a
+# cage").
+#
+# To take effect, `dconf update` must be run after this file lands. The
+# 0090-dconf-update hook does that during the live-build chroot stage.
+#
+# Wallpaper, lock-screen background and theme assets live in the
+# aims-os-branding metapackage (step 5) and override these paths at
+# install time.
+# =============================================================================
+
+[org/gnome/desktop/interface]
+clock-format='24h'
+clock-show-weekday=true
+clock-show-seconds=false
+show-battery-percentage=true
+font-name='Cantarell 11'
+document-font-name='Cantarell 11'
+monospace-font-name='Fira Code 11'
+
+[org/gnome/desktop/wm/preferences]
+button-layout='appmenu:minimize,maximize,close'
+
+[org/gnome/desktop/input-sources]
+sources=[('xkb', 'fr'), ('xkb', 'us')]
+xkb-options=['grp:alt_shift_toggle']
+
+[org/gnome/desktop/calendar]
+show-weekdate=true
+
+[org/gnome/desktop/privacy]
+remember-recent-files=true
+recent-files-max-age=30
+remove-old-temp-files=true
+remove-old-trash-files=true
+old-files-age=uint32 30
+
+[org/gnome/desktop/screensaver]
+lock-enabled=true
+lock-delay=uint32 60
+
+[org/gnome/desktop/session]
+idle-delay=uint32 600
+
+[org/gnome/shell]
+favorite-apps=['firefox-esr.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Nautilus.desktop', 'libreoffice-writer.desktop', 'org.geogebra.GeoGebra5.desktop', 'texstudio.desktop', 'org.gnome.Software.desktop']
+
+[org/gnome/mutter]
+dynamic-workspaces=true
+edge-tiling=true
+
+[org/gnome/nautilus/preferences]
+default-folder-viewer='list-view'
+show-hidden-files=false
