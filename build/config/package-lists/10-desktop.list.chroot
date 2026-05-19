@@ -1,0 +1,72 @@
+# =============================================================================
+# AIMS OS — desktop environment & end-user apps
+# =============================================================================
+# GNOME, the Calamares installer, browsers, office, media. Anything a
+# user faces in the first 5 minutes after boot.
+# =============================================================================
+
+# ---- GNOME desktop (the Debian "task" flavour — standard scope) -------------
+task-gnome-desktop
+gnome-tweaks
+gnome-shell-extensions
+gnome-shell-extension-manager
+dconf-cli
+dconf-editor
+
+# ---- Calamares installer ----------------------------------------------------
+# Calamares is the graphical installer. calamares-settings-debian provides
+# the Debian-flavoured config; we will layer AIMS branding on top via hook.
+calamares
+calamares-settings-debian
+qml-module-qtquick-controls
+qml-module-qtquick-controls2
+
+# ---- Boot splash (will be themed by the branding metapackage) ---------------
+plymouth
+plymouth-themes
+plymouth-label
+
+# ---- Web browsers -----------------------------------------------------------
+firefox-esr
+firefox-esr-l10n-fr
+chromium
+chromium-l10n
+
+# ---- Office (LibreOffice with French + English dictionaries) ----------------
+libreoffice
+libreoffice-l10n-fr
+libreoffice-help-fr
+libreoffice-l10n-en-gb
+hunspell-fr
+hunspell-en-us
+hyphen-fr
+hyphen-en-us
+mythes-fr
+mythes-en-us
+fonts-liberation
+fonts-noto
+fonts-noto-cjk
+fonts-noto-color-emoji
+fonts-firacode
+
+# ---- Documents, images, media -----------------------------------------------
+evince
+gimp
+inkscape
+shotwell
+vlc
+gnome-text-editor
+
+# ---- Mail (lightweight, included by task-gnome-desktop but listed explicit) -
+evolution
+
+# ---- Flatpak for "prof tells students to install X" workflows ---------------
+# Flathub remote is added at first boot by build/config/hooks/normal/.
+flatpak
+gnome-software-plugin-flatpak
+
+# ---- Network management UI --------------------------------------------------
+network-manager
+network-manager-gnome
+network-manager-openvpn
+network-manager-openvpn-gnome
