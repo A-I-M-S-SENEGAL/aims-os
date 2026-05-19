@@ -1,0 +1,80 @@
+# ============================================================
+# AIMS OS — .gitignore
+# ============================================================
+
+# ---- Build artifacts (live-build output) ----
+build/out/
+build/cache/
+build/chroot/
+build/binary/
+build/source/
+build/.build/
+build/tftpboot/
+build/local/
+*.iso
+*.img
+*.squashfs
+*.contents
+*.packages
+*.buildinfo
+*.files
+
+# ---- live-build state & logs ----
+*.log
+binary.log
+chroot.log
+source.log
+.lb_*
+
+# ---- Debian packaging artifacts (metapackages/) ----
+metapackages/*/debian/files
+metapackages/*/debian/*.substvars
+metapackages/*/debian/*.debhelper
+metapackages/*/debian/*.debhelper.log
+metapackages/*/debian/.debhelper/
+metapackages/*/debian/debhelper-build-stamp
+metapackages/*/debian/aims-os-*/
+metapackages/*/debian/tmp/
+metapackages/*.deb
+metapackages/*.dsc
+metapackages/*.changes
+metapackages/*.tar.gz
+metapackages/*.tar.xz
+metapackages/*.tar.zst
+metapackages/*.upload
+
+# ---- Generated branding assets (we ship sources, not derivatives) ----
+branding/generated/
+branding/plymouth/*.png.gen
+branding/grub/*.png.gen
+branding/wallpapers/generated/
+
+# ---- Docker ----
+.docker-cache/
+
+# ---- macOS junk ----
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ---- Editors ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ---- Python (any helper scripts) ----
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# ---- Secrets ----
+.env
+.env.local
+secrets/
+*.key
+*.pem

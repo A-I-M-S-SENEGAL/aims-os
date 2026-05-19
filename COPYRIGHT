@@ -1,0 +1,66 @@
+AIMS OS — Copyright, derivative status and trademark notice
+============================================================
+
+Project
+-------
+Name:        AIMS OS
+Version:     1.0
+Maintainer:  AIMS Senegal IT <hakim@aims-senegal.org>
+Upstream:    https://github.com/A-I-M-S-SENEGAL/aims-os
+
+
+Copyright on AIMS OS original work
+----------------------------------
+Copyright (C) 2026 African Institute for Mathematical Sciences — Senegal.
+
+The build scripts, live-build configuration, metapackage definitions,
+branding source files and documentation contained in this repository
+(collectively, "the AIMS OS originals") are licensed under the terms
+of the GNU General Public License, version 3, as published by the Free
+Software Foundation. See the LICENSE file in the root of this
+repository for the full text.
+
+The AIMS OS originals do NOT include the upstream Debian packages that
+will be assembled into the final ISO image. Those packages retain
+their own upstream licenses, as declared in each package's
+/usr/share/doc/<pkg>/copyright file.
+
+
+Derivative status with respect to Debian GNU/Linux
+--------------------------------------------------
+AIMS OS is a derivative work of Debian GNU/Linux. It is built by
+assembling unmodified binary packages from the official Debian
+archive, plus a small set of original metapackages and configuration
+maintained in this repository.
+
+AIMS OS is NOT endorsed by, affiliated with, or supported by the
+Debian Project. Bugs in AIMS OS should be reported to the AIMS Senegal
+IT team, not to the Debian bug tracking system, unless the bug is
+confirmed to exist in an unmodified upstream Debian package.
+
+Per the Debian Trademark Policy
+(https://www.debian.org/trademark), the name "Debian" and the Debian
+swirl logo are trademarks of Software in the Public Interest, Inc.
+AIMS OS does not use the Debian name in its branding and does not
+ship the Debian logo in any user-visible surface.
+
+
+AIMS name and logo
+------------------
+"AIMS", "African Institute for Mathematical Sciences" and the AIMS
+circular Africa logo are property of the African Institute for
+Mathematical Sciences. They are used in this distribution with the
+institutional authorization of AIMS Senegal. Third parties wishing to
+redistribute modified versions of AIMS OS must remove or replace AIMS
+trademarks unless they have obtained their own authorization.
+
+
+Third-party content shipped in this repository
+----------------------------------------------
+branding/source/aims_circle.png   © AIMS, all rights reserved, used
+                                    with authorization
+branding/source/logo-aims.png     © AIMS, all rights reserved, used
+                                    with authorization
+
+All other files in this repository are original work covered by the
+GPL-3.0 notice above.
