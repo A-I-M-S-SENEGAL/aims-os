@@ -1,0 +1,144 @@
+# =============================================================================
+# AIMS OS — ISO build workflow
+# =============================================================================
+# Produces a live + installable ISO on GitHub-hosted Linux runners.
+# Native amd64 runners (ubuntu-latest) and native arm64 runners
+# (ubuntu-24.04-arm, GA since 2025-08 — only free on public repos).
+#
+# Triggers:
+#   - workflow_dispatch  manual run, optional arch filter
+#   - push tags v*       attaches the ISO to a GitHub Release
+#
+# Build pipeline (reused from local dev — no CI-specific hacks):
+#   1. Free ~31 GB on the runner (default has ~14 GB; live-build needs ~30 GB).
+#   2. Run `./build/build.sh <arch>` exactly as a developer would locally.
+#   3. Upload the ISO + SHA-256 + build log as artifacts (always).
+#   4. On a `v*` tag, attach the ISO + SHA-256 to the GitHub Release.
+#
+# Artifacts retention: 14 days for normal runs, 30 for tagged releases.
+# =============================================================================
+
+name: Build AIMS OS ISO
+
+on:
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: "Architecture(s) to build"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - both
+          - amd64
+          - arm64
+
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write   # needed for softprops/action-gh-release to publish
+
+concurrency:
+  # One build per arch per branch — newer pushes cancel older ones.
+  group: build-iso-${{ github.ref }}-${{ github.event.inputs.arch || 'all' }}
+  cancel-in-progress: false   # ISO builds are slow; let them finish
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Compute the matrix from the workflow_dispatch arch input. For tag pushes
+  # (no input) and the default "both", build amd64 + arm64 in parallel.
+  # ---------------------------------------------------------------------------
+  plan:
+    name: Plan matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+    steps:
+      - id: set
+        run: |
+          case "${{ github.event.inputs.arch || 'both' }}" in
+            amd64) echo 'matrix={"include":[{"arch":"amd64","runner":"ubuntu-latest"}]}' >> "$GITHUB_OUTPUT" ;;
+            arm64) echo 'matrix={"include":[{"arch":"arm64","runner":"ubuntu-24.04-arm"}]}' >> "$GITHUB_OUTPUT" ;;
+            *)     echo 'matrix={"include":[{"arch":"amd64","runner":"ubuntu-latest"},{"arch":"arm64","runner":"ubuntu-24.04-arm"}]}' >> "$GITHUB_OUTPUT" ;;
+          esac
+
+  # ---------------------------------------------------------------------------
+  # The real work — one job per architecture, running natively.
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build ${{ matrix.arch }} ISO
+    needs: plan
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free disk space (~31 GB reclaimed)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          # Skip the slow "large-packages" pass; we don't need it after
+          # the tool-cache + Android + .NET + Haskell removal.
+          large-packages: false
+          # Keep docker images — the runner ships some we don't, but our
+          # build pulls debian:bookworm-slim anyway and Docker storage is
+          # on a separate partition.
+          docker-images: false
+          swap-storage: true
+
+      - name: Show available disk space
+        run: df -h /
+
+      - name: Build the ISO (./build/build.sh ${{ matrix.arch }})
+        run: ./build/build.sh ${{ matrix.arch }}
+
+      - name: Inspect produced ISO
+        if: success()
+        run: |
+          ls -lh build/out/
+          file build/out/aims-os-*.iso
+          cat build/out/aims-os-*.iso.sha256
+
+      - name: Upload ISO + checksum + log
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aims-os-1.0-${{ matrix.arch }}
+          path: |
+            build/out/aims-os-*.iso
+            build/out/aims-os-*.iso.sha256
+            build/out/aims-os-*.log
+          retention-days: 14
+          if-no-files-found: error
+          compression-level: 0   # ISO is already squashfs-compressed
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-${{ matrix.arch }}-failed
+          path: |
+            build/out/aims-os-*.log
+            build/chroot/var/log/**
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Attach ISO to GitHub Release (on tag push)
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/out/aims-os-*.iso
+            build/out/aims-os-*.iso.sha256
+          fail_on_unmatched_files: true
+          generate_release_notes: true
