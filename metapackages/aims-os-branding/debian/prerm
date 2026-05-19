@@ -1,0 +1,47 @@
+#!/bin/sh
+# =============================================================================
+# aims-os-branding — pre-removal script
+# =============================================================================
+# Reverts the system-level wiring done by postinst when the user runs
+# `apt remove aims-os-branding`. We never delete user data, only the
+# pointers we put in place.
+# =============================================================================
+set -e
+
+case "$1" in
+    remove|deconfigure)
+        # ----- 1. Restore the original /etc/os-release if we backed it up ----
+        if [ -f /etc/os-release.aims-os.bak ]; then
+            cp /etc/os-release.aims-os.bak /etc/os-release
+            rm -f /etc/os-release.aims-os.bak
+        fi
+        if [ -f /etc/lsb-release.aims-os.bak ]; then
+            cp /etc/lsb-release.aims-os.bak /etc/lsb-release
+            rm -f /etc/lsb-release.aims-os.bak
+        fi
+
+        # ----- 2. Drop our GRUB theme drop-in --------------------------------
+        rm -f /etc/default/grub.d/aims-os.cfg
+        if command -v update-grub >/dev/null 2>&1; then
+            update-grub 2>/dev/null \
+                || echo "aims-os-branding: update-grub on removal failed; continuing." >&2
+        fi
+
+        # ----- 3. Revert Plymouth to a sensible default ----------------------
+        # We don't know what the user had before us; the "details" theme is
+        # Debian's safe fallback and is always present.
+        if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+            plymouth-set-default-theme -R details 2>/dev/null \
+                || plymouth-set-default-theme details 2>/dev/null \
+                || true
+        fi
+        ;;
+
+    upgrade|failed-upgrade)
+        # On upgrade, postinst will re-run and re-establish everything.
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

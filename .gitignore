@@ -38,6 +38,9 @@ metapackages/*/debian/.debhelper/
 metapackages/*/debian/debhelper-build-stamp
 metapackages/*/debian/aims-os-*/
 metapackages/*/debian/tmp/
+
+# ---- Staged branding payload (regenerated at every metapackage build) ----
+metapackages/aims-os-branding/files/
 metapackages/*.deb
 metapackages/*.dsc
 metapackages/*.changes

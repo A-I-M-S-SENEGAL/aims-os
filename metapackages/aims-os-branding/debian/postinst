@@ -1,0 +1,78 @@
+#!/bin/sh
+# =============================================================================
+# aims-os-branding — post-installation script
+# =============================================================================
+# Wires the AIMS OS branding into the system after the package files
+# have been unpacked. Idempotent — running this twice is safe.
+#
+# Actions:
+#   1. Back up the stock /etc/os-release once, then install ours.
+#   2. Install our /etc/lsb-release similarly.
+#   3. Tell Plymouth that aims-os is the default boot theme.
+#   4. Tell GRUB to use our theme on next update-grub.
+#   5. Rebuild the hicolor icon cache so the AIMS logo appears in
+#      gnome-control-center "About".
+#
+# Failures in any non-essential step are logged and ignored so an
+# isolated tool absence (e.g. Plymouth missing in a server install)
+# doesn't prevent the package install from completing.
+# =============================================================================
+set -e
+
+case "$1" in
+    configure)
+        # ----- 1. Replace /etc/os-release ------------------------------------
+        if [ -f /etc/os-release ] && [ ! -f /etc/os-release.aims-os.bak ]; then
+            cp -L /etc/os-release /etc/os-release.aims-os.bak 2>/dev/null || true
+        fi
+        if [ -f /usr/lib/aims-os/os-release ]; then
+            cp /usr/lib/aims-os/os-release /etc/os-release
+        fi
+
+        # ----- 2. Replace /etc/lsb-release -----------------------------------
+        if [ -f /etc/lsb-release ] && [ ! -f /etc/lsb-release.aims-os.bak ]; then
+            cp -L /etc/lsb-release /etc/lsb-release.aims-os.bak 2>/dev/null || true
+        fi
+        if [ -f /usr/lib/aims-os/lsb-release ]; then
+            cp /usr/lib/aims-os/lsb-release /etc/lsb-release
+        fi
+
+        # ----- 3. Plymouth default theme -------------------------------------
+        if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+            # -R triggers an initramfs rebuild so the change applies to
+            # the next boot. We tolerate failure (e.g. no kernel installed
+            # yet in a chroot during live-build).
+            plymouth-set-default-theme aims-os -R 2>/dev/null \
+                || plymouth-set-default-theme aims-os 2>/dev/null \
+                || echo "aims-os-branding: plymouth-set-default-theme reported a failure; continuing." >&2
+        fi
+
+        # ----- 4. GRUB theme drop-in -----------------------------------------
+        # Use /etc/default/grub.d/ instead of editing /etc/default/grub so
+        # our setting survives Debian's grub package upgrades.
+        mkdir -p /etc/default/grub.d
+        cat > /etc/default/grub.d/aims-os.cfg <<'GRUBCFG'
+# AIMS OS — apply our GRUB theme. Installed by aims-os-branding.
+GRUB_THEME="/usr/share/grub/themes/aims-os/theme.txt"
+GRUBCFG
+        if command -v update-grub >/dev/null 2>&1; then
+            update-grub 2>/dev/null \
+                || echo "aims-os-branding: update-grub reported a failure; continuing." >&2
+        fi
+
+        # ----- 5. Hicolor icon cache -----------------------------------------
+        if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+            # -q quiet, -f force, -t no validation (faster)
+            gtk-update-icon-cache -q -f -t /usr/share/icons/hicolor 2>/dev/null \
+                || echo "aims-os-branding: gtk-update-icon-cache reported a failure; continuing." >&2
+        fi
+        ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+        # Nothing to do on aborts — the file replacements are idempotent.
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

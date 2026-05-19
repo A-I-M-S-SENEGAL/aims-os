@@ -33,6 +33,77 @@ fail() { printf '%b \033[1;31mERROR:\033[0m %s\n' "${BANNER}" "$*" >&2; exit 1; 
 mkdir -p "${PKG_DEST}"
 
 # -----------------------------------------------------------------------------
+# Stage aims-os-branding payload from branding/{source,generated} into
+# metapackages/aims-os-branding/files/ before the build runs.
+#
+# Reason: a Debian source package must be self-contained. We keep the
+# branding artefacts (logos, generated wallpapers, Plymouth theme) at
+# the project root rather than duplicating them under each metapackage,
+# so we copy them into place at build time. The files/ directory is
+# .gitignore'd; nothing here leaks into git.
+# -----------------------------------------------------------------------------
+stage_branding_payload() {
+    local BRAND_DIR="${REPO_ROOT}/branding"
+    local FILES_DIR="${METAPKG_DIR}/aims-os-branding/files"
+
+    log "regenerating branding/generated/ via generate-assets.sh ..."
+    bash "${BRAND_DIR}/generate-assets.sh" >/dev/null
+
+    log "staging branding payload into aims-os-branding/files/ ..."
+    rm -rf "${FILES_DIR}"
+    mkdir -p \
+        "${FILES_DIR}/usr/share/backgrounds/aims-os" \
+        "${FILES_DIR}/usr/share/plymouth/themes/aims-os" \
+        "${FILES_DIR}/usr/share/grub/themes/aims-os" \
+        "${FILES_DIR}/usr/share/gnome-background-properties" \
+        "${FILES_DIR}/usr/share/icons/hicolor" \
+        "${FILES_DIR}/usr/lib/aims-os"
+
+    # ---- Wallpapers ----
+    cp "${BRAND_DIR}/generated/wallpapers/aims-os-default-1080p.png" \
+       "${FILES_DIR}/usr/share/backgrounds/aims-os/"
+    cp "${BRAND_DIR}/generated/wallpapers/aims-os-default-4k.png" \
+       "${FILES_DIR}/usr/share/backgrounds/aims-os/"
+
+    # ---- Plymouth (text + images) ----
+    cp "${BRAND_DIR}/plymouth/aims-os.plymouth"   \
+       "${FILES_DIR}/usr/share/plymouth/themes/aims-os/"
+    cp "${BRAND_DIR}/plymouth/aims-os.script"     \
+       "${FILES_DIR}/usr/share/plymouth/themes/aims-os/"
+    cp "${BRAND_DIR}/generated/plymouth/aims-circle.png"     \
+       "${FILES_DIR}/usr/share/plymouth/themes/aims-os/"
+    cp "${BRAND_DIR}/generated/plymouth/ray-ring.png"        \
+       "${FILES_DIR}/usr/share/plymouth/themes/aims-os/"
+
+    # ---- GRUB ----
+    cp "${BRAND_DIR}/grub/theme.txt"                   \
+       "${FILES_DIR}/usr/share/grub/themes/aims-os/"
+    cp "${BRAND_DIR}/generated/grub/background.png"    \
+       "${FILES_DIR}/usr/share/grub/themes/aims-os/"
+
+    # ---- GNOME wallpaper picker manifest ----
+    cp "${BRAND_DIR}/wallpapers/aims-os.xml" \
+       "${FILES_DIR}/usr/share/gnome-background-properties/"
+
+    # ---- Hicolor icons (9 sizes for app/system icon discovery) ----
+    for size in 16 24 32 48 64 96 128 256 512; do
+        mkdir -p "${FILES_DIR}/usr/share/icons/hicolor/${size}x${size}/apps"
+        cp "${BRAND_DIR}/generated/icons/${size}x${size}/aims-os-logo.png" \
+           "${FILES_DIR}/usr/share/icons/hicolor/${size}x${size}/apps/"
+    done
+
+    # ---- Identity files (os-release + lsb-release) ----
+    cp "${BRAND_DIR}/os-release/os-release"  "${FILES_DIR}/usr/lib/aims-os/"
+    cp "${BRAND_DIR}/os-release/lsb-release" "${FILES_DIR}/usr/lib/aims-os/"
+
+    local n
+    n="$(find "${FILES_DIR}" -type f | wc -l | tr -d ' ')"
+    log "staged ${n} files under aims-os-branding/files/"
+}
+
+stage_branding_payload
+
+# -----------------------------------------------------------------------------
 # Clean any leftover build artifacts so we always produce fresh debs.
 # -----------------------------------------------------------------------------
 log "cleaning previous build artifacts ..."
