@@ -63,6 +63,11 @@ RUN apt-get update \
         apt-utils \
         ca-certificates \
         equivs \
+        build-essential \
+        debhelper \
+        dpkg-dev \
+        fakeroot \
+        lintian \
         gnupg \
         curl \
         wget \

@@ -38,6 +38,7 @@ metapackages/*/debian/tmp/
 metapackages/*.deb
 metapackages/*.dsc
 metapackages/*.changes
+metapackages/*.buildinfo
 metapackages/*.tar.gz
 metapackages/*.tar.xz
 metapackages/*.tar.zst

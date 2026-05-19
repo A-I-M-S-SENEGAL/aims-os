@@ -1,0 +1,107 @@
+Source: aims-os-core
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-core
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+# --- Host security baseline ------------------------------------------
+ ufw,
+ unattended-upgrades,
+ apt-listchanges,
+ apparmor,
+ apparmor-profiles,
+ apparmor-utils,
+ fail2ban,
+# --- Firmware blobs (Wi-Fi, GPU) for typical lab hardware ------------
+ firmware-linux,
+ firmware-linux-nonfree,
+ firmware-misc-nonfree,
+ firmware-iwlwifi,
+ firmware-realtek,
+ firmware-atheros,
+ firmware-brcm80211,
+ firmware-libertas,
+ firmware-zd1211,
+# --- Localization (fr_FR default, Africa/Dakar tz) -------------------
+ locales,
+ task-french,
+ task-french-desktop,
+ console-setup,
+ keyboard-configuration,
+ tzdata,
+# --- Power, time, ACPI -----------------------------------------------
+ acpi,
+ acpid,
+ powermgmt-base,
+ systemd-timesyncd,
+# --- Filesystem & block-layer tooling --------------------------------
+ e2fsprogs,
+ exfat-fuse,
+ exfatprogs,
+ gdisk,
+ ntfs-3g,
+ parted,
+ cryptsetup,
+ lvm2,
+# --- Everyday CLI tooling --------------------------------------------
+ sudo,
+ bash-completion,
+ htop,
+ btop,
+ tmux,
+ vim,
+ nano,
+ less,
+ git,
+ git-lfs,
+ curl,
+ wget,
+ unzip,
+ zip,
+ rsync,
+ tree,
+ ncdu,
+ file,
+ jq,
+ lsb-release,
+ ca-certificates,
+ gnupg,
+ openssh-client,
+ man-db,
+ manpages,
+ manpages-fr,
+# --- Compilers & build toolchain -------------------------------------
+ build-essential,
+ gfortran,
+ make,
+ cmake,
+ pkg-config,
+ autoconf,
+ automake,
+ libtool,
+Description: AIMS OS — system-level baseline
+ This metapackage installs the AIMS OS core system: the host firewall
+ (UFW), AppArmor mandatory access control, automatic Debian-Security
+ upgrades and fail2ban; the firmware blobs required for typical Wi-Fi
+ chipsets and discrete GPUs seen in Senegalese lab hardware; the
+ French locale and desktop support task packages so the system speaks
+ French out of the box; ACPI and time-synchronisation daemons; common
+ filesystem and block-layer tools (ext, exFAT, NTFS, LVM, LUKS); the
+ CLI utilities expected on a modern developer workstation; and the
+ GCC / gfortran / make / cmake build toolchain that AIMS C and Fortran
+ coursework depends on.
+ .
+ Installing this metapackage on a vanilla Debian Bookworm replicates
+ the system-level baseline an AIMS OS install ships with, without
+ touching the desktop or scientific stack.

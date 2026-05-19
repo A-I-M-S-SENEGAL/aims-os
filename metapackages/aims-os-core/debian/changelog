@@ -1,0 +1,10 @@
+aims-os-core (1.0) bookworm; urgency=medium
+
+  * Initial release.
+    + Pulls the AIMS OS system-level baseline: UFW + AppArmor +
+      unattended-upgrades + fail2ban security tooling, firmware
+      blobs for typical lab hardware, French locale and desktop,
+      ACPI / time-sync daemons, filesystem and block-layer tooling,
+      everyday CLI utilities, build-essential + gfortran toolchain.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 19 May 2026 12:00:00 +0000
