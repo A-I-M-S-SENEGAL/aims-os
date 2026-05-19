@@ -1,0 +1,4 @@
+# This directory holds the AIMS OS metapackages compiled by
+# build/build-metapackages.sh and is read by live-build during its
+# chroot stage. The .deb files are generated; only this placeholder
+# is tracked.

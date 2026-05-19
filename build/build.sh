@@ -14,6 +14,7 @@
 #   ./build/build.sh purge           lb clean --purge — wipes cache too
 #   ./build/build.sh image <arch>    Just (re)build the docker image, no ISO
 #   ./build/build.sh shell <arch>    Drop into a privileged shell in the builder
+#   ./build/build.sh metapackages <arch>  Compile the 4 AIMS OS metapackages only
 #   ./build/build.sh help            Show this help
 #
 # Output:
@@ -106,7 +107,16 @@ docker_run() {
 
     mkdir -p "${CACHE_DIR}" "${OUT_DIR}"
 
-    docker run --rm -it \
+    # -t (TTY) only when stdin is actually attached to a terminal. Without
+    # this guard the script breaks under non-interactive invocation
+    # (CI, `bash -c`, agent tools), failing with:
+    #   "cannot attach stdin to a TTY-enabled container".
+    local interact_flags=(-i)
+    if [[ -t 0 ]]; then
+        interact_flags+=(-t)
+    fi
+
+    docker run --rm "${interact_flags[@]}" \
         --platform "linux/${arch}" \
         --privileged \
         --hostname "aims-os-builder-${arch}" \
@@ -133,14 +143,31 @@ cmd_build() {
     log "starting ISO build for ${arch} — log → ${log_file}"
     log "this can take 10 min (arm64 native) to 45 min (amd64 emulated on Apple Silicon)."
 
-    # We run `lb config && lb build` so each invocation re-applies the config
-    # (cheap) before triggering the actual build. The container's CMD is
-    # overridden inline here.
+    # Two-phase build inside a single container invocation:
+    #   1. Compile the AIMS OS metapackages and drop them in
+    #      build/config/packages.chroot/ where live-build picks them up.
+    #   2. lb config + lb build to produce the ISO.
+    # Tee'd to the per-arch log so post-mortems are possible without
+    # re-running the (slow) build.
     docker_run "${arch}" \
-        bash -c "set -e ; lb config && lb build" \
+        bash -c "set -e ; bash /build/build/build-metapackages.sh && lb config && lb build" \
         2>&1 | tee "${log_file}"
 
     extract_iso "${arch}"
+}
+
+# -----------------------------------------------------------------------------
+# Compile only the four AIMS OS metapackages and drop them in
+# build/config/packages.chroot/. Useful when iterating on a metapackage
+# control file without paying the cost of a full ISO build.
+# -----------------------------------------------------------------------------
+cmd_metapackages() {
+    local arch="${1:-arm64}"
+    check_docker
+    validate_arch "${arch}"
+    ensure_image "${arch}"
+    log "compiling AIMS OS metapackages for ${arch} ..."
+    docker_run "${arch}" bash /build/build/build-metapackages.sh
 }
 
 # -----------------------------------------------------------------------------
@@ -225,6 +252,7 @@ main() {
         purge)                  cmd_purge "${2:-arm64}" ;;
         shell)                  cmd_shell "${2:-arm64}" ;;
         image)                  cmd_image "${2:?missing arch (amd64|arm64)}" ;;
+        metapackages)           cmd_metapackages "${2:-arm64}" ;;
         -h|--help|help)         cmd_help ;;
         *)  die "unknown command '${cmd}'. Run '$0 help' for usage." ;;
     esac

@@ -1,0 +1,27 @@
+# =============================================================================
+# AIMS OS — package list (single entry point)
+# =============================================================================
+# This is the only package list live-build sees. The four names below
+# are the AIMS OS metapackages, all built in advance by
+# build/build-metapackages.sh and dropped into
+# build/config/packages.chroot/ so apt finds them as local sources
+# during the chroot stage.
+#
+# Each metapackage's Depends drive what actually lands in the system:
+#
+#   aims-os-core      base security, firmware, locales, CLI, build tools
+#   aims-os-desktop   GNOME, Calamares, browsers, LibreOffice, Flatpak,
+#                     user-facing apps and codecs
+#   aims-os-math      Python SciPy stack, JupyterLab, SageMath, Octave,
+#                     R + tidyverse, TeX Live, GeoGebra, numerical libs
+#   aims-os-branding  Plymouth + GRUB + wallpapers + identity (payload
+#                     lands in step 5)
+#
+# To see the resolved package set: `apt-cache depends aims-os-desktop`
+# from a chroot, or inspect each metapackage's debian/control file.
+# =============================================================================
+
+aims-os-core
+aims-os-desktop
+aims-os-math
+aims-os-branding

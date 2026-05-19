@@ -11,6 +11,9 @@ build/source/
 build/.build/
 build/tftpboot/
 build/local/
+
+# ---- Metapackages compiled in by build-metapackages.sh ----
+build/config/packages.chroot/*.deb
 *.iso
 *.img
 *.squashfs
