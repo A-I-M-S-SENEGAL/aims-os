@@ -1,0 +1,80 @@
+# =============================================================================
+# AIMS OS — GRUB boot menu theme
+# =============================================================================
+# Layout summary (1920×1080 reference resolution):
+#
+#   ┌──────────────────────────────────────────────────────────────┐
+#   │                                                              │
+#   │                      ◯  AIMS circle logo                      │  ← in background.png
+#   │                                                              │     (top-centred)
+#   │                  AIMS  African Institute for                 │
+#   │                       Mathematical Sciences                  │
+#   │                       SENEGAL                                │
+#   │                                                              │
+#   │           ┌────────────────────────────────────────┐         │
+#   │           │  ▶ AIMS OS (live)                       │  ← boot_menu
+#   │           │    AIMS OS — install with Calamares     │
+#   │           │    AIMS OS — failsafe / safe graphics   │
+#   │           └────────────────────────────────────────┘         │
+#   │                                                              │
+#   │                  ┌──────────────────────┐                    │
+#   │                  │ ░░░░░░░░░░░░░░░░░░░░ │  ← progress_bar
+#   │                  └──────────────────────┘     (auto-boot
+#   │                                                 countdown)   │
+#   └──────────────────────────────────────────────────────────────┘
+#
+# Reference: https://www.gnu.org/software/grub/manual/grub/html_node/Theme-file-format.html
+# =============================================================================
+
+# ---- Global appearance ------------------------------------------------------
+desktop-image:     "background.png"
+desktop-color:     "#F5EFE7"
+title-text:        ""
+title-color:       "#803018"
+message-color:     "#1A1A1A"
+message-bg-color:  "#F5EFE7"
+terminal-font:     "Unknown Regular 16"
+terminal-box:      "terminal_*.png"
+terminal-left:     "10%"
+terminal-top:      "10%"
+terminal-width:    "80%"
+terminal-height:   "80%"
+terminal-border:   "0"
+
+# ---- The boot menu box ------------------------------------------------------
++ boot_menu {
+    left              = 20%
+    top               = 50%
+    width             = 60%
+    height            = 35%
+
+    item_color          = "#1A1A1A"
+    selected_item_color = "#803018"
+    item_height         = 38
+    item_padding        = 8
+    item_spacing        = 4
+
+    # Selection indicator: a small dark caret to the left of the chosen
+    # item, since we don't ship custom selection-box pixmaps in v1.0.
+    icon_width  = 0
+    icon_height = 0
+    item_icon_space = 0
+}
+
+# ---- Countdown progress bar -------------------------------------------------
++ progress_bar {
+    id           = "__timeout__"
+    left         = 35%
+    top          = 92%
+    width        = 30%
+    height       = 6
+
+    show_text    = true
+    text         = "@TIMEOUT_NOTIFICATION_LONG@"
+    font         = "Unknown Regular 12"
+    text_color   = "#1A1A1A"
+
+    bg_color     = "#E6D8C8"
+    fg_color     = "#A0392E"
+    border_color = "#A0392E"
+}

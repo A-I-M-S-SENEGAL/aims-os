@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=AIMS OS
+Description=AIMS OS — circular Africa logo on cream, slow rotation
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/aims-os
+ScriptFile=/usr/share/plymouth/themes/aims-os/aims-os.script

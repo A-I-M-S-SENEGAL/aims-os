@@ -1,0 +1,87 @@
+# =============================================================================
+# AIMS OS — Plymouth boot splash script
+# =============================================================================
+# A deliberately calm splash: cream background, AIMS circular Africa
+# logo centred and slowly rotating, plus the password prompt for
+# LUKS-encrypted disks. No text, no flashy effects — the rotation
+# communicates "the system is starting" without noise.
+#
+# Plymouth script syntax: JavaScript-like, documented at
+#   https://www.freedesktop.org/wiki/Software/Plymouth/Scripts/
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Solid cream background (#F5EFE7)
+# -----------------------------------------------------------------------------
+# Plymouth accepts a top/bottom gradient. We use the same value at top
+# and bottom for a uniform fill — no gradient banding.
+Window.SetBackgroundTopColor    (0.961, 0.937, 0.906);
+Window.SetBackgroundBottomColor (0.961, 0.937, 0.906);
+
+# -----------------------------------------------------------------------------
+# 2. Centre the AIMS circle logo
+# -----------------------------------------------------------------------------
+logo_image  = Image("aims-circle.png");
+logo_sprite = Sprite();
+logo_sprite.SetImage(logo_image);
+logo_sprite.SetX(Window.GetWidth()  / 2 - logo_image.GetWidth()  / 2);
+logo_sprite.SetY(Window.GetHeight() / 2 - logo_image.GetHeight() / 2);
+
+# -----------------------------------------------------------------------------
+# 3. Slow rotation animation
+# -----------------------------------------------------------------------------
+# Increment per refresh tick (Plymouth refreshes ~ every 50 ms by default).
+# At 0.015 rad/tick we make a full revolution in roughly 7 seconds — slow
+# enough to look professional, fast enough to feel responsive.
+angle = 0;
+fun refresh_callback () {
+    angle = angle + 0.015;
+    if (angle >= 6.283185) angle = angle - 6.283185;   # 2 * PI
+    logo_sprite.SetImage(logo_image.Rotate(angle));
+}
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# -----------------------------------------------------------------------------
+# 4. LUKS-encrypted disk password prompt
+# -----------------------------------------------------------------------------
+# Calamares offers full-disk LUKS encryption as an install option. When
+# enabled, the kernel calls Plymouth on every boot to ask for the
+# passphrase. This callback renders the prompt + bullet feedback under
+# the rotating logo, in AIMS terracotta on the cream background.
+
+prompt_sprite     = Sprite();
+bullets_sprite    = Sprite();
+
+fun display_password_callback (prompt, bullets) {
+    # The prompt text itself, in #803018
+    prompt_image = Image.Text(prompt, 0.502, 0.188, 0.094);
+    prompt_sprite.SetImage(prompt_image);
+    prompt_sprite.SetX(Window.GetWidth() / 2 - prompt_image.GetWidth() / 2);
+    prompt_sprite.SetY(Window.GetHeight() / 2 + logo_image.GetHeight() / 2 + 40);
+
+    # Bullets row: a string of dots showing how many chars were typed
+    bullets_string = "";
+    i = 0;
+    while (i < bullets) {
+        bullets_string = bullets_string + "•";
+        i = i + 1;
+    }
+    if (bullets > 0) {
+        bullets_image = Image.Text(bullets_string, 0.502, 0.188, 0.094);
+        bullets_sprite.SetImage(bullets_image);
+        bullets_sprite.SetX(Window.GetWidth() / 2 - bullets_image.GetWidth() / 2);
+        bullets_sprite.SetY(Window.GetHeight() / 2 + logo_image.GetHeight() / 2 + 80);
+    } else {
+        bullets_sprite.SetImage(NULL);
+    }
+}
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+# -----------------------------------------------------------------------------
+# 5. Hide password UI when we transition out of "ask for password" mode
+# -----------------------------------------------------------------------------
+fun display_normal_callback () {
+    prompt_sprite.SetImage(NULL);
+    bullets_sprite.SetImage(NULL);
+}
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
