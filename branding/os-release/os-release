@@ -1,0 +1,40 @@
+# =============================================================================
+# AIMS OS — /etc/os-release
+# =============================================================================
+# Machine + human readable OS identification, per the os-release(5)
+# standard. Read by gnome-control-center "About", neofetch, systemd,
+# Flatpak, snap, anaconda, almost every modern Linux installer, and
+# many shell scripts (`grep ID= /etc/os-release` is a common idiom).
+#
+# Field reference: https://www.man7.org/linux/man-pages/man5/os-release.5.html
+# =============================================================================
+
+NAME="AIMS OS"
+PRETTY_NAME="AIMS OS 1.0"
+VERSION="1.0 (built on Bookworm)"
+VERSION_ID="1.0"
+VERSION_CODENAME=bookworm
+
+# ID is the canonical lower-case identifier scripts key on.
+ID=aims-os
+
+# ID_LIKE tells distro-aware tooling "treat me as debian for anything you
+# don't know how to special-case". e.g. Flatpak's portal, electron apps,
+# proprietary installers all behave correctly because of this one line.
+ID_LIKE=debian
+
+# Logo icon name — matches the hicolor icon theme aims-os-branding ships
+# (see branding/generate-assets.sh, the icons/*/aims-os-logo.png set).
+# gnome-control-center "About" picks this up via the theme lookup.
+LOGO=aims-os-logo
+
+HOME_URL="https://github.com/A-I-M-S-SENEGAL/aims-os"
+SUPPORT_URL="https://github.com/A-I-M-S-SENEGAL/aims-os/issues"
+BUG_REPORT_URL="https://github.com/A-I-M-S-SENEGAL/aims-os/issues"
+DOCUMENTATION_URL="https://github.com/A-I-M-S-SENEGAL/aims-os/blob/main/docs/BUILD.md"
+
+# Per the spec, vendor-specific keys MUST be prefixed. AIMS_OS_* will not
+# clash with any field standardised upstream.
+AIMS_OS_VENDOR="AIMS Senegal"
+AIMS_OS_VENDOR_URL="https://aims-senegal.org/"
+AIMS_OS_MAINTAINER="hakim@aims-senegal.org"

@@ -15,6 +15,13 @@
 # install time.
 # =============================================================================
 
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/aims-os/aims-os-default-1080p.png'
+picture-uri-dark='file:///usr/share/backgrounds/aims-os/aims-os-default-1080p.png'
+picture-options='zoom'
+primary-color='#F5EFE7'
+secondary-color='#F5EFE7'
+
 [org/gnome/desktop/interface]
 clock-format='24h'
 clock-show-weekday=true
@@ -23,6 +30,7 @@ show-battery-percentage=true
 font-name='Cantarell 11'
 document-font-name='Cantarell 11'
 monospace-font-name='Fira Code 11'
+color-scheme='default'
 
 [org/gnome/desktop/wm/preferences]
 button-layout='appmenu:minimize,maximize,close'
@@ -42,6 +50,9 @@ remove-old-trash-files=true
 old-files-age=uint32 30
 
 [org/gnome/desktop/screensaver]
+picture-uri='file:///usr/share/backgrounds/aims-os/aims-os-default-1080p.png'
+picture-options='zoom'
+primary-color='#F5EFE7'
 lock-enabled=true
 lock-delay=uint32 60
 

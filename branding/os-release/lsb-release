@@ -1,0 +1,14 @@
+# =============================================================================
+# AIMS OS — /etc/lsb-release
+# =============================================================================
+# Legacy "Linux Standard Base" identification, parsed by the lsb_release
+# command and a handful of older tools (notably the Debian installer
+# UI in some contexts, plus a few proprietary installers). Modern code
+# should read /etc/os-release instead, but shipping this file costs
+# nothing and avoids broken displays in legacy tooling.
+# =============================================================================
+
+DISTRIB_ID=AIMS-OS
+DISTRIB_RELEASE=1.0
+DISTRIB_CODENAME=bookworm
+DISTRIB_DESCRIPTION="AIMS OS 1.0"

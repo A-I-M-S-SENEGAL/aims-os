@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
+
+<!--
+    AIMS OS — GNOME wallpaper picker manifest
+
+    Registers the AIMS OS default wallpapers (1080p + 4K variants) with
+    GNOME's background picker (Paramètres → Arrière-plan). The two
+    images are installed by aims-os-branding at
+    /usr/share/backgrounds/aims-os/, and this XML lands at
+    /usr/share/gnome-background-properties/aims-os.xml — the directory
+    GNOME scans on every login.
+
+    Spec discussion:
+    https://discourse.gnome.org/t/gnome-wallpaper-list-xml-format-specification-gnome-wp-list-dtd/6059
+-->
+<wallpapers>
+    <wallpaper deleted="false">
+        <name>AIMS OS Default</name>
+        <name xml:lang="fr">AIMS OS — Par défaut</name>
+        <filename>/usr/share/backgrounds/aims-os/aims-os-default-1080p.png</filename>
+        <filename-dark>/usr/share/backgrounds/aims-os/aims-os-default-1080p.png</filename-dark>
+        <options>zoom</options>
+        <shade_type>solid</shade_type>
+        <pcolor>#F5EFE7</pcolor>
+        <scolor>#F5EFE7</scolor>
+    </wallpaper>
+
+    <wallpaper deleted="false">
+        <name>AIMS OS Default (4K)</name>
+        <name xml:lang="fr">AIMS OS — Par défaut (4K)</name>
+        <filename>/usr/share/backgrounds/aims-os/aims-os-default-4k.png</filename>
+        <filename-dark>/usr/share/backgrounds/aims-os/aims-os-default-4k.png</filename-dark>
+        <options>zoom</options>
+        <shade_type>solid</shade_type>
+        <pcolor>#F5EFE7</pcolor>
+        <scolor>#F5EFE7</scolor>
+    </wallpaper>
+</wallpapers>
