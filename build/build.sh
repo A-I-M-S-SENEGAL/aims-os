@@ -116,12 +116,17 @@ docker_run() {
         interact_flags+=(-t)
     fi
 
+    # Single bind mount of the whole repo at /build. Cache, chroot, binary,
+    # everything live under it on the SAME filesystem — required because
+    # live-build hard-links downloaded .deb files between
+    # chroot/var/cache/apt/archives/ and cache/packages.chroot/, and
+    # hard links cannot span devices. The host's build/cache/ is still
+    # persistent across runs (it lives on the bind mount).
     docker run --rm "${interact_flags[@]}" \
         --platform "linux/${arch}" \
         --privileged \
         --hostname "aims-os-builder-${arch}" \
         --volume "${REPO_ROOT}:/build:delegated" \
-        --volume "${CACHE_DIR}:/build/build/cache:delegated" \
         --workdir /build/build \
         "${tag}" \
         "$@"
