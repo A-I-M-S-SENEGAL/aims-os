@@ -33,7 +33,12 @@ case "${ARCH}" in
 esac
 
 URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-${MF_ARCH}.sh"
-TMP="$(mktemp)"
+# Miniforge's installer header refuses to run unless its argv0 ends in
+# ".sh" (literal grep '\.sh$' on $0). mktemp without a suffix produces
+# /tmp/tmp.XXXXX, which fails that check with:
+#     Please run using "bash"/"dash"/"sh"/"zsh", but not "." or "source".
+# Force the .sh suffix so the installer accepts us.
+TMP="$(mktemp --suffix=.sh)"
 
 echo "[aims-os/hook] downloading Miniforge3 for ${MF_ARCH} ..."
 if ! curl -fsSL -o "${TMP}" "${URL}"; then
