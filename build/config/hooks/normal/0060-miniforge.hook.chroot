@@ -1,0 +1,62 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0060: install Miniforge3 into /opt/miniforge3
+# =============================================================================
+# Miniforge3 is the conda-forge community distribution of conda + mamba.
+# It is the modern successor to Mambaforge, which was deprecated in
+# June 2024 and retired in January 2025 (since Miniforge3 23.3.1 the
+# two have the same packages and only the installer name differs).
+#
+# We ship it pre-installed because connectivity at Mbour is variable; a
+# professor can launch a class with `mamba create -n cours numpy scipy`
+# the moment the system boots, offline if the packages are cached
+# locally.
+#
+# Install location:  /opt/miniforge3
+# Activation:        /etc/profile.d/aims-miniforge.sh adds condabin/ to
+#                    PATH so `mamba` and `conda` are immediately
+#                    available for every interactive shell.
+# Size on disk:     ~400 MB (acceptable on a ~4 GB ISO)
+# =============================================================================
+set -e
+
+INSTALL_DIR="/opt/miniforge3"
+ARCH="$(dpkg --print-architecture)"
+
+case "${ARCH}" in
+    amd64) MF_ARCH="Linux-x86_64"  ;;
+    arm64) MF_ARCH="Linux-aarch64" ;;
+    *)
+        echo "[aims-os/hook] miniforge: unsupported arch ${ARCH}; skipping" >&2
+        exit 0
+        ;;
+esac
+
+URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-${MF_ARCH}.sh"
+TMP="$(mktemp)"
+
+echo "[aims-os/hook] downloading Miniforge3 for ${MF_ARCH} ..."
+if ! curl -fsSL -o "${TMP}" "${URL}"; then
+    echo "[aims-os/hook] miniforge download failed; continuing without it" >&2
+    rm -f "${TMP}"
+    exit 0
+fi
+
+echo "[aims-os/hook] installing Miniforge3 to ${INSTALL_DIR} (silent) ..."
+bash "${TMP}" -b -p "${INSTALL_DIR}"
+rm -f "${TMP}"
+
+# Make `mamba` / `conda` visible in every interactive shell, but DON'T
+# pre-activate the base env — that would pollute every user's prompt.
+cat > /etc/profile.d/aims-miniforge.sh <<'EOF'
+# AIMS OS — make mamba/conda commands discoverable.
+# (Sourcing this does NOT auto-activate the base env. Users opt in
+# explicitly with `conda activate` or `mamba activate <env>`.)
+if [ -d "/opt/miniforge3/condabin" ] && ! echo "${PATH}" | grep -q "/opt/miniforge3/condabin"; then
+    PATH="/opt/miniforge3/condabin:${PATH}"
+    export PATH
+fi
+EOF
+chmod 0644 /etc/profile.d/aims-miniforge.sh
+
+echo "[aims-os/hook] Miniforge3 installed; mamba/conda available system-wide"

@@ -1,0 +1,29 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0020: enable / disable systemd units
+# =============================================================================
+# Centralized place to flip default service states.
+#
+#   ENABLE:
+#     ufw              host firewall, configured by hook 0030
+#     unattended-upgrades  daily security upgrades
+#     fstrim.timer     weekly SSD TRIM (useful in long-lived AIMS labs)
+#     systemd-timesyncd  NTP — keep clocks honest on offline-prone networks
+#
+#   DISABLE (defensive — none of these should be installed, but if a
+#   future package list change pulls them in, we don't want them running):
+#     ssh / sshd       remote login servers off by default
+#     avahi-daemon     mDNS chatter off by default
+# =============================================================================
+set -e
+
+systemctl enable ufw.service                  || true
+systemctl enable unattended-upgrades.service  || true
+systemctl enable fstrim.timer                 || true
+systemctl enable systemd-timesyncd.service    || true
+
+systemctl disable ssh.service                 2>/dev/null || true
+systemctl disable sshd.service                2>/dev/null || true
+systemctl disable avahi-daemon.service        2>/dev/null || true
+
+echo "[aims-os/hook] systemd unit defaults applied"

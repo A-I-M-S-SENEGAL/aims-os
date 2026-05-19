@@ -1,0 +1,23 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0040: enable automatic security upgrades
+# =============================================================================
+# The unattended-upgrades package ships a default 50unattended-upgrades
+# that already restricts the policy to the Debian-Security origin only
+# (no general distribution upgrades, only CVE-fixing patches). We just
+# need to flip the periodic switch on, which is done by writing
+# /etc/apt/apt.conf.d/20auto-upgrades.
+#
+#   Update-Package-Lists "1"      → daily apt update
+#   Unattended-Upgrade "1"        → daily security install
+#   AutocleanInterval "7"         → weekly apt autoclean (don't fill /var)
+# =============================================================================
+set -e
+
+cat > /etc/apt/apt.conf.d/20auto-upgrades <<'EOF'
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";
+EOF
+
+echo "[aims-os/hook] unattended-upgrades enabled for Debian-Security only"

@@ -1,0 +1,57 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0050: register the Flathub remote
+# =============================================================================
+# Flathub is the path we offer to professors and students for installing
+# software that isn't in Debian: VS Code, RStudio, Zotero, OBS Studio…
+# All without root, without third-party APT repos, sandboxed.
+#
+# We try to add the remote here in the chroot first, but Flatpak can be
+# flaky inside a chroot without a DBus session (see
+# https://lists.debian.org/debian-live/2019/02/msg00033.html). If the
+# chroot attempt fails, we fall back to a oneshot systemd unit that runs
+# on the FIRST boot, once the network is online. That makes the setup
+# bulletproof regardless of the chroot's quirks.
+# =============================================================================
+set -e
+
+# ----- Attempt 1: add the remote inside the chroot, best effort. -------------
+if flatpak remote-add --system --if-not-exists \
+        flathub https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null; then
+    echo "[aims-os/hook] Flathub registered during build"
+    exit 0
+fi
+
+echo "[aims-os/hook] Flathub registration deferred to first boot (chroot DBus unavailable)"
+
+# ----- Attempt 2: install a oneshot service that runs at first boot. ---------
+mkdir -p /usr/local/sbin
+
+cat > /usr/local/sbin/aims-flathub-init.sh <<'EOF'
+#!/bin/sh
+set -e
+mkdir -p /var/lib/aims-os
+flatpak remote-add --system --if-not-exists \
+    flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+touch /var/lib/aims-os/flathub-initialized
+EOF
+chmod 0755 /usr/local/sbin/aims-flathub-init.sh
+
+cat > /etc/systemd/system/aims-flathub-init.service <<'EOF'
+[Unit]
+Description=AIMS OS — register the Flathub remote on first boot
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/var/lib/aims-os/flathub-initialized
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/aims-flathub-init.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable aims-flathub-init.service
+echo "[aims-os/hook] aims-flathub-init.service scheduled for first boot"

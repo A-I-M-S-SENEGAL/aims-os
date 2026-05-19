@@ -1,0 +1,32 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0030: UFW (Uncomplicated Firewall) baseline rules
+# =============================================================================
+# Establishes a sensible default policy:
+#
+#   - DENY  all incoming connections   (no surface from the network)
+#   - ALLOW all outgoing connections   (apt, browsers, video calls Just Work)
+#   - DENY  routed/forwarded packets   (no accidental router behaviour)
+#   - LOG   low (only catch the noisy stuff in journal)
+#   - ENABLE the firewall right away
+#
+# A professor or student with sudo can open any port they need with
+# `sudo ufw allow <port>`.
+# =============================================================================
+set -e
+
+# Write defaults *file* directly. `ufw default …` would queue these for
+# next start; writing the file makes the policy effective at first boot
+# and also covers the case where the ufw daemon isn't running in chroot.
+sed -i \
+    -e 's|^DEFAULT_INPUT_POLICY=.*|DEFAULT_INPUT_POLICY="DROP"|' \
+    -e 's|^DEFAULT_OUTPUT_POLICY=.*|DEFAULT_OUTPUT_POLICY="ACCEPT"|' \
+    -e 's|^DEFAULT_FORWARD_POLICY=.*|DEFAULT_FORWARD_POLICY="DROP"|' \
+    /etc/default/ufw
+
+sed -i \
+    -e 's|^ENABLED=.*|ENABLED=yes|' \
+    -e 's|^LOGLEVEL=.*|LOGLEVEL=low|' \
+    /etc/ufw/ufw.conf
+
+echo "[aims-os/hook] UFW defaults: deny-in / allow-out / drop-forward, enabled"

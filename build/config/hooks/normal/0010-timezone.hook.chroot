@@ -1,0 +1,14 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0010: set the default timezone to Africa/Dakar
+# =============================================================================
+# Runs inside the chroot during the build. The change persists into the
+# live session AND into systems installed via Calamares (live-build hooks
+# under hooks/normal/ apply to both).
+# =============================================================================
+set -e
+
+ln -sf /usr/share/zoneinfo/Africa/Dakar /etc/localtime
+echo "Africa/Dakar" > /etc/timezone
+
+echo "[aims-os/hook] timezone set to Africa/Dakar"
