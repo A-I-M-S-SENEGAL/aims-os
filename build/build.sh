@@ -182,11 +182,33 @@ cmd_metapackages() {
 # -----------------------------------------------------------------------------
 extract_iso() {
     local arch="$1"
-    local src="${BUILD_DIR}/binary.iso"
     local dst="${OUT_DIR}/aims-os-${VERSION}-${arch}.iso"
 
-    [[ -f "${src}" ]] || die "expected ISO at ${src} not found — build failed?"
+    # live-build's output filename varies by version and binary-images
+    # setting. The Bookworm live-build (20230502) with --binary-images
+    # iso-hybrid produces `live-image-<arch>.hybrid.iso`; older releases
+    # produced `binary.iso`; some versions produce `live-image-<arch>.iso`.
+    # Search all the known names rather than hard-coding one.
+    local src=""
+    local candidate
+    for candidate in \
+        "${BUILD_DIR}/live-image-${arch}.hybrid.iso" \
+        "${BUILD_DIR}/live-image-${arch}.iso" \
+        "${BUILD_DIR}/binary.iso" \
+        "${BUILD_DIR}/binary.hybrid.iso" ; do
+        if [[ -f "${candidate}" ]]; then
+            src="${candidate}"
+            break
+        fi
+    done
 
+    if [[ -z "${src}" ]]; then
+        log "no ISO at expected paths. live-build left in ${BUILD_DIR}:"
+        ls -la "${BUILD_DIR}" 2>&1 | head -30
+        die "ISO not found — build failed?"
+    fi
+
+    log "found ISO at ${src}"
     mv "${src}" "${dst}"
     log "ISO written to ${dst} ($(du -h "${dst}" | cut -f1))"
 
