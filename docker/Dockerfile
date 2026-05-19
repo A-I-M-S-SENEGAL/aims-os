@@ -68,6 +68,9 @@ RUN apt-get update \
         dpkg-dev \
         fakeroot \
         lintian \
+        imagemagick \
+        librsvg2-bin \
+        optipng \
         gnupg \
         curl \
         wget \
