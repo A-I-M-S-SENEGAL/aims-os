@@ -19,7 +19,8 @@ and English support out of the box.
 | Desktop | GNOME |
 | Installer | Calamares |
 | Architectures | amd64, arm64 |
-| Locales | fr_SN.UTF-8 (default), en_US.UTF-8 |
+| Locales | fr_FR.UTF-8 (default), en_US.UTF-8 |
+| Timezone | Africa/Dakar |
 | Maintainer | AIMS Senegal IT &lt;hakim@aims-senegal.org&gt; |
 | Upstream | [github.com/A-I-M-S-SENEGAL/aims-os](https://github.com/A-I-M-S-SENEGAL/aims-os) |
 | Status | 0.1 — bootstrap |

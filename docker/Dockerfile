@@ -26,18 +26,19 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
+# TARGETARCH is set automatically by `docker buildx` from --platform
+# (e.g. linux/amd64 → "amd64", linux/arm64 → "arm64"). We use it to pick
+# the right bootloader tooling, since some grub/syslinux packages ship
+# pre-compiled stage binaries that only exist on certain architectures.
+ARG TARGETARCH
+
 # -----------------------------------------------------------------------------
-# Install the live-build toolchain.
+# 1. Architecture-neutral live-build toolchain.
 #
 #   live-build / debootstrap        — the actual ISO builder + base bootstrapper
 #   mmdebstrap                       — modern, rootless-capable bootstrapper
 #                                       (live-build can use it when available)
 #   xorriso / squashfs-tools / cpio  — ISO + initrd plumbing
-#   isolinux / syslinux-common / syslinux-efi
-#                                    — BIOS boot for amd64 ISOs
-#   grub-pc-bin                      — BIOS-mode GRUB stage for amd64
-#   grub-efi-amd64-bin               — UEFI GRUB for amd64
-#   grub-efi-arm64-bin               — UEFI GRUB for arm64
 #   grub-common / grub2-common       — shared GRUB scaffolding
 #   mtools / dosfstools / parted     — FAT EFI partitions and disk layout
 #   debian-archive-keyring           — verify the upstream archive
@@ -53,12 +54,6 @@ RUN apt-get update \
         xorriso \
         squashfs-tools \
         cpio \
-        isolinux \
-        syslinux-common \
-        syslinux-efi \
-        grub-pc-bin \
-        grub-efi-amd64-bin \
-        grub-efi-arm64-bin \
         grub-common \
         grub2-common \
         mtools \
@@ -75,13 +70,58 @@ RUN apt-get update \
         sudo \
         rsync \
         file \
-        locales \
+        locales
+
+# -----------------------------------------------------------------------------
+# 2. Architecture-specific bootloader tooling.
+#
+#   amd64 ISOs need:
+#     - isolinux + syslinux-{common,efi}  → BIOS-mode boot from CD/USB
+#     - grub-pc-bin                       → BIOS-mode GRUB stage
+#     - grub-efi-amd64-bin                → 64-bit UEFI GRUB
+#     - grub-efi-ia32-bin                 → 32-bit UEFI GRUB (legacy
+#                                            Atom-class laptops, some
+#                                            older hardware still seen
+#                                            in African labs)
+#
+#   arm64 ISOs need:
+#     - grub-efi-arm64-bin                → UEFI GRUB (ARM systems boot
+#                                            UEFI exclusively; no BIOS
+#                                            and no syslinux)
+# -----------------------------------------------------------------------------
+RUN set -eu \
+ && case "${TARGETARCH}" in \
+        amd64) \
+            apt-get install -y --no-install-recommends \
+                isolinux \
+                syslinux-common \
+                syslinux-efi \
+                grub-pc-bin \
+                grub-efi-amd64-bin \
+                grub-efi-ia32-bin \
+            ;; \
+        arm64) \
+            apt-get install -y --no-install-recommends \
+                grub-efi-arm64-bin \
+            ;; \
+        *) \
+            echo "Unsupported TARGETARCH=${TARGETARCH}; expected amd64 or arm64" >&2 ; \
+            exit 1 \
+            ;; \
+    esac \
  && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
-# Make sure the chroot has a sane locale to draw from.
+# Enable the locales the builder may need internally.
+#
+# Note: this configures the BUILDER container only — the target ISO's
+# locale is set later by live-build (`lb config --bootloader-locale …`
+# and the appropriate /etc/default/locale in the chroot). Senegal uses
+# fr_FR.UTF-8 in practice because glibc does not ship a fr_SN locale
+# (only wo_SN); the Senegalese context is preserved by the
+# Africa/Dakar timezone configured in build/config/.
 # -----------------------------------------------------------------------------
-RUN sed -i -E 's/^# *(en_US\.UTF-8|fr_FR\.UTF-8|fr_SN\.UTF-8)/\1/' /etc/locale.gen \
+RUN sed -i -E 's/^# *(en_US\.UTF-8|fr_FR\.UTF-8)/\1/' /etc/locale.gen \
  && locale-gen
 
 # -----------------------------------------------------------------------------
