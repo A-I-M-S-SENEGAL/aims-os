@@ -226,3 +226,82 @@ cd /
 rm -rf "${WORK}"
 
 echo "[aims-os/hook] patched ${GRES}: GDM greeter + lock screen now show the AIMS OS wallpaper."
+
+# =============================================================================
+# 6. Replace desktop-base's Debian vendor logos with the AIMS logo.
+# =============================================================================
+# The "○ debian 12" watermark and the spiral avatar that survive our
+# gresource patch don't actually live in gnome-shell-theme.gresource —
+# they're shipped by the `desktop-base` package as plain PNG/SVG files
+# that GDM, gnome-control-center, and a handful of other Debian tools
+# load directly by path (bypassing the dconf `logo` key we already
+# override in 01-aims-os-greeter).
+#
+# Targets:
+#   /usr/share/desktop-base/debian-logos/
+#       logo.svg, logo-{64,128,256}.png                          ← plain swirl
+#       logo-text.svg, logo-text-{64,128,256}.png                ← swirl + "debian"
+#       logo-text-version.svg, logo-text-version-{64,128,256}.png ← swirl + "debian 12"
+#
+#   /usr/share/images/vendor-logos/  (Debian ships symlinks here pointing
+#       at the files above. We don't touch the symlinks — the files they
+#       resolve to are already overwritten.)
+#
+# We swap each PNG for the AIMS logo rasterised at the corresponding
+# size (taking from aims-os-branding's hicolor icon set so the
+# resolution matches what consumers expect). SVGs get the same
+# base64-embedded payload technique we use in step 3b — librsvg renders
+# it identically to a vector asset.
+# =============================================================================
+DEB_LOGOS_DIR=/usr/share/desktop-base/debian-logos
+
+if [ -d "${DEB_LOGOS_DIR}" ]; then
+    AIMS_ICONS=/usr/share/icons/hicolor
+
+    # PNGs — match sizes one-for-one with the hicolor set we ship.
+    # desktop-base ships 64/128/256; aims-os-branding has each of those
+    # in /usr/share/icons/hicolor/<size>x<size>/apps/aims-os-logo.png.
+    for size in 64 128 256; do
+        AIMS_PNG="${AIMS_ICONS}/${size}x${size}/apps/aims-os-logo.png"
+        [ -f "${AIMS_PNG}" ] || continue
+        for variant in "" "-text" "-text-version"; do
+            TARGET="${DEB_LOGOS_DIR}/logo${variant}-${size}.png"
+            [ -f "${TARGET}" ] || continue
+            # Keep a one-time backup so an admin can revert manually.
+            [ -f "${TARGET}.aims-original" ] || cp -a "${TARGET}" "${TARGET}.aims-original"
+            cp -af "${AIMS_PNG}" "${TARGET}"
+        done
+    done
+
+    # SVGs — emit an AIMS SVG that wraps the 256 px PNG via data URI so
+    # librsvg renders it cleanly at any requested size. Same recipe as
+    # the gresource SVG swap above.
+    AIMS_SVG_SRC="${AIMS_ICONS}/256x256/apps/aims-os-logo.png"
+    if [ -f "${AIMS_SVG_SRC}" ]; then
+        AIMS_SVG_TMP="$(mktemp --suffix=.svg)"
+        {
+            printf '<?xml version="1.0" encoding="UTF-8"?>\n'
+            printf '<svg xmlns="http://www.w3.org/2000/svg" '
+            printf 'xmlns:xlink="http://www.w3.org/1999/xlink" '
+            printf 'width="256" height="256" viewBox="0 0 256 256">\n'
+            printf '  <image href="data:image/png;base64,'
+            base64 < "${AIMS_SVG_SRC}" | tr -d '\n'
+            printf '" width="256" height="256" '
+            printf 'preserveAspectRatio="xMidYMid meet"/>\n'
+            printf '</svg>\n'
+        } > "${AIMS_SVG_TMP}"
+
+        for svg in logo.svg logo-text.svg logo-text-version.svg; do
+            TARGET="${DEB_LOGOS_DIR}/${svg}"
+            [ -f "${TARGET}" ] || continue
+            [ -f "${TARGET}.aims-original" ] || cp -a "${TARGET}" "${TARGET}.aims-original"
+            cp -af "${AIMS_SVG_TMP}" "${TARGET}"
+        done
+
+        rm -f "${AIMS_SVG_TMP}"
+    fi
+
+    echo "[aims-os/hook] replaced desktop-base/debian-logos with AIMS logo at all sizes."
+else
+    echo "[aims-os/hook] ${DEB_LOGOS_DIR} not present; desktop-base missing? Skipping logo swap." >&2
+fi
