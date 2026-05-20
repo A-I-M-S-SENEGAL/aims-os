@@ -1,0 +1,31 @@
+# =============================================================================
+# AIMS OS — initramfs module list
+# =============================================================================
+# Each line names a kernel module that initramfs-tools must include in the
+# initrd image. Modules listed here load BEFORE the root filesystem is
+# mounted — this is the only way to ensure they're available during the
+# very early boot phase.
+#
+# Why we force these:
+#   virtio_gpu / virtio_pci
+#       arm64 QEMU/UTM virtual machines use virtio-gpu-pci for graphics.
+#       The Debian arm64 kernel builds virtio_gpu as a *module* (not
+#       built-in), and the default initramfs doesn't pull it in. Result:
+#       the framebuffer doesn't appear until much later in boot, and the
+#       Plymouth splash window (which runs from the initramfs) silently
+#       skips because there's nowhere to draw. RedHat bug 1593028 has
+#       the canonical context; Fedora fixed it by patching dracut to
+#       include virtio_gpu in their initramfs, and we do the equivalent
+#       here for initramfs-tools on Bookworm.
+#
+#       virtio_pci is virtio_gpu's transport dependency — listing it is
+#       belt-and-braces (Debian's modules.dep should pull it in
+#       automatically, but the line makes the intent explicit and
+#       protects us if module graphs change in a future kernel).
+#
+# This is the canonical fix; it has zero regression on real hardware
+# (Raspberry Pi 4/5, x86 laptops) where the framebuffer appears early
+# regardless of whether virtio_gpu is in the initramfs.
+# =============================================================================
+virtio_gpu
+virtio_pci

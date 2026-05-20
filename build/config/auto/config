@@ -120,5 +120,5 @@ lb config noauto \
     --updates true \
     --security true \
     --backports false \
-    --bootappend-live "boot=live components splash quiet locales=fr_FR.UTF-8 keyboard-layouts=fr timezone=Africa/Dakar username=aims user-fullname=AIMS hostname=aims-os" \
+    --bootappend-live "boot=live components splash quiet console=tty0 plymouth.use-simpledrm=1 locales=fr_FR.UTF-8 keyboard-layouts=fr timezone=Africa/Dakar username=aims user-fullname=AIMS hostname=aims-os" \
     "${@}"
