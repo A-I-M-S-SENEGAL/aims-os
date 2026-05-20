@@ -2,22 +2,23 @@
 # =============================================================================
 # AIMS OS — derived branding asset generator
 # =============================================================================
-# Reads the two source images:
-#     branding/source/aims_circle.png   (563×563 RGBA — the round logo)
-#     branding/source/logo-aims.png     (1164×214 RGBA — the wordmark)
+# Reads the source assets:
+#     branding/source/aims_circle.png            (563×563 RGBA — round logo)
+#     branding/source/logo-aims.png              (1164×214 RGBA — wordmark)
+#     branding/source/aims-os-maroon-lattice.svg (1400×980 — wallpaper pattern)
 #
 # Produces every PNG the build process needs (wallpapers, Plymouth assets,
-# GRUB background, GNOME application icons, GDM banner) and writes them
-# under branding/generated/.
+# GRUB background, GNOME application icons, GDM banner, Calamares wallpaper)
+# and writes them under branding/generated/.
 #
-# Runs INSIDE the aims-os-builder container (where ImageMagick 6 and
-# optipng live). Invoke from the host via:
+# Runs INSIDE the aims-os-builder container (where ImageMagick 6,
+# librsvg2-bin and optipng live). Invoke from the host via:
 #     docker run --rm --platform linux/arm64 \
 #         -v "$PWD:/build:delegated" \
 #         aims-os-builder:arm64 bash /build/branding/generate-assets.sh
 #
 # The generated/ directory is NOT in git — it is reproducible from the
-# two source PNGs and this script. Anyone with the repo can regenerate
+# source assets and this script. Anyone with the repo can regenerate
 # every asset deterministically.
 # =============================================================================
 
@@ -28,9 +29,16 @@ set -euo pipefail
 # -----------------------------------------------------------------------------
 COLOR_BRAND_PRIMARY="#803018"   # logo strokes — extracted from the source PNG
 COLOR_BRAND_ACCENT="#A0392E"    # lighter terracotta — UI accents, progress bar
-COLOR_BG_CREAM="#F5EFE7"        # global light background
+COLOR_BG_CREAM="#F5EFE7"        # cream — used for boot chain (Plymouth, GRUB)
+COLOR_BG_MAROON="#600000"       # deep maroon — lattice wallpaper base, matches SVG
 COLOR_TEXT_DARK="#1A1A1A"       # primary text on cream
 COLOR_TEXT_MUTED="#666666"      # secondary text
+
+# Wallpaper-only tuning: the logo is overlaid at reduced opacity so the
+# maroon lattice still shows through and the disc feels embedded in the
+# design rather than stuck on top. 1.0 = fully opaque (Plymouth/GRUB use
+# the unmodified logo; this knob only affects compose_pattern_with_logo).
+LOGO_OPACITY_ON_WALLPAPER="0.70"
 
 # -----------------------------------------------------------------------------
 # Paths
@@ -41,6 +49,7 @@ OUT_DIR="${REPO_ROOT}/branding/generated"
 
 LOGO_CIRCLE="${SRC_DIR}/aims_circle.png"
 LOGO_WORDMARK="${SRC_DIR}/logo-aims.png"
+WALLPAPER_SVG="${SRC_DIR}/aims-os-maroon-lattice.svg"
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -52,22 +61,26 @@ fail() { printf '%b \033[1;31mERROR:\033[0m %s\n' "${BANNER}" "$*" >&2; exit 1; 
 # -----------------------------------------------------------------------------
 # Pre-flight
 # -----------------------------------------------------------------------------
-command -v convert >/dev/null   || fail "ImageMagick not in PATH (apt install imagemagick)"
-[[ -f "${LOGO_CIRCLE}"   ]]     || fail "missing ${LOGO_CIRCLE}"
-[[ -f "${LOGO_WORDMARK}" ]]     || fail "missing ${LOGO_WORDMARK}"
+command -v convert       >/dev/null || fail "ImageMagick not in PATH (apt install imagemagick)"
+command -v rsvg-convert  >/dev/null || fail "rsvg-convert not in PATH (apt install librsvg2-bin)"
+[[ -f "${LOGO_CIRCLE}"   ]]         || fail "missing ${LOGO_CIRCLE}"
+[[ -f "${LOGO_WORDMARK}" ]]         || fail "missing ${LOGO_WORDMARK}"
+[[ -f "${WALLPAPER_SVG}" ]]         || fail "missing ${WALLPAPER_SVG}"
 
 # Read source dimensions so we know what we're starting from.
 src_circle_dim="$(identify -format '%wx%h' "${LOGO_CIRCLE}")"
 src_wordmark_dim="$(identify -format '%wx%h' "${LOGO_WORDMARK}")"
 log "source circle:   ${src_circle_dim}"
 log "source wordmark: ${src_wordmark_dim}"
+log "source pattern:  $(basename "${WALLPAPER_SVG}")"
 
 mkdir -p \
     "${OUT_DIR}/wallpapers" \
     "${OUT_DIR}/plymouth" \
     "${OUT_DIR}/grub" \
     "${OUT_DIR}/icons" \
-    "${OUT_DIR}/gdm"
+    "${OUT_DIR}/gdm" \
+    "${OUT_DIR}/calamares"
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -94,15 +107,54 @@ resize_keep_alpha() {
     convert "${in}" -resize "${size}x${size}" -strip "${out}"
 }
 
+# compose_pattern_with_logo <canvas_w> <canvas_h> <logo_size> <output>
+#
+# Renders the maroon-lattice SVG at canvas_w width preserving the pattern's
+# native aspect (no stretch — diamonds stay square), centre-crops vertically
+# to canvas_h, and stamps the AIMS circle logo at the geometric centre at
+# the requested size. The SVG is 1400×980 (aspect 1.43) and our targets are
+# 16:9 (aspect 1.78), so the rendered SVG overflows vertically — the centre
+# crop keeps the visually-richest band of the lattice. Background colour
+# (#600000) matches the SVG's base fill, so the edges blend if the picture
+# is later letterboxed by the compositor.
+compose_pattern_with_logo() {
+    local cw="$1" ch="$2" lsize="$3" out="$4"
+    local tmp_bg tmp_logo
+    tmp_bg="$(mktemp --suffix=.png)"
+    tmp_logo="$(mktemp --suffix=.png)"
+
+    rsvg-convert -w "${cw}" -b "${COLOR_BG_MAROON}" \
+        "${WALLPAPER_SVG}" -o "${tmp_bg}"
+
+    # Resize the logo and dim its alpha channel uniformly so both the
+    # white disc and the inked Africa silhouette go translucent together.
+    convert "${LOGO_CIRCLE}" -resize "${lsize}x${lsize}" \
+        -alpha set -channel A \
+        -evaluate multiply "${LOGO_OPACITY_ON_WALLPAPER}" +channel \
+        "${tmp_logo}"
+
+    convert "${tmp_bg}" \
+        -background "${COLOR_BG_MAROON}" \
+        -gravity center -extent "${cw}x${ch}" \
+        "${tmp_logo}" \
+        -gravity center -compose over -composite \
+        -strip "${out}"
+
+    rm -f "${tmp_bg}" "${tmp_logo}"
+    optipng -quiet -o2 "${out}" 2>/dev/null || true
+}
+
 # -----------------------------------------------------------------------------
 # 1. Wallpapers
-#    1080p + 4K, cream background, logo centred at a comfortable 320 px
-#    (looks small but elegant on a 1080p screen; scales naturally to 4K).
+#    1080p + 4K, maroon-lattice pattern background, logo centred. 320 px on
+#    1080p was tuned for the cream wallpaper and still looks balanced on the
+#    busier maroon pattern; the logo's terracotta + cream palette has enough
+#    contrast against #600000 to stay legible without an outline.
 # -----------------------------------------------------------------------------
 log "generating wallpapers ..."
-compose_centered 1920 1080 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 320 \
+compose_pattern_with_logo 1920 1080 320 \
     "${OUT_DIR}/wallpapers/aims-os-default-1080p.png"
-compose_centered 3840 2160 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 640 \
+compose_pattern_with_logo 3840 2160 640 \
     "${OUT_DIR}/wallpapers/aims-os-default-4k.png"
 
 # -----------------------------------------------------------------------------
@@ -164,7 +216,18 @@ log "generating GDM background ..."
 cp "${OUT_DIR}/wallpapers/aims-os-default-1080p.png" "${OUT_DIR}/gdm/background.png"
 
 # -----------------------------------------------------------------------------
-# 5. Application launcher icons (sizes per freedesktop icon-theme spec)
+# 5. Calamares welcome-screen wallpaper
+#    Calamares displays productWallpaper on the welcome page. We reuse the
+#    1080p desktop wallpaper so the installer feels like the rest of AIMS OS
+#    instead of jumping to a different visual world. The Calamares branding
+#    deploy step picks this up from branding/generated/calamares/.
+# -----------------------------------------------------------------------------
+log "generating Calamares wallpaper ..."
+cp "${OUT_DIR}/wallpapers/aims-os-default-1080p.png" \
+   "${OUT_DIR}/calamares/aims-os-wallpaper.png"
+
+# -----------------------------------------------------------------------------
+# 6. Application launcher icons (sizes per freedesktop icon-theme spec)
 # -----------------------------------------------------------------------------
 log "generating app icons ..."
 for size in 16 24 32 48 64 96 128 256 512; do
@@ -174,7 +237,7 @@ for size in 16 24 32 48 64 96 128 256 512; do
 done
 
 # -----------------------------------------------------------------------------
-# 6. Inventory & summary
+# 7. Inventory & summary
 # -----------------------------------------------------------------------------
 log "done — generated assets:"
 ( cd "${OUT_DIR}" && find . -type f -name '*.png' | sort | while read -r f; do

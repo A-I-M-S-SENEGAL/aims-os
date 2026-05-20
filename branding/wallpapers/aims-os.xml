@@ -22,8 +22,8 @@
         <filename-dark>/usr/share/backgrounds/aims-os/aims-os-default-1080p.png</filename-dark>
         <options>zoom</options>
         <shade_type>solid</shade_type>
-        <pcolor>#F5EFE7</pcolor>
-        <scolor>#F5EFE7</scolor>
+        <pcolor>#600000</pcolor>
+        <scolor>#600000</scolor>
     </wallpaper>
 
     <wallpaper deleted="false">
@@ -33,7 +33,7 @@
         <filename-dark>/usr/share/backgrounds/aims-os/aims-os-default-4k.png</filename-dark>
         <options>zoom</options>
         <shade_type>solid</shade_type>
-        <pcolor>#F5EFE7</pcolor>
-        <scolor>#F5EFE7</scolor>
+        <pcolor>#600000</pcolor>
+        <scolor>#600000</scolor>
     </wallpaper>
 </wallpapers>
