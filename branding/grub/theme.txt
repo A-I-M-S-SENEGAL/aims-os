@@ -4,77 +4,95 @@
 # Layout summary (1920×1080 reference resolution):
 #
 #   ┌──────────────────────────────────────────────────────────────┐
+#   │ ◯  AIMS OS 1.0                                                │  ← in background.png
+#   │     Live & Install Media                                      │     (top-left)
 #   │                                                              │
-#   │                      ◯  AIMS circle logo                      │  ← in background.png
-#   │                                                              │     (top-centred)
-#   │                  AIMS  African Institute for                 │
-#   │                       Mathematical Sciences                  │
-#   │                       SENEGAL                                │
 #   │                                                              │
-#   │           ┌────────────────────────────────────────┐         │
-#   │           │  ▶ AIMS OS (live)                       │  ← boot_menu
-#   │           │    AIMS OS — install with Calamares     │
-#   │           │    AIMS OS — failsafe / safe graphics   │
-#   │           └────────────────────────────────────────┘         │
+#   │              AIMS OS (live)                                  │  ← boot_menu
+#   │              AIMS OS (live, failsafe)                        │     items render
+#   │              [██████████████████████████]                    │  ← selected pixmap
+#   │              AIMS OS — install with Calamares                │     follows the
+#   │              Memory test                                     │     focused row
 #   │                                                              │
-#   │                  ┌──────────────────────┐                    │
-#   │                  │ ░░░░░░░░░░░░░░░░░░░░ │  ← progress_bar
-#   │                  └──────────────────────┘     (auto-boot
-#   │                                                 countdown)   │
+#   │           Démarrage automatique dans 5 secondes              │  ← timeout label
+#   │     ↑↓ naviguer · Entrée démarrer · E éditer · C cli         │  ← key hints
 #   └──────────────────────────────────────────────────────────────┘
+#
+# Design pattern follows Pop!_OS / Vimix / Tela / Whitesur (the four most
+# downloaded themes on gnome-look.org): a clean background, NO panel behind
+# the menu, a terracotta rounded-pill pixmap that highlights the focused
+# row, and labels — not a progress bar — for the countdown and key hints.
 #
 # Reference: https://www.gnu.org/software/grub/manual/grub/html_node/Theme-file-format.html
 # =============================================================================
 
 # ---- Global appearance ------------------------------------------------------
-desktop-image:     "background.png"
-desktop-color:     "#F5EFE7"
-title-text:        ""
-title-color:       "#803018"
-message-color:     "#1A1A1A"
-message-bg-color:  "#F5EFE7"
-terminal-font:     "Unknown Regular 16"
-terminal-box:      "terminal_*.png"
-terminal-left:     "10%"
-terminal-top:      "10%"
-terminal-width:    "80%"
-terminal-height:   "80%"
-terminal-border:   "0"
+# desktop-image carries the full visual identity (lattice + branding). The
+# desktop-color is a fallback for letterboxing on resolutions that don't
+# match 16:9. No terminal-box pixmap is shipped — GRUB falls back to its
+# built-in panel when the user hits `c` to drop into a shell (rare path).
+desktop-image:    "background.png"
+desktop-color:    "#600000"
+title-text:       ""
+message-color:    "#F5EFE7"
+message-bg-color: "#1A0000"
+terminal-font:    "Unknown Regular 16"
 
-# ---- The boot menu box ------------------------------------------------------
+# ---- The boot menu ----------------------------------------------------------
+# Sits in the lower-middle band of the canvas — far enough below the
+# branding to breathe, far enough above the bottom to leave room for the
+# timeout + key-hint labels. Wide enough for our longest entry
+# ("AIMS OS — Installer avec Calamares").
 + boot_menu {
-    left              = 20%
-    top               = 50%
-    width             = 60%
-    height            = 35%
+    left  = 22%
+    top   = 45%
+    width = 56%
+    height = 38%
 
-    item_color          = "#1A1A1A"
-    selected_item_color = "#803018"
-    item_height         = 38
-    item_padding        = 8
-    item_spacing        = 4
+    # Cream on lattice for unselected; white pops sharply against the
+    # terracotta selection pill for the focused row.
+    item_color          = "#F5EFE7"
+    selected_item_color = "#FFFFFF"
 
-    # Selection indicator: a small dark caret to the left of the chosen
-    # item, since we don't ship custom selection-box pixmaps in v1.0.
-    icon_width  = 0
-    icon_height = 0
+    # The 9-patch pill that follows the selected row.
+    selected_item_pixmap_style = "select_*.png"
+
+    item_height     = 44
+    item_padding    = 16
+    item_spacing    = 8
+
+    # We don't ship per-entry icons in v1.0 — every menu entry is AIMS OS.
+    icon_width      = 0
+    icon_height     = 0
     item_icon_space = 0
 }
 
-# ---- Countdown progress bar -------------------------------------------------
-+ progress_bar {
-    id           = "__timeout__"
-    left         = 35%
-    top          = 92%
-    width        = 30%
-    height       = 6
+# ---- Countdown ("Démarrage automatique dans N secondes") --------------------
+# id="__timeout__" makes GRUB substitute the live countdown; %d is replaced
+# with the remaining seconds at each tick. Single-line, centred under the
+# menu, low-contrast so it sits quietly under the focused row.
++ label {
+    id    = "__timeout__"
+    left  = 25%
+    top   = 88%
+    width = 50%
+    align = "center"
 
-    show_text    = true
-    text         = "@TIMEOUT_NOTIFICATION_LONG@"
-    font         = "Unknown Regular 12"
-    text_color   = "#1A1A1A"
+    text  = "Démarrage automatique dans %d secondes"
+    color = "#E6D8C8"
+    font  = "Unknown Regular 16"
+}
 
-    bg_color     = "#E6D8C8"
-    fg_color     = "#A0392E"
-    border_color = "#A0392E"
+# ---- Keyboard hints ---------------------------------------------------------
+# A static one-line cheat-sheet at the very bottom, in muted cream. Mirrors
+# the ↑↓ / Enter / E / C hotkeys most users will reach for.
++ label {
+    left  = 10%
+    top   = 95%
+    width = 80%
+    align = "center"
+
+    text  = "↑↓ naviguer  ·  Entrée démarrer  ·  E éditer  ·  C ligne de commande"
+    color = "#C8B8A8"
+    font  = "Unknown Regular 14"
 }

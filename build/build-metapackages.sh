@@ -75,11 +75,15 @@ stage_branding_payload() {
     cp "${BRAND_DIR}/generated/plymouth/ray-ring.png"        \
        "${FILES_DIR}/usr/share/plymouth/themes/aims-os/"
 
-    # ---- GRUB ----
+    # ---- GRUB (installed-system theme — same files as the live-ISO theme) ----
     cp "${BRAND_DIR}/grub/theme.txt"                   \
        "${FILES_DIR}/usr/share/grub/themes/aims-os/"
     cp "${BRAND_DIR}/generated/grub/background.png"    \
        "${FILES_DIR}/usr/share/grub/themes/aims-os/"
+    for f in c n s e w nw ne sw se; do
+        cp "${BRAND_DIR}/generated/grub/select_${f}.png" \
+           "${FILES_DIR}/usr/share/grub/themes/aims-os/"
+    done
 
     # ---- GNOME wallpaper picker manifest ----
     cp "${BRAND_DIR}/wallpapers/aims-os.xml" \
@@ -102,6 +106,50 @@ stage_branding_payload() {
 }
 
 stage_branding_payload
+
+# -----------------------------------------------------------------------------
+# Stage the live-ISO GRUB theme into build/config/bootloaders/grub-pc/.
+#
+# live-build copies that directory verbatim into the binary stage and uses
+# it to override the upstream Debian splash + theme files (which would
+# otherwise leave the live boot screen looking like a plain Debian
+# install). The layout we ship:
+#
+#     splash.png                  → triggers theme load via theme.cfg
+#     live-theme/theme.txt        → our GRUB theme (palette, menu, labels)
+#     live-theme/background.png   → referenced by theme.txt's desktop-image
+#     live-theme/select_*.png     → 9-patch selection pixmap (9 files)
+#
+# splash.png and live-theme/background.png are the SAME image — duplicated
+# because live-build's theme.cfg requires /boot/grub/splash.png to exist to
+# enable the theme, while theme.txt independently expects background.png
+# next to it. Disk cost is ~300 KB; not worth a symlink dance.
+# -----------------------------------------------------------------------------
+stage_live_grub_theme() {
+    local BRAND_DIR="${REPO_ROOT}/branding"
+    local BOOT_DIR="${REPO_ROOT}/build/config/bootloaders/grub-pc"
+
+    log "staging live-ISO GRUB theme into config/bootloaders/grub-pc/ ..."
+    rm -rf "${BOOT_DIR}"
+    mkdir -p "${BOOT_DIR}/live-theme"
+
+    # Splash (triggers theme.cfg's "use theme" branch)
+    cp "${BRAND_DIR}/generated/grub/background.png" "${BOOT_DIR}/splash.png"
+
+    # The theme itself + the assets it references
+    cp "${BRAND_DIR}/grub/theme.txt"                "${BOOT_DIR}/live-theme/theme.txt"
+    cp "${BRAND_DIR}/generated/grub/background.png" "${BOOT_DIR}/live-theme/background.png"
+    for f in c n s e w nw ne sw se; do
+        cp "${BRAND_DIR}/generated/grub/select_${f}.png" \
+           "${BOOT_DIR}/live-theme/select_${f}.png"
+    done
+
+    local n
+    n="$(find "${BOOT_DIR}" -type f | wc -l | tr -d ' ')"
+    log "staged ${n} files under build/config/bootloaders/grub-pc/"
+}
+
+stage_live_grub_theme
 
 # -----------------------------------------------------------------------------
 # Clean any leftover build artifacts so we always produce fresh debs.

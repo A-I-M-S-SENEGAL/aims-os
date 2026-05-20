@@ -198,16 +198,90 @@ convert -size 600x4 "xc:#E6D8C8" \
 
 # -----------------------------------------------------------------------------
 # 3. GRUB background
-#    1920×1080. Cream background, circle logo top-centred at 200 px, the
-#    wordmark below it at a reasonable width. The boot menu renders on top
-#    of this so we leave the lower 60% mostly clear.
+#    1920×1080 maroon-lattice base composed in four passes:
+#      1. rasterise the SVG pattern at the canvas width (preserving aspect),
+#         centre-crop to 1080 so the diamonds stay square
+#      2. multiply a soft radial vignette — corners drop ~30% in luminance,
+#         the centre stays at full intensity. This frames the boot menu
+#         naturally without an explicit panel
+#      3. anchor the AIMS circle logo top-left
+#      4. render "AIMS OS 1.0" + "Live & Install Media" in cream beside it
+#         using DejaVu (the wordmark PNG already contains its own circle and
+#         its inks are dark, so it would duplicate the logo AND vanish on
+#         maroon — we render the text fresh instead, in colours we control)
+#
+#    Net effect: a calm, balanced top band (branding) → empty middle (where
+#    the menu lives). Everything else is intentionally negative space.
 # -----------------------------------------------------------------------------
 log "generating GRUB background ..."
-convert -size 1920x1080 "canvas:${COLOR_BG_CREAM}" \
-    \( "${LOGO_CIRCLE}"   -resize 200x200 \) -gravity north -geometry +0+80  -composite \
-    \( "${LOGO_WORDMARK}" -resize 600x110 \) -gravity north -geometry +0+310 -composite \
+GRUB_BG_TMP="$(mktemp --suffix=.png)"
+GRUB_VIGN_TMP="$(mktemp --suffix=.png)"
+
+# Pass 1 — rasterise + centre-crop the lattice
+rsvg-convert -w 1920 -b "${COLOR_BG_MAROON}" \
+    "${WALLPAPER_SVG}" -o "${GRUB_BG_TMP}"
+
+# Pass 2 — build a soft radial-gradient vignette (white centre, light-grey
+# edges) and multiply-blend it onto the lattice so the corners read
+# slightly deeper-maroon without going pitch black.
+convert -size 1920x1080 radial-gradient:'#FFFFFF'-'#B0B0B0' \
+    "${GRUB_VIGN_TMP}"
+
+# Pass 3+4 — composite logo, then stamp the wordmark text we control.
+convert "${GRUB_BG_TMP}" \
+    -background "${COLOR_BG_MAROON}" \
+    -gravity center -extent 1920x1080 \
+    "${GRUB_VIGN_TMP}" -compose multiply -composite \
+    -compose over \
+    \
+    \( "${LOGO_CIRCLE}" -resize 160x160 \) -gravity northwest -geometry +110+88 -composite \
+    \
+    -font "DejaVu-Sans-Bold" -pointsize 56 -fill "#F5EFE7" \
+        -gravity northwest -annotate +300+108 "AIMS OS 1.0" \
+    -font "DejaVu-Sans"      -pointsize 22 -fill "#E6D8C8" \
+        -gravity northwest -annotate +302+180 "Live & Install Media" \
+    \
     -strip "${OUT_DIR}/grub/background.png"
+
+rm -f "${GRUB_BG_TMP}" "${GRUB_VIGN_TMP}"
 optipng -quiet -o2 "${OUT_DIR}/grub/background.png" 2>/dev/null || true
+
+# ---- Selected-item highlight (9-patch pixmap) ------------------------------
+# Modern GRUB themes (Pop!_OS, Vimix, Tela) don't paint a panel behind the
+# whole menu. Instead they ship a 9-patch under the *selected* row only:
+# centre + four edges are 1×1 tiles GRUB tiles to fit the row width/height,
+# the four corners are tiny rounded-quarter-disc PNGs that give the
+# highlight its rounded look. Result is a soft terracotta pill that follows
+# whichever menu entry is currently focused.
+#
+# Layout: corner R = 8 px, fill is terracotta at 78 % opacity so the lattice
+# stays faintly visible through the highlight (the row feels "lit", not
+# "stamped on top").
+log "generating GRUB selection pixmaps ..."
+SELECT_COLOR='rgba(160,57,46,0.78)'
+
+# Centre + four straight edges — solid terracotta, GRUB will tile them.
+for piece in c n s e w; do
+    convert -size 1x1 "xc:${SELECT_COLOR}" \
+        -strip "${OUT_DIR}/grub/select_${piece}.png"
+done
+
+# Four 8×8 corners — quarter-disc fills the *inside* corner, the
+# outside-corner pixels stay transparent so the highlight looks rounded.
+# `circle CX,CY PX,PY` in ImageMagick: centre then a point on the perimeter
+# (radius = distance between the two points = 8 here).
+convert -size 8x8 xc:transparent -fill "${SELECT_COLOR}" \
+    -draw 'circle 8,8 0,8' -strip "${OUT_DIR}/grub/select_nw.png"
+convert -size 8x8 xc:transparent -fill "${SELECT_COLOR}" \
+    -draw 'circle 0,8 8,8' -strip "${OUT_DIR}/grub/select_ne.png"
+convert -size 8x8 xc:transparent -fill "${SELECT_COLOR}" \
+    -draw 'circle 8,0 8,8' -strip "${OUT_DIR}/grub/select_sw.png"
+convert -size 8x8 xc:transparent -fill "${SELECT_COLOR}" \
+    -draw 'circle 0,0 8,8' -strip "${OUT_DIR}/grub/select_se.png"
+
+for f in c n s e w nw ne sw se; do
+    optipng -quiet -o2 "${OUT_DIR}/grub/select_${f}.png" 2>/dev/null || true
+done
 
 # -----------------------------------------------------------------------------
 # 4. GDM login screen background (same as wallpaper for now)

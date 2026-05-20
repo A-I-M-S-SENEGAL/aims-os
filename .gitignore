@@ -41,6 +41,7 @@ metapackages/*/debian/tmp/
 
 # ---- Staged branding payload (regenerated at every metapackage build) ----
 metapackages/aims-os-branding/files/
+build/config/bootloaders/
 metapackages/*.deb
 metapackages/*.dsc
 metapackages/*.changes
