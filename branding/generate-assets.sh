@@ -291,14 +291,18 @@ cp "${OUT_DIR}/wallpapers/aims-os-default-1080p.png" "${OUT_DIR}/gdm/background.
 
 # -----------------------------------------------------------------------------
 # 5. Calamares welcome-screen wallpaper
-#    Calamares displays productWallpaper on the welcome page. We reuse the
-#    1080p desktop wallpaper so the installer feels like the rest of AIMS OS
-#    instead of jumping to a different visual world. The Calamares branding
-#    deploy step picks this up from branding/generated/calamares/.
+#    Calamares displays productWallpaper as the BACKDROP behind the welcome
+#    page's text + wordmark (and around the slideshow). The maroon-lattice
+#    desktop wallpaper looks great on the desktop but eats the dark inks of
+#    the AIMS wordmark when used here — the welcome page becomes illegible.
+#    So Calamares gets its own plain-cream backdrop: the terracotta sidebar
+#    (set via branding.desc style) still carries the brand identity, while
+#    the content area stays readable.
 # -----------------------------------------------------------------------------
 log "generating Calamares wallpaper ..."
-cp "${OUT_DIR}/wallpapers/aims-os-default-1080p.png" \
-   "${OUT_DIR}/calamares/aims-os-wallpaper.png"
+convert -size 1920x1080 "canvas:${COLOR_BG_CREAM}" \
+    -strip "${OUT_DIR}/calamares/aims-os-wallpaper.png"
+optipng -quiet -o2 "${OUT_DIR}/calamares/aims-os-wallpaper.png" 2>/dev/null || true
 
 # -----------------------------------------------------------------------------
 # 6. Application launcher icons (sizes per freedesktop icon-theme spec)

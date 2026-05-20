@@ -26,7 +26,11 @@ GenericName[fr]=Installeur Calamares
 Comment=Install AIMS OS to your hard disk
 Comment[fr]=Installer AIMS OS sur le disque dur
 Keywords=calamares;system;install;aims;debian;installer;installeur;
-Exec=install-debian
+# Lock Calamares to the light theme so cream-backed welcome page + slideshow
+# stay legible if the live user toggles GNOME into dark mode before running
+# the installer (Pop!_OS / Ubuntu pin their installer the same way — Adwaita
+# Light covers both the GTK widgets and Qt's GTK-integration palette).
+Exec=env GTK_THEME=Adwaita:light QT_STYLE_OVERRIDE=Adwaita install-debian
 Icon=aims-os-logo
 Terminal=false
 Categories=Qt;System;
