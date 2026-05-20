@@ -18,9 +18,10 @@
 #   1. extract every file out of gnome-shell-theme.gresource
 #   2. drop our wallpaper PNG alongside the extracted gnome-shell.css
 #   3a. rewrite the #lockDialogGroup rule to paint our PNG
-#   3b. overwrite each Debian-branded asset with a 1×1 transparent placeholder
-#       of the same filename — CSS rules continue to resolve, they just
-#       paint zero area, which deletes the watermark + spiral avatar
+#   3b. overwrite each Debian-branded asset with the AIMS logo of the
+#       same filename — CSS rules continue to resolve, but now paint the
+#       AIMS Africa Sun for both the bottom watermark and the user-list
+#       avatar
 #   4. rebuild a new gresource bundle with `glib-compile-resources`
 #   5. swap it into place (keeping the upstream as `.aims-original`)
 #
@@ -45,6 +46,11 @@ GRES=/usr/share/gnome-shell/gnome-shell-theme.gresource
 PREFIX="/org/gnome/shell/theme"
 BG_SRC="/usr/share/backgrounds/aims-os/aims-os-default-1080p.png"
 BG_EMBED="aims-os-greeter-bg.png"
+# Logo used to replace every Debian-branded asset embedded in the
+# bundle (see step 3b below). Shipped by aims-os-branding.deb at
+# 256×256 — large enough that the avatar / watermark slots scale
+# down cleanly without blurring.
+LOGO_SRC="/usr/share/icons/hicolor/256x256/apps/aims-os-logo.png"
 
 if [ ! -f "${GRES}" ]; then
     echo "[aims-os/hook] ${GRES} not present; gnome-shell missing? Skipping." >&2
@@ -53,6 +59,11 @@ fi
 
 if [ ! -f "${BG_SRC}" ]; then
     echo "[aims-os/hook] ${BG_SRC} not present; aims-os-branding.deb missing? Skipping." >&2
+    exit 0
+fi
+
+if [ ! -f "${LOGO_SRC}" ]; then
+    echo "[aims-os/hook] ${LOGO_SRC} not present; aims-os-branding.deb missing? Skipping." >&2
     exit 0
 fi
 
@@ -102,33 +113,38 @@ done
 # 2. Drop our wallpaper next to gnome-shell.css.
 cp "${BG_SRC}" "${BG_EMBED}"
 
-# 3. Patch CSS + neutralise every Debian-branded asset shipped inside the
-#    gresource. The Debian gnome-shell-common package ships:
+# 3. Patch CSS + swap every Debian-branded asset shipped inside the
+#    gresource for the AIMS OS logo. The Debian gnome-shell-common
+#    package ships:
 #
 #      - debian-logo-text.svg / debian-logo.svg  → "debian 12" watermark
 #        rendered at the bottom of the GDM greeter / lock screen.
 #      - openlogo*.svg / *swirl*.svg             → the "Debian spiral"
 #        used as the default user-avatar placeholder in the user-list.
 #
-#    We can't drop the file outright (the bundled CSS rules reference it
-#    by name, so removing it would break gresource validation), but we
-#    can REPLACE the contents with a 1×1 transparent PNG / empty SVG of
-#    the same name. The CSS rule continues to "succeed" — it just paints
-#    a zero-area image.
-python3 - "${BG_SRC}" <<'PY'
+#    We can't drop the files outright (the bundled CSS rules reference
+#    them by name, so removing them would break gresource validation),
+#    but we CAN replace their content with the AIMS logo of the same
+#    filename. For PNG/JPG slots we just copy the logo bytes. For SVG
+#    slots we emit a tiny SVG that embeds the same PNG as a base64
+#    <image> — librsvg renders it just like any other SVG, so both the
+#    watermark and the avatar end up showing the AIMS Africa Sun.
+python3 - "${BG_SRC}" "${LOGO_SRC}" <<'PY'
 import base64, pathlib, re, sys
 
-BG_PNG = sys.argv[1]  # not used here, kept for future extensions
-EMPTY_SVG = (
-    b'<?xml version="1.0" encoding="UTF-8"?>\n'
-    b'<svg xmlns="http://www.w3.org/2000/svg" '
-    b'width="1" height="1" viewBox="0 0 1 1"/>\n'
-)
-# 1×1 fully-transparent PNG (precomputed; 67 bytes).
-EMPTY_PNG = base64.b64decode(
-    b"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4"
-    b"2mNkAAIAAAUAAeImBZsAAAAASUVORK5CYII="
-)
+BG_PNG, LOGO_PNG = sys.argv[1], sys.argv[2]
+
+LOGO_BYTES = pathlib.Path(LOGO_PNG).read_bytes()
+LOGO_B64 = base64.b64encode(LOGO_BYTES).decode("ascii")
+LOGO_SVG = (
+    '<?xml version="1.0" encoding="UTF-8"?>\n'
+    '<svg xmlns="http://www.w3.org/2000/svg" '
+    'xmlns:xlink="http://www.w3.org/1999/xlink" '
+    'width="256" height="256" viewBox="0 0 256 256">\n'
+    f'  <image href="data:image/png;base64,{LOGO_B64}" '
+    'width="256" height="256" preserveAspectRatio="xMidYMid meet"/>\n'
+    '</svg>\n'
+).encode("utf-8")
 
 # --- 3a. Rewrite #lockDialogGroup to paint our background. -----------------
 css_path = pathlib.Path("gnome-shell.css")
@@ -149,12 +165,13 @@ if n != 1:
     sys.exit(1)
 css_path.write_text(patched)
 
-# --- 3b. Neutralise every Debian-branded raster/SVG in the bundle. ---------
+# --- 3b. Swap every Debian-branded raster/SVG for the AIMS logo. ----------
 # Match anything whose filename suggests Debian branding: debian-*, *swirl*,
-# openlogo*. The substitution is name-only (CSS continues to reference the
-# same path); the file simply becomes invisible.
+# openlogo*. The CSS continues to reference these paths; only the bytes
+# change. Both the bottom watermark and the user-list avatar end up
+# showing the AIMS Africa Sun.
 KILL = re.compile(r"(debian|openlogo|swirl)", re.IGNORECASE)
-killed = []
+swapped = []
 for path in pathlib.Path(".").rglob("*"):
     if not path.is_file():
         continue
@@ -162,16 +179,17 @@ for path in pathlib.Path(".").rglob("*"):
         continue
     ext = path.suffix.lower()
     if ext == ".svg":
-        path.write_bytes(EMPTY_SVG)
-        killed.append(str(path))
+        path.write_bytes(LOGO_SVG)
+        swapped.append(str(path))
     elif ext in (".png", ".jpg", ".jpeg"):
-        path.write_bytes(EMPTY_PNG)
-        killed.append(str(path))
-if killed:
+        path.write_bytes(LOGO_BYTES)
+        swapped.append(str(path))
+if swapped:
     sys.stderr.write(
-        "[aims-os/hook] neutralised Debian-branded assets in gresource:\n"
+        "[aims-os/hook] swapped Debian-branded assets in gresource "
+        "for the AIMS logo:\n"
     )
-    for k in killed:
+    for k in swapped:
         sys.stderr.write(f"  - {k}\n")
 else:
     sys.stderr.write(
