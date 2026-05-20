@@ -103,9 +103,10 @@ stage_branding_payload() {
 
     # ---- Calamares branding ----
     # Combines the static branding files we maintain in-tree (branding.desc,
-    # show.qml, logo + welcome image) with the wallpaper rasterised by
-    # generate-assets.sh. /etc/calamares/branding/aims-os/ is what hook 0085
-    # tells Calamares to load — see build/config/hooks/normal/0085-*.
+    # show.qml, logo + welcome image, slides/ photos) with the wallpaper
+    # rasterised by generate-assets.sh. /etc/calamares/branding/aims-os/ is
+    # what hook 0085 tells Calamares to load — see
+    # build/config/hooks/normal/0085-*.
     cp "${BRAND_DIR}/calamares/branding/aims-os/branding.desc"      \
        "${FILES_DIR}/etc/calamares/branding/aims-os/"
     cp "${BRAND_DIR}/calamares/branding/aims-os/show.qml"           \
@@ -116,6 +117,12 @@ stage_branding_payload() {
        "${FILES_DIR}/etc/calamares/branding/aims-os/"
     cp "${BRAND_DIR}/generated/calamares/aims-os-wallpaper.png"     \
        "${FILES_DIR}/etc/calamares/branding/aims-os/"
+    # show.qml references slides via the relative path "slides/slide-N-*.jpg",
+    # so the directory must land at /etc/calamares/branding/aims-os/slides/
+    # next to show.qml — same layout the upstream Calamares default uses.
+    mkdir -p "${FILES_DIR}/etc/calamares/branding/aims-os/slides"
+    cp "${BRAND_DIR}/calamares/branding/aims-os/slides/"*.jpg       \
+       "${FILES_DIR}/etc/calamares/branding/aims-os/slides/"
 
     local n
     n="$(find "${FILES_DIR}" -type f | wc -l | tr -d ' ')"

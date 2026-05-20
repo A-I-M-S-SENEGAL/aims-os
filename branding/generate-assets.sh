@@ -146,15 +146,16 @@ compose_pattern_with_logo() {
 
 # -----------------------------------------------------------------------------
 # 1. Wallpapers
-#    1080p + 4K, maroon-lattice pattern background, logo centred. 320 px on
-#    1080p was tuned for the cream wallpaper and still looks balanced on the
-#    busier maroon pattern; the logo's terracotta + cream palette has enough
-#    contrast against #600000 to stay legible without an outline.
+#    1080p + 4K, cream canvas, AIMS circle logo centred at 320 px (640 px
+#    for 4K — same visual size at higher DPI). Cream is the calm,
+#    text-friendly default for the desktop + GDM greeter + lock screen.
+#    The maroon-lattice SVG is still used elsewhere (GRUB only, see step 3)
+#    so the boot screen still carries the brand colour.
 # -----------------------------------------------------------------------------
 log "generating wallpapers ..."
-compose_pattern_with_logo 1920 1080 320 \
+compose_centered 1920 1080 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 320 \
     "${OUT_DIR}/wallpapers/aims-os-default-1080p.png"
-compose_pattern_with_logo 3840 2160 640 \
+compose_centered 3840 2160 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 640 \
     "${OUT_DIR}/wallpapers/aims-os-default-4k.png"
 
 # -----------------------------------------------------------------------------
