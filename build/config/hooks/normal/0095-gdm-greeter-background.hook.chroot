@@ -1,0 +1,131 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0095: paint the GDM greeter background with our wallpaper
+# =============================================================================
+# The GDM login screen background lives inside gnome-shell-theme.gresource
+# (a compiled binary resource bundle); on GNOME 43 / Bookworm there is no
+# dconf key, no /etc/gdm3/ file, and no plug-in mechanism to swap it. The
+# only way to brand it is to:
+#
+#   1. extract every file out of /usr/share/gnome-shell/gnome-shell-theme.gresource
+#   2. drop our wallpaper PNG alongside the extracted gnome-shell.css
+#   3. rewrite the #lockDialogGroup rule (originally `background-color: #232323;`)
+#      to point at our PNG via a CSS background shorthand
+#   4. rebuild a new gresource bundle with `glib-compile-resources`
+#   5. swap it into place (keeping the upstream as `.aims-original`)
+#
+# This is the same approach the gdm-settings + gdm-tools tools use. It is
+# fragile across GNOME upgrades — the resource prefix or the css class name
+# could change. If/when we move to Trixie + GNOME 47/48, revisit.
+#
+# Behaviour:
+#   - idempotent  : detects our embedded wallpaper inside the gresource and
+#                   exits early on re-run
+#   - non-fatal   : if gnome-shell isn't installed (no PNG to patch), exits 0
+#   - reversible  : keeps the upstream gresource at .aims-original
+#   - safe-by-default: on python/glib-compile-resources failure, restores
+#                      the original file
+#
+# `#lockDialogGroup` is shared by the GDM greeter AND the user-session lock
+# screen, so the wallpaper appears in both places — consistent UX.
+# =============================================================================
+set -e
+
+GRES=/usr/share/gnome-shell/gnome-shell-theme.gresource
+PREFIX="/org/gnome/shell/theme"
+BG_SRC="/usr/share/backgrounds/aims-os/aims-os-default-1080p.png"
+BG_EMBED="aims-os-greeter-bg.png"
+
+if [ ! -f "${GRES}" ]; then
+    echo "[aims-os/hook] ${GRES} not present; gnome-shell missing? Skipping." >&2
+    exit 0
+fi
+
+if [ ! -f "${BG_SRC}" ]; then
+    echo "[aims-os/hook] ${BG_SRC} not present; aims-os-branding.deb missing? Skipping." >&2
+    exit 0
+fi
+
+if ! command -v gresource >/dev/null 2>&1; then
+    echo "[aims-os/hook] gresource not in PATH (libglib2.0-bin missing?); skipping." >&2
+    exit 0
+fi
+
+# `glib-compile-resources` lives in libglib2.0-dev-bin on Bookworm (split out
+# from libglib2.0-bin since GLib 2.74). It's ~50 KB and we only need it for
+# this one rebuild, but it has to be present in the chroot. Pull it in
+# explicitly if it isn't already; this is identical to the pattern the
+# 0050-flathub hook uses for `flatpak`.
+if ! command -v glib-compile-resources >/dev/null 2>&1; then
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libglib2.0-dev-bin >/dev/null
+fi
+
+# Idempotency — sentinel is the wallpaper filename inside the bundle.
+if gresource list "${GRES}" 2>/dev/null | grep -q "/${BG_EMBED}\$"; then
+    echo "[aims-os/hook] ${GRES} already carries our greeter background; skipping."
+    exit 0
+fi
+
+# Back up upstream before we touch anything.
+ORIG="${GRES}.aims-original"
+[ -f "${ORIG}" ] || cp -a "${GRES}" "${ORIG}"
+
+WORK="$(mktemp -d)"
+trap 'cp -af "${ORIG}" "${GRES}"; rm -rf "${WORK}"' EXIT
+
+cd "${WORK}"
+
+# 1. Extract every resource into the work dir, mirroring the prefix-relative path.
+gresource list "${GRES}" | while read -r r; do
+    rel="${r#${PREFIX}/}"
+    d="$(dirname "${rel}")"
+    [ "${d}" = "." ] || mkdir -p "${d}"
+    gresource extract "${GRES}" "${r}" > "${rel}"
+done
+
+# 2. Drop our wallpaper next to gnome-shell.css.
+cp "${BG_SRC}" "${BG_EMBED}"
+
+# 3. Rewrite the #lockDialogGroup CSS rule — non-greedy match up to the next `}`.
+python3 - <<'PY'
+import pathlib, re, sys
+p = pathlib.Path("gnome-shell.css")
+css = p.read_text()
+new_rule = (
+    "#lockDialogGroup {\n"
+    "  background: #600000 url(\"aims-os-greeter-bg.png\");\n"
+    "  background-repeat: no-repeat;\n"
+    "  background-size: cover;\n"
+    "  background-position: center;\n"
+    "}"
+)
+patched, n = re.subn(r"#lockDialogGroup\s*\{[^}]*\}", new_rule, css, count=1)
+if n != 1:
+    sys.stderr.write("[aims-os/hook] could not locate #lockDialogGroup rule in gnome-shell.css\n")
+    sys.exit(1)
+p.write_text(patched)
+PY
+
+# 4. Build a gresource.xml manifest covering every file (extracted + our PNG).
+{
+    printf '<?xml version="1.0" encoding="UTF-8"?>\n'
+    printf '<gresources>\n'
+    printf '  <gresource prefix="%s">\n' "${PREFIX}"
+    find . -type f ! -name '*.gresource*' -printf '%P\n' | LC_ALL=C sort \
+        | sed 's|.*|    <file>&</file>|'
+    printf '  </gresource>\n'
+    printf '</gresources>\n'
+} > gnome-shell-theme.gresource.xml
+
+# 5. Compile and swap into place. If compile fails, the EXIT trap restores
+# the original — that's why we install the trap before any destructive op.
+glib-compile-resources --target=out.gresource gnome-shell-theme.gresource.xml
+mv out.gresource "${GRES}"
+
+# All good — disarm the restore trap.
+trap - EXIT
+cd /
+rm -rf "${WORK}"
+
+echo "[aims-os/hook] patched ${GRES}: GDM greeter + lock screen now show the AIMS OS wallpaper."
