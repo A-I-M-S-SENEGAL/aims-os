@@ -127,8 +127,11 @@ with a screenshot.
 
 ☐ 11. Calamares launch
        From the desktop launcher click "Installer AIMS OS"
-       The Calamares window must open and reach the "Welcome" page
-       (Branding still says "Debian" in v1.0 — known, on the roadmap.)
+       (In v1.0 the launcher is still labelled "Install Debian" with the
+       Debian swirl — re-branding is on the roadmap.)
+       Polkit will prompt for the live user's password — type `live`
+       (Debian live default). The Calamares window must open and reach
+       the "Bienvenue" page in French.
 
 ☐ 12. Persistent install (optional but recommended)
        Walk through Calamares to the end on the 30 GB virtual disk.
