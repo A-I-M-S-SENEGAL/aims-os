@@ -57,7 +57,8 @@ stage_branding_payload() {
         "${FILES_DIR}/usr/share/grub/themes/aims-os" \
         "${FILES_DIR}/usr/share/gnome-background-properties" \
         "${FILES_DIR}/usr/share/icons/hicolor" \
-        "${FILES_DIR}/usr/lib/aims-os"
+        "${FILES_DIR}/usr/lib/aims-os" \
+        "${FILES_DIR}/etc/calamares/branding/aims-os"
 
     # ---- Wallpapers ----
     cp "${BRAND_DIR}/generated/wallpapers/aims-os-default-1080p.png" \
@@ -99,6 +100,22 @@ stage_branding_payload() {
     # ---- Identity files (os-release + lsb-release) ----
     cp "${BRAND_DIR}/os-release/os-release"  "${FILES_DIR}/usr/lib/aims-os/"
     cp "${BRAND_DIR}/os-release/lsb-release" "${FILES_DIR}/usr/lib/aims-os/"
+
+    # ---- Calamares branding ----
+    # Combines the static branding files we maintain in-tree (branding.desc,
+    # show.qml, logo + welcome image) with the wallpaper rasterised by
+    # generate-assets.sh. /etc/calamares/branding/aims-os/ is what hook 0085
+    # tells Calamares to load — see build/config/hooks/normal/0085-*.
+    cp "${BRAND_DIR}/calamares/branding/aims-os/branding.desc"      \
+       "${FILES_DIR}/etc/calamares/branding/aims-os/"
+    cp "${BRAND_DIR}/calamares/branding/aims-os/show.qml"           \
+       "${FILES_DIR}/etc/calamares/branding/aims-os/"
+    cp "${BRAND_DIR}/calamares/branding/aims-os/aims-os-logo.png"   \
+       "${FILES_DIR}/etc/calamares/branding/aims-os/"
+    cp "${BRAND_DIR}/calamares/branding/aims-os/aims-os-welcome.png" \
+       "${FILES_DIR}/etc/calamares/branding/aims-os/"
+    cp "${BRAND_DIR}/generated/calamares/aims-os-wallpaper.png"     \
+       "${FILES_DIR}/etc/calamares/branding/aims-os/"
 
     local n
     n="$(find "${FILES_DIR}" -type f | wc -l | tr -d ' ')"

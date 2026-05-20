@@ -1,0 +1,32 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0085: flip Calamares from upstream Debian branding to ours.
+# =============================================================================
+# calamares-settings-debian ships /etc/calamares/settings.conf with
+#     branding: debian
+# which makes Calamares look up /etc/calamares/branding/debian/ for the
+# branding.desc, logos, slideshow and palette. We want it to look at
+# /etc/calamares/branding/aims-os/ instead (shipped by aims-os-branding.deb,
+# staged from branding/calamares/branding/aims-os/ + the generated
+# Calamares wallpaper at build time — see build/build-metapackages.sh).
+#
+# The settings.conf top-level `branding:` directive is the single switch.
+# We sed it in place; idempotent so a second run (or a Debian upgrade that
+# reinstates the original) is harmless.
+# =============================================================================
+set -e
+
+SETTINGS=/etc/calamares/settings.conf
+
+if [ ! -f "${SETTINGS}" ]; then
+    echo "[aims-os/hook] ${SETTINGS} not present; calamares-settings-debian missing?" >&2
+    exit 0
+fi
+
+if grep -q '^branding:[[:space:]]*aims-os' "${SETTINGS}"; then
+    echo "[aims-os/hook] ${SETTINGS} already on aims-os branding; skipping."
+    exit 0
+fi
+
+sed -i 's|^branding:.*|branding: aims-os|' "${SETTINGS}"
+echo "[aims-os/hook] flipped Calamares branding: debian → aims-os in ${SETTINGS}."

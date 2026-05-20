@@ -1,0 +1,34 @@
+[Desktop Entry]
+# =============================================================================
+# AIMS OS — Calamares installer launcher (overrides calamares-settings-debian)
+# =============================================================================
+# This file overrides /usr/share/applications/install-debian.desktop from
+# calamares-settings-debian (12.0.9-1+deb12u2 on Bookworm). live-build's
+# includes.chroot stage copies it AFTER the package is installed, so our
+# values win.
+#
+# We keep the original filename and Exec= (install-debian is the thin
+# shell wrapper provided by the upstream package that ultimately launches
+# calamares); only Name/Icon/Comment/Keywords are rebranded so the live
+# user sees "Installer AIMS OS" with the terracotta logo on the desktop.
+#
+# The upstream `add-calamares-desktop-icon` script just `cp`s this file
+# to ~/Desktop on the live user's first session (GNOME/KDE/XFCE path —
+# the LXDE branch hardcodes "Install Debian" but we don't ship LXDE).
+# =============================================================================
+Type=Application
+Version=1.0
+Name=Installer AIMS OS
+Name[fr]=Installer AIMS OS
+Name[en]=Install AIMS OS
+GenericName=Calamares Installer
+GenericName[fr]=Installeur Calamares
+Comment=Install AIMS OS to your hard disk
+Comment[fr]=Installer AIMS OS sur le disque dur
+Keywords=calamares;system;install;aims;debian;installer;installeur;
+Exec=install-debian
+Icon=aims-os-logo
+Terminal=false
+Categories=Qt;System;
+StartupWMClass=calamares
+StartupNotify=True

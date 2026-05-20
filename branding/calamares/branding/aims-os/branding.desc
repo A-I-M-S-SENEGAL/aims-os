@@ -1,0 +1,107 @@
+# =============================================================================
+# AIMS OS — Calamares branding descriptor
+# =============================================================================
+# This file is the manifest Calamares reads to brand its installer for
+# AIMS OS. Calamares finds it by component name: the parent directory
+# `aims-os` must equal `componentName` below, and the file must live at
+# /etc/calamares/branding/aims-os/branding.desc. The branding is selected
+# from /etc/calamares/settings.conf with `branding: aims-os`.
+#
+# Visual identity (matches the rest of AIMS OS):
+#   primary  #803018  AIMS terracotta — sidebar, headings, accents
+#   accent   #A0392E  lighter terracotta — selection highlights
+#   cream    #F5EFE7  background — slides, fills
+#   text     #1A1A1A  body copy — readable on cream
+#
+# Structurally inspired by AIMS Desktop 2024.1 (GPL-2+, © African
+# Institute for Mathematical Sciences) — see
+# https://git.aims.ac.za/aims-desktop/. Rewritten for AIMS OS 1.0
+# (AIMS Senegal) with modernized fields, the Calamares Slideshow API v2,
+# and a multi-slide presentation that pitches the distribution.
+#
+# Reference: https://github.com/calamares/calamares/blob/calamares/src/branding/default/branding.desc
+# =============================================================================
+
+---
+componentName:   aims-os
+
+# ---- Welcome / overall wording ---------------------------------------------
+# The welcome page shows a friendly line of text. With this true the
+# product name and a short greeting are picked up from os-release(5) for us.
+welcomeStyleCalamares:   true
+# Scale the product logo on the welcome screen.
+welcomeExpandingLogo:    true
+
+# ---- Window behaviour ------------------------------------------------------
+# normal     = obey the user's window manager rules
+# noexpand   = lock to windowSize
+# fullscreen = take the whole screen
+windowExpanding:         normal
+# Width × height: comfortable default that looks good on 1080p and HiDPI.
+# Calamares accepts pixels (`px`) or em-based font-units (`em`).
+windowSize:              900px,560px
+# `center` works on most window managers; `free` lets the WM decide.
+windowPlacement:         center
+
+# ---- Sidebar + navigation panels ------------------------------------------
+# The classic Calamares look is sidebar widget on the left + nav buttons on
+# the bottom. We keep that — it's familiar to anyone who has installed a
+# mainstream Linux distro.
+sidebar:                 widget
+navigation:              widget
+
+# ---- Strings ---------------------------------------------------------------
+# These appear all over the UI (window title, bootloader entries, welcome
+# text). Calamares supports @{key} substitutions from os-release(5) but we
+# spell them out to keep the install experience deterministic.
+strings:
+    productName:         AIMS OS
+    shortProductName:    AIMS OS
+    version:             1.0
+    shortVersion:        1.0
+    versionedName:       AIMS OS 1.0
+    shortVersionedName:  AIMS OS 1.0
+    bootloaderEntryName: AIMS OS
+    productUrl:          https://github.com/A-I-M-S-SENEGAL/aims-os
+    supportUrl:          https://github.com/A-I-M-S-SENEGAL/aims-os/issues
+    knownIssuesUrl:      https://github.com/A-I-M-S-SENEGAL/aims-os/issues
+    releaseNotesUrl:     https://github.com/A-I-M-S-SENEGAL/aims-os/releases
+    donateUrl:           https://aims-senegal.org/
+
+# ---- Images ----------------------------------------------------------------
+# All paths are relative to this file's directory (the branding component
+# directory). We reuse the AIMS circle logo from the upstream brand assets
+# (branding/source/aims_circle.png) so the installer matches the rest of
+# the system one-for-one.
+images:
+    productLogo:         "aims-os-logo.png"
+    productIcon:         "aims-os-logo.png"
+    productWelcome:      "aims-os-welcome.png"
+    productWallpaper:    "aims-os-wallpaper.png"
+
+# ---- Slideshow -------------------------------------------------------------
+# API v2 loads the QML asynchronously at requirements-check time, so there
+# is no visible compile lag when the install actually starts. The QML must
+# expose `onActivate()` and `onLeave()` callbacks on its root object.
+slideshow:               "show.qml"
+slideshowAPI:            2
+
+# ---- Style (sidebar + accent colors) ---------------------------------------
+# Keys must be quoted hex strings. These names are the canonical Calamares
+# style tokens — anything else is silently ignored.
+style:
+    sidebarBackground:        "#803018"
+    sidebarText:              "#F5EFE7"
+    sidebarTextSelect:        "#A0392E"
+    sidebarTextCurrent:       "#FFFFFF"
+    sidebarBackgroundCurrent: "#A0392E"
+
+# ---- Log upload (disabled) -------------------------------------------------
+# Calamares can offer to upload its install log to a paste service if a
+# user wants to file a bug. We disable that — issues should go through
+# the project's GitHub tracker (see supportUrl above) so contributors can
+# triage them in one place.
+uploadServer:
+    type:     none
+    url:      ""
+    sizeLimit: -1
