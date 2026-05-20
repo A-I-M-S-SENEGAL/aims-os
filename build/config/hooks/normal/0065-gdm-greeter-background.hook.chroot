@@ -56,6 +56,11 @@ fi
 # this one rebuild, but it has to be present in the chroot. Pull it in
 # explicitly if it isn't already; this is identical to the pattern the
 # 0050-flathub hook uses for `flatpak`.
+#
+# Ordering note: this hook MUST run before 0070-cleanup, which nukes
+# /var/lib/apt/lists/*. After that point `apt-get install` can no longer
+# resolve any package name. If you renumber this hook above 0070, you'd
+# have to `apt-get update` here first.
 if ! command -v glib-compile-resources >/dev/null 2>&1; then
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         libglib2.0-dev-bin >/dev/null
