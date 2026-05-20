@@ -98,5 +98,5 @@ terminal-font:    "Unifont Regular 16"
 
     text  = "↑↓ naviguer  ·  Entrée démarrer  ·  E éditer  ·  C ligne de commande"
     color = "#C8B8A8"
-    font  = "Unknown Regular 14"
+    font  = "Unifont Regular 16"
 }
