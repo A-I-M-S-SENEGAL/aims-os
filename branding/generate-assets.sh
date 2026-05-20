@@ -285,10 +285,22 @@ for f in c n s e w nw ne sw se; do
 done
 
 # -----------------------------------------------------------------------------
-# 4. GDM login screen background (same as wallpaper for now)
+# 4. GDM login screen background
+#    Must stay DARK because GNOME's GDM greeter renders the user name and
+#    "Not listed?" link in WHITE — there's no dconf/CSS knob to recolor
+#    them on Bookworm. White on our cream desktop wallpaper would land at
+#    ~1.05:1 contrast (WCAG 1.4.3 AA requires ≥4.5:1; we'd fail
+#    catastrophically). The maroon-lattice variant hits ~14:1 against
+#    white — comfortably AAA.
+#
+#    So the GDM greeter + lock screen route through aims-os-greeter-1080p
+#    (same maroon-lattice as GRUB, with the AIMS circle centred at 70 %
+#    alpha so the pattern still reads through), while the desktop keeps
+#    the calm cream wallpaper.
 # -----------------------------------------------------------------------------
-log "generating GDM background ..."
-cp "${OUT_DIR}/wallpapers/aims-os-default-1080p.png" "${OUT_DIR}/gdm/background.png"
+log "generating GDM greeter background ..."
+compose_pattern_with_logo 1920 1080 320 \
+    "${OUT_DIR}/wallpapers/aims-os-greeter-1080p.png"
 
 # -----------------------------------------------------------------------------
 # 5. Calamares welcome-screen wallpaper

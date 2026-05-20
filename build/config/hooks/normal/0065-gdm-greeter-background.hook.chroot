@@ -44,7 +44,13 @@ set -e
 
 GRES=/usr/share/gnome-shell/gnome-shell-theme.gresource
 PREFIX="/org/gnome/shell/theme"
-BG_SRC="/usr/share/backgrounds/aims-os/aims-os-default-1080p.png"
+# IMPORTANT: this is the DARK maroon-lattice greeter wallpaper, not the
+# cream desktop wallpaper. GDM renders the username + "Not listed?" link
+# in white via gnome-shell.css — white on cream is ~1.05:1 (WCAG fail);
+# white on this maroon is ~14:1 (WCAG AAA). aims-os-branding.deb ships
+# both files into /usr/share/backgrounds/aims-os/, so don't be tempted
+# to "consolidate" them.
+BG_SRC="/usr/share/backgrounds/aims-os/aims-os-greeter-1080p.png"
 BG_EMBED="aims-os-greeter-bg.png"
 # Logo used to replace every Debian-branded asset embedded in the
 # bundle (see step 3b below). Shipped by aims-os-branding.deb at

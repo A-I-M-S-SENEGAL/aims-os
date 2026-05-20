@@ -61,9 +61,17 @@ stage_branding_payload() {
         "${FILES_DIR}/etc/calamares/branding/aims-os"
 
     # ---- Wallpapers ----
+    # aims-os-default-*.png  → calm cream wallpaper for the GNOME desktop.
+    # aims-os-greeter-1080p  → maroon-lattice variant used by hook 0065 to
+    #                          re-skin the GDM greeter + lock screen. Kept
+    #                          dark so the white GNOME login text passes
+    #                          WCAG AAA contrast (cream + white = ~1.05:1,
+    #                          which would fail AA).
     cp "${BRAND_DIR}/generated/wallpapers/aims-os-default-1080p.png" \
        "${FILES_DIR}/usr/share/backgrounds/aims-os/"
     cp "${BRAND_DIR}/generated/wallpapers/aims-os-default-4k.png" \
+       "${FILES_DIR}/usr/share/backgrounds/aims-os/"
+    cp "${BRAND_DIR}/generated/wallpapers/aims-os-greeter-1080p.png" \
        "${FILES_DIR}/usr/share/backgrounds/aims-os/"
 
     # ---- Plymouth (text + images) ----
