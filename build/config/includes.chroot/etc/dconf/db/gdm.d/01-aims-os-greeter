@@ -1,0 +1,33 @@
+# =============================================================================
+# AIMS OS — GDM (login screen) defaults
+# =============================================================================
+# Compiled into /etc/dconf/db/gdm by the 0090-dconf-update hook (via the
+# standard `dconf update` invocation, which scans every db.d/ folder). GDM
+# reads /etc/dconf/db/gdm through the system-db: line in
+# /usr/share/dconf/profile/gdm shipped by gdm3 43.0-3 on Bookworm — that
+# profile already exists, so we don't need to drop one ourselves.
+#
+# What we set:
+#   - `logo`                  → AIMS circle (256 px hicolor icon ships
+#                              with aims-os-branding.deb) appears centred
+#                              above the password prompt
+#   - `banner-message-enable` / `banner-message-text`
+#                            → short welcome line at the top of the greeter
+#   - `disable-user-list` left at false so the live user (and on installed
+#     systems, the freshly-created account) shows up by name
+#
+# Deliberately NOT placing a matching `/etc/dconf/db/gdm.d/locks/` file —
+# admins/users on the installed system can change any of this with
+# dconf-editor or `gsettings set`. Same "starting point, not a cage"
+# philosophy as the desktop dconf defaults in local.d/00-aims-os.
+#
+# Background image of the GDM greeter is NOT settable here — it lives
+# inside /usr/share/gnome-shell/gnome-shell-theme.gresource and needs a
+# separate gresource rewrite hook (planned, not in this file).
+# =============================================================================
+
+[org/gnome/login-screen]
+logo='/usr/share/icons/hicolor/256x256/apps/aims-os-logo.png'
+banner-message-enable=true
+banner-message-text='Bienvenue sur AIMS OS 1.0 — Live & Install Media'
+disable-user-list=false
