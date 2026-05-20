@@ -36,7 +36,7 @@ desktop-color:    "#600000"
 title-text:       ""
 message-color:    "#F5EFE7"
 message-bg-color: "#1A0000"
-terminal-font:    "Unknown Regular 16"
+terminal-font:    "Unifont Regular 16"
 
 # ---- The boot menu ----------------------------------------------------------
 # Sits in the lower-middle band of the canvas — far enough below the
@@ -50,9 +50,13 @@ terminal-font:    "Unknown Regular 16"
     height = 38%
 
     # Cream on lattice for unselected; white pops sharply against the
-    # terracotta selection pill for the focused row.
+    # terracotta selection pill for the focused row. Both `item_font` and
+    # `selected_item_font` are required — without them GRUB falls back to
+    # an internal-default rendering path that ignores item_color.
     item_color          = "#F5EFE7"
     selected_item_color = "#FFFFFF"
+    item_font           = "Unifont Regular 16"
+    selected_item_font  = "Unifont Regular 16"
 
     # The 9-patch pill that follows the selected row.
     selected_item_pixmap_style = "select_*.png"
@@ -80,7 +84,7 @@ terminal-font:    "Unknown Regular 16"
 
     text  = "Démarrage automatique dans %d secondes"
     color = "#E6D8C8"
-    font  = "Unknown Regular 16"
+    font  = "Unifont Regular 16"
 }
 
 # ---- Keyboard hints ---------------------------------------------------------
