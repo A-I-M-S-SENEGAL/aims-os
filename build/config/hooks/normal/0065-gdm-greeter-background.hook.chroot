@@ -1,16 +1,26 @@
 #!/bin/sh
 # =============================================================================
-# AIMS OS — hook 0095: paint the GDM greeter background with our wallpaper
+# AIMS OS — hook 0065: re-skin the GDM greeter + lock screen
 # =============================================================================
-# The GDM login screen background lives inside gnome-shell-theme.gresource
-# (a compiled binary resource bundle); on GNOME 43 / Bookworm there is no
-# dconf key, no /etc/gdm3/ file, and no plug-in mechanism to swap it. The
-# only way to brand it is to:
+# Two things ship inside /usr/share/gnome-shell/gnome-shell-theme.gresource
+# that we need to override on every build:
 #
-#   1. extract every file out of /usr/share/gnome-shell/gnome-shell-theme.gresource
+#   1. The greeter / lock-screen background colour (originally #232323),
+#      controlled by the `#lockDialogGroup` rule in gnome-shell.css.
+#   2. Debian branding embedded as raster/SVG assets — debian-logo*.svg
+#      (the "debian 12" watermark at the bottom of the login screen) and
+#      openlogo*.svg / *swirl* (the Debian spiral used as the default
+#      user-avatar placeholder in the user list).
+#
+# Bookworm exposes neither a dconf key nor a /etc/gdm3/ override for either
+# of these — the resource bundle is the only surface. The recipe:
+#
+#   1. extract every file out of gnome-shell-theme.gresource
 #   2. drop our wallpaper PNG alongside the extracted gnome-shell.css
-#   3. rewrite the #lockDialogGroup rule (originally `background-color: #232323;`)
-#      to point at our PNG via a CSS background shorthand
+#   3a. rewrite the #lockDialogGroup rule to paint our PNG
+#   3b. overwrite each Debian-branded asset with a 1×1 transparent placeholder
+#       of the same filename — CSS rules continue to resolve, they just
+#       paint zero area, which deletes the watermark + spiral avatar
 #   4. rebuild a new gresource bundle with `glib-compile-resources`
 #   5. swap it into place (keeping the upstream as `.aims-original`)
 #
@@ -92,11 +102,37 @@ done
 # 2. Drop our wallpaper next to gnome-shell.css.
 cp "${BG_SRC}" "${BG_EMBED}"
 
-# 3. Rewrite the #lockDialogGroup CSS rule — non-greedy match up to the next `}`.
-python3 - <<'PY'
-import pathlib, re, sys
-p = pathlib.Path("gnome-shell.css")
-css = p.read_text()
+# 3. Patch CSS + neutralise every Debian-branded asset shipped inside the
+#    gresource. The Debian gnome-shell-common package ships:
+#
+#      - debian-logo-text.svg / debian-logo.svg  → "debian 12" watermark
+#        rendered at the bottom of the GDM greeter / lock screen.
+#      - openlogo*.svg / *swirl*.svg             → the "Debian spiral"
+#        used as the default user-avatar placeholder in the user-list.
+#
+#    We can't drop the file outright (the bundled CSS rules reference it
+#    by name, so removing it would break gresource validation), but we
+#    can REPLACE the contents with a 1×1 transparent PNG / empty SVG of
+#    the same name. The CSS rule continues to "succeed" — it just paints
+#    a zero-area image.
+python3 - "${BG_SRC}" <<'PY'
+import base64, pathlib, re, sys
+
+BG_PNG = sys.argv[1]  # not used here, kept for future extensions
+EMPTY_SVG = (
+    b'<?xml version="1.0" encoding="UTF-8"?>\n'
+    b'<svg xmlns="http://www.w3.org/2000/svg" '
+    b'width="1" height="1" viewBox="0 0 1 1"/>\n'
+)
+# 1×1 fully-transparent PNG (precomputed; 67 bytes).
+EMPTY_PNG = base64.b64decode(
+    b"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4"
+    b"2mNkAAIAAAUAAeImBZsAAAAASUVORK5CYII="
+)
+
+# --- 3a. Rewrite #lockDialogGroup to paint our background. -----------------
+css_path = pathlib.Path("gnome-shell.css")
+css = css_path.read_text()
 new_rule = (
     "#lockDialogGroup {\n"
     "  background: #600000 url(\"aims-os-greeter-bg.png\");\n"
@@ -107,9 +143,41 @@ new_rule = (
 )
 patched, n = re.subn(r"#lockDialogGroup\s*\{[^}]*\}", new_rule, css, count=1)
 if n != 1:
-    sys.stderr.write("[aims-os/hook] could not locate #lockDialogGroup rule in gnome-shell.css\n")
+    sys.stderr.write(
+        "[aims-os/hook] could not locate #lockDialogGroup rule in gnome-shell.css\n"
+    )
     sys.exit(1)
-p.write_text(patched)
+css_path.write_text(patched)
+
+# --- 3b. Neutralise every Debian-branded raster/SVG in the bundle. ---------
+# Match anything whose filename suggests Debian branding: debian-*, *swirl*,
+# openlogo*. The substitution is name-only (CSS continues to reference the
+# same path); the file simply becomes invisible.
+KILL = re.compile(r"(debian|openlogo|swirl)", re.IGNORECASE)
+killed = []
+for path in pathlib.Path(".").rglob("*"):
+    if not path.is_file():
+        continue
+    if not KILL.search(path.name):
+        continue
+    ext = path.suffix.lower()
+    if ext == ".svg":
+        path.write_bytes(EMPTY_SVG)
+        killed.append(str(path))
+    elif ext in (".png", ".jpg", ".jpeg"):
+        path.write_bytes(EMPTY_PNG)
+        killed.append(str(path))
+if killed:
+    sys.stderr.write(
+        "[aims-os/hook] neutralised Debian-branded assets in gresource:\n"
+    )
+    for k in killed:
+        sys.stderr.write(f"  - {k}\n")
+else:
+    sys.stderr.write(
+        "[aims-os/hook] note: no debian-/openlogo-/swirl-named assets "
+        "found in gresource (upstream may have renamed them).\n"
+    )
 PY
 
 # 4. Build a gresource.xml manifest covering every file (extracted + our PNG).
