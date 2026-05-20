@@ -59,8 +59,8 @@ strings:
     shortProductName:    AIMS OS
     version:             1.0
     shortVersion:        1.0
-    versionedName:       AIMS OS 1.0
-    shortVersionedName:  AIMS OS 1.0
+    versionedName:       AIMS OS
+    shortVersionedName:  AIMS OS
     bootloaderEntryName: AIMS OS
     productUrl:          https://github.com/A-I-M-S-SENEGAL/aims-os
     supportUrl:          https://github.com/A-I-M-S-SENEGAL/aims-os/issues
@@ -87,25 +87,33 @@ slideshow:               "show.qml"
 slideshowAPI:            2
 
 # ---- Style (sidebar + accent colors) ---------------------------------------
-# Keys must be quoted hex strings. These names are the canonical Calamares
-# style tokens — anything else is silently ignored.
+# Calamares 3.2 (Bookworm ships 3.2.61) recognises exactly four sidebar
+# style keys — see Branding.cpp / s_styleEntryStrings. Other names are
+# silently dropped, which is why an earlier version of this file with
+# `sidebarTextCurrent` and `sidebarBackgroundCurrent` didn't paint the
+# active step the way we expected (those keys do not exist in 3.2).
 #
-# WCAG contrast against the dark-terracotta sidebar background #803018:
+#   sidebarBackground     dark-terracotta panel behind every step
+#   sidebarText           default step label (un-visited, not hovered)
+#   sidebarTextSelect     CURRENTLY ACTIVE step label (where the user is)
+#   sidebarTextHighlight  HOVER state label
+#
+# WCAG contrast against the panel #803018 (luminance 0.068):
 #   sidebarText        #F5EFE7 → 8.1:1  (AAA)
-#   sidebarTextSelect  #FFE5C1 → 7.3:1  (AAA) — warm cream for hover, clearly
-#                                              brighter than plain cream so
-#                                              the user perceives focus
-#                                              without losing contrast.
-#   sidebarTextCurrent #FFFFFF → 13.9:1 (AAA, against #A0392E bg → 4.6:1 AA)
-#
-# Earlier choice was #A0392E on #803018 = 1.34:1, which failed WCAG 1.4.3
-# (AA needs ≥4.5:1) — the hover state was effectively invisible.
+#   sidebarTextSelect  #FFFFFF → 14.0:1 (AAA) — white, so the active
+#                                              step is unmistakably the
+#                                              brightest row, no matter
+#                                              what Calamares paints
+#                                              behind it.
+#   sidebarTextHighlight #FFE5C1 → 7.3:1 (AAA) — warm cream, a hover
+#                                              cue that's distinct from
+#                                              both the resting cream
+#                                              and the active white.
 style:
-    sidebarBackground:        "#803018"
-    sidebarText:              "#F5EFE7"
-    sidebarTextSelect:        "#FFE5C1"
-    sidebarTextCurrent:       "#FFFFFF"
-    sidebarBackgroundCurrent: "#A0392E"
+    sidebarBackground:    "#803018"
+    sidebarText:          "#F5EFE7"
+    sidebarTextSelect:    "#FFFFFF"
+    sidebarTextHighlight: "#FFE5C1"
 
 # ---- Log upload (disabled) -------------------------------------------------
 # Calamares can offer to upload its install log to a paste service if a

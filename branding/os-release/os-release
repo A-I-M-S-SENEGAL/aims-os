@@ -10,7 +10,7 @@
 # =============================================================================
 
 NAME="AIMS OS"
-PRETTY_NAME="AIMS OS 1.0"
+PRETTY_NAME="AIMS OS"
 VERSION="1.0 (built on Bookworm)"
 VERSION_ID="1.0"
 VERSION_CODENAME=bookworm

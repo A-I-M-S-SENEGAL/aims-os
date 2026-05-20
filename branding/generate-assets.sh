@@ -206,7 +206,7 @@ convert -size 600x4 "xc:#E6D8C8" \
 #         the centre stays at full intensity. This frames the boot menu
 #         naturally without an explicit panel
 #      3. anchor the AIMS circle logo top-left
-#      4. render "AIMS OS 1.0" + "Live & Install Media" in cream beside it
+#      4. render "AIMS OS" + "Live & Install Media" in cream beside it
 #         using DejaVu (the wordmark PNG already contains its own circle and
 #         its inks are dark, so it would duplicate the logo AND vanish on
 #         maroon — we render the text fresh instead, in colours we control)
@@ -238,7 +238,7 @@ convert "${GRUB_BG_TMP}" \
     \( "${LOGO_CIRCLE}" -resize 160x160 \) -gravity northwest -geometry +110+88 -composite \
     \
     -font "DejaVu-Sans-Bold" -pointsize 56 -fill "#F5EFE7" \
-        -gravity northwest -annotate +300+108 "AIMS OS 1.0" \
+        -gravity northwest -annotate +300+108 "AIMS OS" \
     -font "DejaVu-Sans"      -pointsize 22 -fill "#E6D8C8" \
         -gravity northwest -annotate +302+180 "Live & Install Media" \
     \
@@ -259,13 +259,44 @@ optipng -quiet -o2 "${OUT_DIR}/grub/background.png" 2>/dev/null || true
 # stays faintly visible through the highlight (the row feels "lit", not
 # "stamped on top").
 log "generating GRUB selection pixmaps ..."
-SELECT_COLOR='rgba(160,57,46,0.78)'
+# Full-opacity terracotta — the pill must read as a deliberate UI element
+# against the maroon lattice, not a vague translucent wash. Previous
+# version was 78% alpha and combined with a 9-patch dimension bug
+# (below) it was effectively invisible at boot.
+SELECT_COLOR='rgba(160,57,46,1.0)'
+SELECT_RADIUS=8
 
-# Centre + four straight edges — solid terracotta, GRUB will tile them.
-for piece in c n s e w; do
-    convert -size 1x1 "xc:${SELECT_COLOR}" \
-        -strip "${OUT_DIR}/grub/select_${piece}.png"
-done
+# GRUB renders the selection background as a 9-patch: the four corners
+# are placed at the corners of the selected row, the four edge tiles
+# fill the remaining strips between corners, and the centre tile fills
+# the middle. For the corners and the perpendicular dimension of the
+# edges to MATCH, every edge tile has to be R px in the corner-aligned
+# dimension (so GRUB doesn't drop or stretch them oddly):
+#
+#   nw/ne/sw/se : R × R         (rounded-quarter-disc corners)
+#   n  / s      : 1 × R         (1px wide, tiled horizontally to fill)
+#   e  / w      : R × 1         (1px tall, tiled vertically to fill)
+#   c           : 1 × 1         (tiled in both directions to fill centre)
+#
+# A previous iteration used 1×1 for n/s/e/w, which left R-1 px gaps
+# between corners and centre — GRUB rendered the corner dots alone and
+# the selection pill effectively vanished.
+
+# n / s — full-height vertical slice, GRUB tiles horizontally.
+convert -size "1x${SELECT_RADIUS}" "xc:${SELECT_COLOR}" \
+    -strip "${OUT_DIR}/grub/select_n.png"
+convert -size "1x${SELECT_RADIUS}" "xc:${SELECT_COLOR}" \
+    -strip "${OUT_DIR}/grub/select_s.png"
+
+# e / w — full-width horizontal slice, GRUB tiles vertically.
+convert -size "${SELECT_RADIUS}x1" "xc:${SELECT_COLOR}" \
+    -strip "${OUT_DIR}/grub/select_e.png"
+convert -size "${SELECT_RADIUS}x1" "xc:${SELECT_COLOR}" \
+    -strip "${OUT_DIR}/grub/select_w.png"
+
+# c — single pixel, tiled in both directions.
+convert -size 1x1 "xc:${SELECT_COLOR}" \
+    -strip "${OUT_DIR}/grub/select_c.png"
 
 # Four 8×8 corners — quarter-disc fills the *inside* corner, the
 # outside-corner pixels stay transparent so the highlight looks rounded.
@@ -283,6 +314,78 @@ convert -size 8x8 xc:transparent -fill "${SELECT_COLOR}" \
 for f in c n s e w nw ne sw se; do
     optipng -quiet -o2 "${OUT_DIR}/grub/select_${f}.png" 2>/dev/null || true
 done
+
+# ---- Menu card 9-patch (menu_pixmap_style) ---------------------------------
+# A subtle darker wash with rounded corners sits BEHIND the whole boot menu,
+# creating a "card" feel that contains the list visually without overpowering
+# the maroon-lattice wallpaper. Same 9-patch convention as select_*, with a
+# larger corner radius (16 px) for a softer look.
+#
+#   ┌─ menu_nw.png ─ menu_n.png ─ menu_ne.png ─┐
+#   │                                          │
+#   menu_w.png      menu_c.png        menu_e.png
+#   │                                          │
+#   └─ menu_sw.png ─ menu_s.png ─ menu_se.png ─┘
+#
+# Center colour: deep-maroon at 35 % alpha — darkens the lattice without
+# washing it out, so the card reads as "this is the menu" rather than
+# "this is a different surface".
+log "generating GRUB menu card pixmaps ..."
+MENU_COLOR='rgba(26,0,0,0.35)'
+MENU_RADIUS=16
+
+# Centre (tiled both directions).
+convert -size 1x1 "xc:${MENU_COLOR}" \
+    -strip "${OUT_DIR}/grub/menu_c.png"
+
+# n / s — full-corner-height vertical slice, tiled horizontally.
+convert -size "1x${MENU_RADIUS}" "xc:${MENU_COLOR}" \
+    -strip "${OUT_DIR}/grub/menu_n.png"
+convert -size "1x${MENU_RADIUS}" "xc:${MENU_COLOR}" \
+    -strip "${OUT_DIR}/grub/menu_s.png"
+
+# e / w — full-corner-width horizontal slice, tiled vertically.
+convert -size "${MENU_RADIUS}x1" "xc:${MENU_COLOR}" \
+    -strip "${OUT_DIR}/grub/menu_e.png"
+convert -size "${MENU_RADIUS}x1" "xc:${MENU_COLOR}" \
+    -strip "${OUT_DIR}/grub/menu_w.png"
+
+# Rounded corners.
+convert -size "${MENU_RADIUS}x${MENU_RADIUS}" xc:transparent -fill "${MENU_COLOR}" \
+    -draw "circle ${MENU_RADIUS},${MENU_RADIUS} 0,${MENU_RADIUS}" \
+    -strip "${OUT_DIR}/grub/menu_nw.png"
+convert -size "${MENU_RADIUS}x${MENU_RADIUS}" xc:transparent -fill "${MENU_COLOR}" \
+    -draw "circle 0,${MENU_RADIUS} ${MENU_RADIUS},${MENU_RADIUS}" \
+    -strip "${OUT_DIR}/grub/menu_ne.png"
+convert -size "${MENU_RADIUS}x${MENU_RADIUS}" xc:transparent -fill "${MENU_COLOR}" \
+    -draw "circle ${MENU_RADIUS},0 ${MENU_RADIUS},${MENU_RADIUS}" \
+    -strip "${OUT_DIR}/grub/menu_sw.png"
+convert -size "${MENU_RADIUS}x${MENU_RADIUS}" xc:transparent -fill "${MENU_COLOR}" \
+    -draw "circle 0,0 ${MENU_RADIUS},${MENU_RADIUS}" \
+    -strip "${OUT_DIR}/grub/menu_se.png"
+
+for f in c n s e w nw ne sw se; do
+    optipng -quiet -o2 "${OUT_DIR}/grub/menu_${f}.png" 2>/dev/null || true
+done
+
+# ---- Per-entry icons (24×24, matched by --class in menuentry) --------------
+# GRUB renders a small icon to the left of each boot-menu entry. The icon
+# file is found by walking the menuentry's --class arguments and looking for
+# theme_dir/icons/<class>.png. live-build's grub.cfg sets every entry's
+# class to roughly "debian gnu-linux gnu os", so shipping AIMS icons under
+# those four names guarantees every entry picks up the same logo without us
+# having to rewrite the generated grub.cfg.
+log "generating GRUB per-entry icons ..."
+mkdir -p "${OUT_DIR}/grub/icons"
+ICON_PX=24
+ICON_TMP="$(mktemp --suffix=.png)"
+# Source: the AIMS circle logo, downscaled with alpha preserved.
+convert "${LOGO_CIRCLE}" -resize "${ICON_PX}x${ICON_PX}" -strip "${ICON_TMP}"
+for class in debian gnu-linux gnu os; do
+    cp "${ICON_TMP}" "${OUT_DIR}/grub/icons/${class}.png"
+    optipng -quiet -o2 "${OUT_DIR}/grub/icons/${class}.png" 2>/dev/null || true
+done
+rm -f "${ICON_TMP}"
 
 # -----------------------------------------------------------------------------
 # 4. GDM login screen background

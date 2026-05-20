@@ -51,6 +51,9 @@ Presentation {
 
     // ---- Slide 1 : Bienvenue -------------------------------------------
     Slide {
+        width:  presentation.width
+        height: presentation.height
+
         Rectangle { anchors.fill: parent; color: "#F5EFE7" }
         Row {
             anchors.fill: parent
@@ -72,7 +75,7 @@ Presentation {
                     Text {
                         width: parent.width
                         wrapMode: Text.WordWrap
-                        text: "AIMS OS 1.0"
+                        text: "AIMS OS"
                         color: "#803018"
                         font.pixelSize: 34
                         font.bold: true
@@ -99,6 +102,9 @@ Presentation {
 
     // ---- Slide 2 : Stack scientifique pré-installé ----------------------
     Slide {
+        width:  presentation.width
+        height: presentation.height
+
         Rectangle { anchors.fill: parent; color: "#F5EFE7" }
         Row {
             anchors.fill: parent
@@ -160,6 +166,9 @@ Presentation {
 
     // ---- Slide 3 : LaTeX & rédaction de thèse ---------------------------
     Slide {
+        width:  presentation.width
+        height: presentation.height
+
         Rectangle { anchors.fill: parent; color: "#F5EFE7" }
         Row {
             anchors.fill: parent
@@ -214,6 +223,9 @@ Presentation {
 
     // ---- Slide 4 : Miniforge + Flathub ----------------------------------
     Slide {
+        width:  presentation.width
+        height: presentation.height
+
         Rectangle { anchors.fill: parent; color: "#F5EFE7" }
         Row {
             anchors.fill: parent
@@ -277,6 +289,9 @@ Presentation {
 
     // ---- Slide 5 : Sécurisé par défaut ----------------------------------
     Slide {
+        width:  presentation.width
+        height: presentation.height
+
         Rectangle { anchors.fill: parent; color: "#F5EFE7" }
         Row {
             anchors.fill: parent
@@ -338,6 +353,9 @@ Presentation {
 
     // ---- Slide 6 : 100 % libre, ouvert, partagé -------------------------
     Slide {
+        width:  presentation.width
+        height: presentation.height
+
         Rectangle { anchors.fill: parent; color: "#F5EFE7" }
         Row {
             anchors.fill: parent

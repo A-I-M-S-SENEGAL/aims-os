@@ -237,45 +237,56 @@ echo "[aims-os/hook] patched ${GRES}: GDM greeter + lock screen now show the AIM
 # load directly by path (bypassing the dconf `logo` key we already
 # override in 01-aims-os-greeter).
 #
-# Targets:
-#   /usr/share/desktop-base/debian-logos/
+# Targets in /usr/share/desktop-base/debian-logos/:
 #       logo.svg, logo-{64,128,256}.png                          ← plain swirl
 #       logo-text.svg, logo-text-{64,128,256}.png                ← swirl + "debian"
 #       logo-text-version.svg, logo-text-version-{64,128,256}.png ← swirl + "debian 12"
 #
-#   /usr/share/images/vendor-logos/  (Debian ships symlinks here pointing
-#       at the files above. We don't touch the symlinks — the files they
-#       resolve to are already overwritten.)
+# /usr/share/images/vendor-logos/ contains symlinks pointing at the files
+# above — they resolve through our overrides automatically.
 #
-# We swap each PNG for the AIMS logo rasterised at the corresponding
-# size (taking from aims-os-branding's hicolor icon set so the
-# resolution matches what consumers expect). SVGs get the same
-# base64-embedded payload technique we use in step 3b — librsvg renders
-# it identically to a vector asset.
+# We override each file via `dpkg-divert --rename`. Doing it this way
+# (vs. plain `cp`) means:
+#   - dpkg records the diversion in /var/lib/dpkg/diversions, so future
+#     `apt upgrade desktop-base` reinstalls the package files at the
+#     diverted name (.aims-original) instead of clobbering our copy
+#   - admins can audit / undo with `dpkg-divert --list` and
+#     `dpkg-divert --remove`
+#   - the .aims-original sidecar doubles as our backup
+#
+# PNGs are swapped for the AIMS logo at the matching hicolor resolution.
+# SVGs get a librsvg-friendly wrapper that embeds the 256-px AIMS PNG
+# as a base64 <image>, so they render correctly at any requested size.
 # =============================================================================
 DEB_LOGOS_DIR=/usr/share/desktop-base/debian-logos
+
+aims_divert_swap() {
+    # aims_divert_swap <target_path> <replacement_path>
+    # Idempotent: dpkg-divert --add is a no-op if the diversion already exists.
+    local target="$1" replacement="$2"
+    [ -f "${target}" ] || return 0
+    dpkg-divert --quiet --add --rename \
+        --divert "${target}.aims-original" "${target}" >/dev/null
+    cp -af "${replacement}" "${target}"
+}
 
 if [ -d "${DEB_LOGOS_DIR}" ]; then
     AIMS_ICONS=/usr/share/icons/hicolor
 
-    # PNGs — match sizes one-for-one with the hicolor set we ship.
-    # desktop-base ships 64/128/256; aims-os-branding has each of those
-    # in /usr/share/icons/hicolor/<size>x<size>/apps/aims-os-logo.png.
+    # ---- PNGs ----------------------------------------------------------------
+    # desktop-base ships 64/128/256; aims-os-branding has each of those in
+    # /usr/share/icons/hicolor/<size>x<size>/apps/aims-os-logo.png.
     for size in 64 128 256; do
         AIMS_PNG="${AIMS_ICONS}/${size}x${size}/apps/aims-os-logo.png"
         [ -f "${AIMS_PNG}" ] || continue
         for variant in "" "-text" "-text-version"; do
-            TARGET="${DEB_LOGOS_DIR}/logo${variant}-${size}.png"
-            [ -f "${TARGET}" ] || continue
-            # Keep a one-time backup so an admin can revert manually.
-            [ -f "${TARGET}.aims-original" ] || cp -a "${TARGET}" "${TARGET}.aims-original"
-            cp -af "${AIMS_PNG}" "${TARGET}"
+            aims_divert_swap \
+                "${DEB_LOGOS_DIR}/logo${variant}-${size}.png" \
+                "${AIMS_PNG}"
         done
     done
 
-    # SVGs — emit an AIMS SVG that wraps the 256 px PNG via data URI so
-    # librsvg renders it cleanly at any requested size. Same recipe as
-    # the gresource SVG swap above.
+    # ---- SVGs ----------------------------------------------------------------
     AIMS_SVG_SRC="${AIMS_ICONS}/256x256/apps/aims-os-logo.png"
     if [ -f "${AIMS_SVG_SRC}" ]; then
         AIMS_SVG_TMP="$(mktemp --suffix=.svg)"
@@ -292,16 +303,13 @@ if [ -d "${DEB_LOGOS_DIR}" ]; then
         } > "${AIMS_SVG_TMP}"
 
         for svg in logo.svg logo-text.svg logo-text-version.svg; do
-            TARGET="${DEB_LOGOS_DIR}/${svg}"
-            [ -f "${TARGET}" ] || continue
-            [ -f "${TARGET}.aims-original" ] || cp -a "${TARGET}" "${TARGET}.aims-original"
-            cp -af "${AIMS_SVG_TMP}" "${TARGET}"
+            aims_divert_swap "${DEB_LOGOS_DIR}/${svg}" "${AIMS_SVG_TMP}"
         done
 
         rm -f "${AIMS_SVG_TMP}"
     fi
 
-    echo "[aims-os/hook] replaced desktop-base/debian-logos with AIMS logo at all sizes."
+    echo "[aims-os/hook] diverted desktop-base/debian-logos through dpkg-divert; AIMS logo now serves every variant."
 else
     echo "[aims-os/hook] ${DEB_LOGOS_DIR} not present; desktop-base missing? Skipping logo swap." >&2
 fi

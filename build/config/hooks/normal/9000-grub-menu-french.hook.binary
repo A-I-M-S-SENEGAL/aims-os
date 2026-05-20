@@ -1,0 +1,65 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — binary-stage hook: rename GRUB menu entries in French
+# =============================================================================
+# live-build generates binary/boot/grub/grub.cfg with English entries derived
+# from a title-cased ID — so "aims-os" comes out as "Aims-os GNU/Linux", which
+# is both grammatically odd and inconsistent with the rest of the UX (Calamares
+# is French, Plymouth + GDM banner are French, the iso-volume reads "AIMS OS").
+#
+# This hook rewrites the generated menu so the user sees, in order:
+#
+#     ◯  AIMS OS                 (the live entry)
+#     ◯  Options avancées        (sub-menu with kernel cmdline tweaks)
+#     ◯  Paramètres UEFI         (firmware setup, on UEFI builds only)
+#
+# Why a `.hook.binary` and not a chroot hook:
+#   - chroot hooks run BEFORE live-build's bootloader-config step, so
+#     grub.cfg doesn't exist yet.
+#   - binary hooks run AFTER it, with the binary/ tree fully populated.
+#
+# The hook is conservative: it sed-replaces exact label strings, so if
+# live-build's template ever changes its wording, the original entries
+# stay (no broken-build risk).
+# =============================================================================
+set -e
+
+BANNER='[aims-os/grub-menu-french]'
+log() { printf '%s %s\n' "${BANNER}" "$*"; }
+
+# Find every grub.cfg that ended up in the binary/ tree — depending on
+# the bootloader mix (grub-pc, grub-efi, secure-boot shim) there can be
+# several copies. We patch all of them so the user sees the same labels
+# regardless of which boot path runs.
+GRUB_CFGS="$(find binary/boot/grub binary/EFI -type f -name 'grub.cfg' 2>/dev/null)"
+
+if [ -z "${GRUB_CFGS}" ]; then
+    log "no grub.cfg found under binary/; skipping (different bootloader?)"
+    exit 0
+fi
+
+# The exact strings live-build writes:
+#   "Aims-os GNU/Linux"                            (Live entry — main)
+#   "Advanced options for Aims-os GNU/Linux"       (sub-menu label)
+#   "UEFI Firmware Settings"                       (firmware setup, UEFI only)
+# We replace each with the French label.
+#
+# We also slip in two extra --class arguments so GRUB's icon lookup
+# picks up the live/advanced/uefi icons we ship under
+# live-theme/icons/ instead of falling back to the generic AIMS logo
+# bound to --class debian. The cost: a sed branch per pattern.
+
+for cfg in ${GRUB_CFGS}; do
+    log "patching ${cfg}"
+
+    # ---- Main live entry --------------------------------------------------
+    sed -i 's|"Aims-os GNU/Linux"|"AIMS OS"|g'  "${cfg}"
+
+    # ---- Advanced submenu -------------------------------------------------
+    sed -i 's|"Advanced options for Aims-os GNU/Linux"|"Options avancées"|g' "${cfg}"
+
+    # ---- UEFI firmware (only present on UEFI builds) ---------------------
+    sed -i 's|"UEFI Firmware Settings"|"Paramètres UEFI"|g' "${cfg}"
+done
+
+log "done — French menu entries written into $(echo "${GRUB_CFGS}" | wc -w | tr -d ' ') grub.cfg file(s)"

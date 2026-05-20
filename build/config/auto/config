@@ -111,7 +111,7 @@ lb config noauto \
     --debian-installer-gui false \
     --iso-application "AIMS OS" \
     --iso-publisher "AIMS Senegal IT <hakim@aims-senegal.org>" \
-    --iso-volume "AIMS OS 1.0 ${ARCH}" \
+    --iso-volume "AIMS OS ${ARCH}" \
     --memtest none \
     --firmware-binary true \
     --firmware-chroot true \

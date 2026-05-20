@@ -27,7 +27,7 @@ Description: AIMS OS — boot splash, login theme, wallpapers and icons
    * a GRUB bootloader theme matching the AIMS visual identity
    * default and lock-screen wallpapers
    * a GNOME shell theme accent colour aligned with AIMS terracotta
-   * /etc/os-release / /etc/issue / /etc/motd identifying AIMS OS 1.0
+   * /etc/os-release / /etc/issue / /etc/motd identifying AIMS OS
    * the AIMS application icon for the GNOME launcher
  .
  None of the dconf or GNOME settings shipped here are LOCKED; users

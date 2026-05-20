@@ -171,10 +171,23 @@ stage_live_grub_theme() {
     # The theme itself + the assets it references
     cp "${BRAND_DIR}/grub/theme.txt"                "${BOOT_DIR}/live-theme/theme.txt"
     cp "${BRAND_DIR}/generated/grub/background.png" "${BOOT_DIR}/live-theme/background.png"
+    # 9-patch selection pill (terracotta) — drawn behind the focused row.
     for f in c n s e w nw ne sw se; do
         cp "${BRAND_DIR}/generated/grub/select_${f}.png" \
            "${BOOT_DIR}/live-theme/select_${f}.png"
     done
+    # 9-patch menu card (semi-transparent maroon, rounded 16-px corners)
+    # — drawn behind the whole boot menu so it reads as a contained list.
+    for f in c n s e w nw ne sw se; do
+        cp "${BRAND_DIR}/generated/grub/menu_${f}.png" \
+           "${BOOT_DIR}/live-theme/menu_${f}.png"
+    done
+    # Per-entry icons (24×24 AIMS logo, one PNG per --class the live-build
+    # grub.cfg sets on each menuentry — debian/gnu-linux/gnu/os). GRUB walks
+    # the class list at render time and shows the first matching icon.
+    mkdir -p "${BOOT_DIR}/live-theme/icons"
+    cp "${BRAND_DIR}/generated/grub/icons/"*.png \
+       "${BOOT_DIR}/live-theme/icons/"
 
     local n
     n="$(find "${BOOT_DIR}" -type f | wc -l | tr -d ' ')"

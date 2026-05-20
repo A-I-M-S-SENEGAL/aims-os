@@ -29,5 +29,5 @@
 [org/gnome/login-screen]
 logo='/usr/share/icons/hicolor/256x256/apps/aims-os-logo.png'
 banner-message-enable=true
-banner-message-text='Bienvenue sur AIMS OS 1.0 — Live & Install Media'
+banner-message-text='Bienvenue sur AIMS OS — Live & Install Media'
 disable-user-list=false
