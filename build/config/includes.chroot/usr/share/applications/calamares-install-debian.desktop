@@ -2,19 +2,28 @@
 # =============================================================================
 # AIMS OS — Calamares installer launcher (overrides calamares-settings-debian)
 # =============================================================================
-# This file overrides /usr/share/applications/install-debian.desktop from
-# calamares-settings-debian (13.0.x on Trixie). live-build's
+# This file overrides /usr/share/applications/calamares-install-debian.desktop
+# from calamares-settings-debian 13.0.13 (Trixie). live-build's
 # includes.chroot stage copies it AFTER the package is installed, so our
 # values win.
 #
-# We keep the original filename and Exec= (install-debian is the thin
+# Naming/exec history:
+#   - Bookworm shipped install-debian.desktop + the install-debian wrapper.
+#   - Trixie renamed both to calamares-install-debian.{desktop,script}.
+#     An override file at the old name no longer attaches to anything,
+#     and an Exec=install-debian on Trixie silently fails (the wrapper
+#     simply doesn't exist) — that's how we ended up with a UTM build
+#     where clicking "Install AIMS OS" did nothing while clicking the
+#     upstream "Install Debian" launcher worked.
+#
+# We keep the upstream Exec target (calamares-install-debian — the thin
 # shell wrapper provided by the upstream package that ultimately launches
 # calamares); only Name/Icon/Comment/Keywords are rebranded so the live
 # user sees "Installer AIMS OS" with the terracotta logo on the desktop.
 #
-# The upstream `add-calamares-desktop-icon` script just `cp`s this file
-# to ~/Desktop on the live user's first session (GNOME/KDE/XFCE path —
-# the LXDE branch hardcodes "Install Debian" but we don't ship LXDE).
+# The upstream `add-calamares-desktop-icon` script copies this file to
+# ~/Desktop on the live user's first session (GNOME/KDE/XFCE path — the
+# LXDE branch hardcodes "Install Debian" but we don't ship LXDE).
 # =============================================================================
 Type=Application
 Version=1.0
@@ -30,7 +39,7 @@ Keywords=calamares;system;install;aims;debian;installer;installeur;
 # stay legible if the live user toggles GNOME into dark mode before running
 # the installer (Pop!_OS / Ubuntu pin their installer the same way — Adwaita
 # Light covers both the GTK widgets and Qt's GTK-integration palette).
-Exec=env GTK_THEME=Adwaita:light QT_STYLE_OVERRIDE=Adwaita install-debian
+Exec=env GTK_THEME=Adwaita:light QT_STYLE_OVERRIDE=Adwaita calamares-install-debian
 Icon=aims-os-logo
 Terminal=false
 Categories=Qt;System;

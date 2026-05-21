@@ -1,81 +1,84 @@
 # =============================================================================
-# AIMS OS — GRUB boot menu theme (v3: defensive — focus on visible selection)
+# AIMS OS — GRUB boot menu theme (v5: hero-centred, gradient background)
 # =============================================================================
 # Layout summary (1920×1080 reference resolution):
 #
 #   ┌──────────────────────────────────────────────────────────────┐
-#   │ ◯  AIMS OS                                                    │  ← background.png
-#   │     Live & Install Media                                      │     (top-left)
 #   │                                                              │
-#   │              Démarrer en mode Live           ← bright pill   │
-#   │              Mode de secours                                 │
-#   │              Installer AIMS OS                                │
-#   │              Options d'installation avancées                  │
-#   │              Utilitaires                                      │
 #   │                                                              │
-#   │       Démarrage automatique dans 5 s                          │  ← timeout label
-#   │  ↑↓ naviguer · Entrée démarrer · E éditer · C ligne          │  ← key hints
+#   │                       ◯ (AIMS logo, 280 px)                  │
+#   │                                                              │
+#   │                          AIMS OS                             │
+#   │                     Live & Install Media                     │
+#   │                                                              │
+#   │                                                              │
+#   │           ┃ Démarrer en mode Live   ← solid terracotta pill  │
+#   │             Mode de secours                                  │
+#   │             Installer AIMS OS                                │
+#   │             Options d'installation avancées                  │
+#   │             Utilitaires                                      │
+#   │                                                              │
+#   │               Démarrage automatique dans 5 s                 │
+#   │     ↑↓ naviguer · Entrée démarrer · E éditer · C ligne       │
 #   └──────────────────────────────────────────────────────────────┘
 #
-# Lessons from the v2 boot test (Trixie, arm64, UTM):
+# Design changes from v4:
 #
-#   1. menu_pixmap_style with a 35 % dark-maroon overlay was invisible
-#      against the lattice background. Dropped — keep the wallpaper as
-#      the menu's containing surface.
+#   1. background.png is no longer the maroon-lattice SVG. It is a
+#      radial gradient #500000 (centre) → #1A0000 (edges) with the
+#      AIMS logo + "AIMS OS" wordmark + tagline composited into the
+#      upper-middle of the canvas (see generate-assets.sh step 3).
+#      Result: a calm hero band on top, lots of negative space below
+#      where the menu sits.
 #
-#   2. icon_width/height reserved an icon slot for each menuentry but
-#      none of the live-build entries carry a --class matching our
-#      theme icons, so GRUB drew a black placeholder square next to the
-#      first item. Dropped icons until the binary hook (9000) reliably
-#      injects --class debian on every entry, AND we confirm the icon
-#      lookup actually fires on EFI-arm64 (suspected GRUB 2.06
-#      gfxmenu bug — see https://savannah.gnu.org/bugs/?56336).
+#   2. boot_menu moves DOWN (top = 55 %) so the centred hero in
+#      background.png stays visible above it. v4 had top = 45 %
+#      which sat in the middle of the brand area.
 #
-#   3. The selection pill (selected_item_pixmap_style) was likewise
-#      invisible on EFI-arm64 — possibly the same gfxmenu rendering
-#      gap. We KEEP shipping it (it works on grub-pc + EFI-amd64), but
-#      add a strong color delta between item_color (muted cream) and
-#      selected_item_color (bright warm peach) so the focused row is
-#      legible even when GRUB doesn't paint the pixmap.
+#   3. Selection cues from v4 are kept (solid pill + #A89888 →
+#      #FFFFFF colour delta). Three compounding ways to identify the
+#      focused row: pill background, ~2.9× luminance jump, and
+#      live-build's --hotkey letter on each menuentry.
 #
 # Reference: https://www.gnu.org/software/grub/manual/grub/html_node/Theme-file-format.html
 # =============================================================================
 
 # ---- Global appearance ------------------------------------------------------
+# desktop-color is the letterbox fallback for resolutions that don't match
+# 16:9 (e.g. portrait monitors, ultrawides). It matches the edge of the
+# gradient in background.png so the seam is invisible if any pixel of the
+# desktop-color leaks through.
 desktop-image:    "background.png"
-desktop-color:    "#600000"
+desktop-color:    "#1A0000"
 title-text:       ""
 message-color:    "#F5EFE7"
 message-bg-color: "#1A0000"
 terminal-font:    "Unifont Regular 16"
 
 # ---- The boot menu ----------------------------------------------------------
-# No menu_pixmap_style: a card overlay was invisible at v2's alpha and a
-# stronger one fought the lattice. Items sit directly on the wallpaper —
-# the centered position (left=22%, width=56%) plus the timeout label
-# below already groups them visually.
+# Positioned BELOW the hero brand band (logo + "AIMS OS" + tagline sit
+# at y ≈ 38 %). Menu starts at y = 55 % and gets 30 % of the canvas
+# height, comfortably fitting 5–6 entries at item_height 44 + spacing 8.
 #
-# The selected-item differentiation now relies on THREE compounding cues:
-#
-#   - color delta:  item #E6D8C8 (muted cream) → selected #FFE5C1 (bright
-#                   warm peach). 1.4× luminance jump, clearly perceptible
-#                   even without a pill.
-#   - selection pixmap:  the solid terracotta 9-patch pill drawn behind
-#                   the focused row. Falls through gracefully on the
-#                   builds where gfxmenu doesn't render it.
-#   - hotkey hint:  live-build's grub.cfg ships --hotkey letters on each
-#                   entry; user can boot by letter without seeing the
-#                   pill at all.
+# Selection visibility relies on:
+#   1. solid terracotta pill (selected_item_pixmap_style = select_*.png,
+#      now with full-opaque corners — v4 fix for grub-efi-arm64 2.06's
+#      gfxmenu refusal to render alpha-cornered 9-patches)
+#   2. text colour jump #A89888 → #FFFFFF (~2.9× luminance) so the
+#      focused row is the brightest line on screen even if the pill
+#      fails to paint
+#   3. live-build's --hotkey letters on each menuentry (l for Live,
+#      etc.) for users who prefer keyboard navigation
 + boot_menu {
     left   = 22%
-    top    = 45%
+    top    = 55%
     width  = 56%
-    height = 38%
+    height = 30%
 
     selected_item_pixmap_style = "select_*.png"
 
-    item_color          = "#E6D8C8"
-    selected_item_color = "#FFE5C1"
+    item_color          = "#A89888"
+    selected_item_color = "#FFFFFF"
     item_font           = "Unifont Regular 16"
     selected_item_font  = "Unifont Regular 16"
 
@@ -83,8 +86,10 @@ terminal-font:    "Unifont Regular 16"
     item_padding    = 16
     item_spacing    = 8
 
-    # icon slots intentionally left at zero — see commentary header,
-    # item 2 (GRUB 2.06 EFI-arm64 icon lookup is unreliable).
+    # icon slots intentionally left at zero — grub-efi-arm64 2.06
+    # gfxmenu icon lookup is unreliable (we saw a black placeholder
+    # square on the first Trixie build). Re-enable when we have a
+    # confirmed-working setup.
     icon_width      = 0
     icon_height     = 0
     item_icon_space = 0
@@ -92,17 +97,16 @@ terminal-font:    "Unifont Regular 16"
 
 # ---- Countdown ("Démarrage automatique dans N secondes") --------------------
 # id="__timeout__" makes GRUB substitute the live countdown; %d is replaced
-# with the remaining seconds at each tick. Single-line, centred under the
-# menu, low-contrast so it sits quietly under the focused row.
+# with the remaining seconds at each tick. Centred just below the menu,
+# muted cream so it doesn't compete with the brand or the focused entry.
 #
 # We use a plain label rather than progress_bar because grub-efi-arm64
-# 2.06 (Trixie, Bookworm) doesn't reliably render progress bars without
-# pixmap_style backing — the label is the safe path and still tells the
-# user when the auto-boot will happen.
+# 2.06 doesn't reliably render progress bars without pixmap_style backing —
+# the label is the safe path and still tells the user when auto-boot fires.
 + label {
     id    = "__timeout__"
     left  = 25%
-    top   = 88%
+    top   = 87%
     width = 50%
     align = "center"
 
@@ -116,7 +120,7 @@ terminal-font:    "Unifont Regular 16"
 # the ↑↓ / Enter / E / C hotkeys most users will reach for.
 + label {
     left  = 10%
-    top   = 95%
+    top   = 94%
     width = 80%
     align = "center"
 

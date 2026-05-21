@@ -35,6 +35,15 @@ import calamares.slideshow 1.0
 Presentation {
     id: presentation
 
+    // Make Presentation fill the slideshow viewport Calamares allocates.
+    // Without this, Calamares 3.3 centres a smaller default-size
+    // Presentation inside the right panel and the user sees a wide white
+    // band above the slide content. anchors.fill: parent pushes
+    // presentation.{width,height} to the full panel size, and every Slide
+    // below (which binds width/height to presentation.{width,height}) then
+    // expands to fill the whole area.
+    anchors.fill: parent
+
     // Slideshow API v2 — Calamares calls these as it enters and leaves
     // the slideshow phase. We use them to start/stop the advance timer so
     // the slideshow is paused while Calamares is on other pages.
