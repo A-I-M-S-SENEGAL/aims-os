@@ -120,9 +120,9 @@ The build is a 5-stage pipeline orchestrated by `build/build.sh`:
 
 ```
    ┌───────────────────────────────────────────────────────────────┐
-   │ 1. docker run --privileged debian:bookworm  (target platform) │
+   │ 1. docker run --privileged debian:trixie    (target platform) │
    │ 2. entrypoint.sh creates /dev/loop[0-15] via mknod             │
-   │ 3. lb config   (reads build/config/auto/config)                │
+   │ 3. lb config   (reads build/auto/config)                       │
    │ 4. lb build    (debootstrap → chroot → install pkgs → ISO)     │
    │ 5. ISO copied back to build/out/ on the host                   │
    └───────────────────────────────────────────────────────────────┘
@@ -152,7 +152,7 @@ Almost always a network issue between the container and `deb.debian.org`.
 Test:
 
 ```bash
-docker run --rm debian:bookworm curl -I https://deb.debian.org/debian/
+docker run --rm debian:trixie curl -I https://deb.debian.org/debian/
 ```
 
 If that fails, restart Docker Desktop.

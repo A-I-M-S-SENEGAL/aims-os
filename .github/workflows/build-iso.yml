@@ -91,7 +91,7 @@ jobs:
           # the tool-cache + Android + .NET + Haskell removal.
           large-packages: false
           # Keep docker images — the runner ships some we don't, but our
-          # build pulls debian:bookworm-slim anyway and Docker storage is
+          # build pulls debian:trixie-slim anyway and Docker storage is
           # on a separate partition.
           docker-images: false
           swap-storage: true
