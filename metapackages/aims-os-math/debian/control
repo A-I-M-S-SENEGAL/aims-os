@@ -53,8 +53,13 @@ Depends:
  python3-ipywidgets,
  python3-nbconvert,
 # --- Computer algebra & numerical computing --------------------------
- sagemath,
- sagemath-doc,
+# NOTE: SageMath is NOT shipped via apt on Trixie. The upstream Debian
+# package was removed from testing/trixie due to RC bugs and a Python
+# 3.12+ incompatibility (sagemath 9.5-6 depends on python3 < 3.12,
+# while Trixie ships python3 3.13). The recommended path on AIMS OS
+# v2.0 is `mamba install -c conda-forge sagemath` — we already ship
+# Miniforge in aims-os-core for exactly this kind of edge case.
+# Track the Debian RC bugs at https://tracker.debian.org/pkg/sagemath.
  maxima,
  maxima-doc,
  wxmaxima,
@@ -109,7 +114,7 @@ Description: AIMS OS — scientific and mathematical software stack
  networkx) with the classic Jupyter Notebook + ipywidgets + the
  JupyterLab back-end libs (the JupyterLab UI itself is install-on-
  demand via `pipx install jupyterlab` since Debian does not yet
- package it); SageMath with consolidated multilingual documentation;
+ package it; SageMath also install-on-demand on Trixie — see note below);
  Maxima and wxMaxima for symbolic computation;
  GNU Octave with the scientific add-on modules (symbolic, statistics,
  optim, control, signal); R with the tidyverse, ggplot2, knitr and

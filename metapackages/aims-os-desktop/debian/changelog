@@ -1,3 +1,14 @@
+aims-os-desktop (2.0) trixie; urgency=medium
+
+  * v2.0 — rebase to Debian 13 Trixie.
+    + Brings GNOME 48 (digital-wellbeing, screen-time limits, refreshed
+      libadwaita), Calamares 3.3.14 (cleaner sidebar styling schema),
+      LibreOffice 25.x, refreshed Firefox ESR / Chromium / GIMP /
+      Inkscape / VLC / Evolution. No dependency renames needed —
+      package names are stable across the rebase.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 21 May 2026 00:00:00 +0000
+
 aims-os-desktop (1.0) bookworm; urgency=medium
 
   * Initial release.

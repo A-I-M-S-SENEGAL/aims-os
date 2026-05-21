@@ -41,12 +41,14 @@ esac
 #   --mode debian
 #       Build a Debian (vs Ubuntu) live system.
 #
-#   --distribution bookworm
-#       Pin to Debian 12. We don't auto-track stable so a future
-#       release of Debian doesn't silently change AIMS OS 1.0.
+#   --distribution trixie
+#       Pin to Debian 13 (released 2025-08-09; current stable). We do
+#       not auto-track "stable" — pinning by codename means a future
+#       release of Debian doesn't silently change AIMS OS under us.
+#       Bookworm v1.0 lives on the main branch as a fallback.
 #
 #   --debian-installer live
-#   --debian-installer-distribution bookworm
+#   --debian-installer-distribution trixie
 #       Embed a live-style installer in the ISO. Calamares itself is
 #       pulled in via the package lists (config/package-lists/).
 #
@@ -94,15 +96,17 @@ esac
 #       behaviour after install is consistent.
 #
 #   --updates true / --security true
-#       Enable bookworm-updates and bookworm-security repos in the
-#       resulting system (and at build time too).
+#       Enable trixie-updates and trixie-security repos in the
+#       resulting system (and at build time too). live-build derives
+#       the suite name from --distribution, so we don't have to spell
+#       it out.
 # -----------------------------------------------------------------------------
 lb config noauto \
     --mode debian \
-    --distribution bookworm \
-    --distribution-binary bookworm \
+    --distribution trixie \
+    --distribution-binary trixie \
     --debian-installer live \
-    --debian-installer-distribution bookworm \
+    --debian-installer-distribution trixie \
     --architectures "${ARCH}" \
     --linux-flavours "${LINUX_FLAVOURS}" \
     --binary-images iso-hybrid \

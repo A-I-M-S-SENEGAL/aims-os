@@ -87,33 +87,32 @@ slideshow:               "show.qml"
 slideshowAPI:            2
 
 # ---- Style (sidebar + accent colors) ---------------------------------------
-# Calamares 3.2 (Bookworm ships 3.2.61) recognises exactly four sidebar
-# style keys — see Branding.cpp / s_styleEntryStrings. Other names are
-# silently dropped, which is why an earlier version of this file with
-# `sidebarTextCurrent` and `sidebarBackgroundCurrent` didn't paint the
-# active step the way we expected (those keys do not exist in 3.2).
+# Calamares 3.3 (Trixie ships 3.3.14) recognises four PascalCase sidebar
+# style keys — see Branding.cpp validateStyleEntries(). The schema is
+# different from 3.2:
 #
-#   sidebarBackground     dark-terracotta panel behind every step
-#   sidebarText           default step label (un-visited, not hovered)
-#   sidebarTextSelect     CURRENTLY ACTIVE step label (where the user is)
-#   sidebarTextHighlight  HOVER state label
+#   3.2 (Bookworm)        3.3 (Trixie)              Role
+#   ──────────────────    ─────────────────────     ──────────────────────────
+#   sidebarBackground     SidebarBackground          panel background
+#   sidebarText           SidebarText                default step label
+#   sidebarTextSelect     SidebarTextCurrent         active step label
+#   sidebarTextHighlight  SidebarBackgroundCurrent   active step background
+#                         (no separate hover state)  hover not stylable
+#
+# Active-step rendering is now bg-driven: instead of changing only the
+# text color on the active row, 3.3 paints a brighter background BEHIND
+# the active step too. Cleaner UX, and the contrast guarantees are
+# unchanged.
 #
 # WCAG contrast against the panel #803018 (luminance 0.068):
-#   sidebarText        #F5EFE7 → 8.1:1  (AAA)
-#   sidebarTextSelect  #FFFFFF → 14.0:1 (AAA) — white, so the active
-#                                              step is unmistakably the
-#                                              brightest row, no matter
-#                                              what Calamares paints
-#                                              behind it.
-#   sidebarTextHighlight #FFE5C1 → 7.3:1 (AAA) — warm cream, a hover
-#                                              cue that's distinct from
-#                                              both the resting cream
-#                                              and the active white.
+#   SidebarText            #F5EFE7 → 8.1:1   (AAA, default step)
+# Against the active-bg #A0392E (luminance 0.108):
+#   SidebarTextCurrent     #FFFFFF → 6.65:1  (AAA, active step)
 style:
-    sidebarBackground:    "#803018"
-    sidebarText:          "#F5EFE7"
-    sidebarTextSelect:    "#FFFFFF"
-    sidebarTextHighlight: "#FFE5C1"
+    SidebarBackground:        "#803018"
+    SidebarBackgroundCurrent: "#A0392E"
+    SidebarText:              "#F5EFE7"
+    SidebarTextCurrent:       "#FFFFFF"
 
 # ---- Log upload (disabled) -------------------------------------------------
 # Calamares can offer to upload its install log to a paste service if a

@@ -148,7 +148,7 @@ Presentation {
                     Text {
                         width: parent.width
                         wrapMode: Text.WordWrap
-                        text: "Jupyter · SageMath · Maxima · wxMaxima · GNU Octave"
+                        text: "Jupyter · Maxima · wxMaxima · GNU Octave · SageMath via mamba"
                         color: "#1A1A1A"
                         font.pixelSize: 15
                     }

@@ -9,6 +9,6 @@
 # =============================================================================
 
 DISTRIB_ID=AIMS-OS
-DISTRIB_RELEASE=1.0
-DISTRIB_CODENAME=bookworm
+DISTRIB_RELEASE=2.0
+DISTRIB_CODENAME=trixie
 DISTRIB_DESCRIPTION="AIMS OS"

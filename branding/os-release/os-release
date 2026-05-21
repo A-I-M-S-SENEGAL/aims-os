@@ -11,9 +11,9 @@
 
 NAME="AIMS OS"
 PRETTY_NAME="AIMS OS"
-VERSION="1.0 (built on Bookworm)"
-VERSION_ID="1.0"
-VERSION_CODENAME=bookworm
+VERSION="2.0 (built on Trixie)"
+VERSION_ID="2.0"
+VERSION_CODENAME=trixie
 
 # ID is the canonical lower-case identifier scripts key on.
 ID=aims-os

@@ -1,3 +1,13 @@
+aims-os-core (2.0) trixie; urgency=medium
+
+  * v2.0 — rebase to Debian 13 Trixie.
+    + No changes to the dependency list itself; everything we already
+      pull (UFW, AppArmor, unattended-upgrades, fail2ban, firmware
+      blobs, locales, ACPI/time-sync, fs/block tooling, build-essential,
+      gfortran) is present in Trixie with the expected names.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 21 May 2026 00:00:00 +0000
+
 aims-os-core (1.0) bookworm; urgency=medium
 
   * Initial release.

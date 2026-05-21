@@ -1,3 +1,21 @@
+aims-os-math (2.0) trixie; urgency=medium
+
+  * v2.0 — rebase to Debian 13 Trixie.
+    + Drop sagemath + sagemath-doc from Depends. SageMath is currently
+      not in Trixie because its 9.5-6 upload requires python3 < 3.12
+      while Trixie ships python3 3.13 (Debian RC bug tracker:
+      https://tracker.debian.org/pkg/sagemath). The install-on-demand
+      path via `mamba install -c conda-forge sagemath` is now the
+      recommended way — Miniforge already ships in aims-os-core.
+    + Everything else (NumPy, SciPy, pandas, matplotlib, sympy,
+      sklearn, statsmodels, networkx, JupyterLab back-end, Maxima,
+      wxMaxima, Octave + scientific modules, R + tidyverse, TeX Live
+      with French / English, TeXstudio + biber, GeoGebra, gnuplot,
+      gdb / valgrind, OpenBLAS / LAPACK / FFTW / HDF5 / GMP / MPFR
+      headers) is present in Trixie with the same package names.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 21 May 2026 00:00:00 +0000
+
 aims-os-math (1.0) bookworm; urgency=medium
 
   * Initial release.

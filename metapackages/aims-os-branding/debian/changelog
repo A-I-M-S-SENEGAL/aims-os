@@ -1,3 +1,14 @@
+aims-os-branding (2.0) trixie; urgency=medium
+
+  * v2.0 — rebase to Debian 13 Trixie.
+    + No payload change; the branding asset set (Plymouth theme, GRUB
+      theme, wallpapers + greeter variant, hicolor icon set, GNOME
+      wallpaper picker manifest, Calamares branding component) ports
+      one-for-one to Trixie. The GNOME 48 gnome-shell theme still
+      exposes the `#lockDialogGroup` rule that hook 0065 patches.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 21 May 2026 00:00:00 +0000
+
 aims-os-branding (1.0) bookworm; urgency=medium
 
   * Initial release.
