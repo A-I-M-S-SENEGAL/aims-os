@@ -152,9 +152,19 @@ LOGO_SVG = (
     '</svg>\n'
 ).encode("utf-8")
 
-# --- 3a. Rewrite #lockDialogGroup to paint our background. -----------------
-css_path = pathlib.Path("gnome-shell.css")
-css = css_path.read_text()
+# --- 3a. Rewrite #lockDialogGroup in every CSS variant we find. ------------
+#
+# In GNOME 43 (Bookworm) the gresource shipped a single gnome-shell.css.
+# Starting GNOME 47/48 (Trixie ships GNOME 48) the file was split into
+#   gnome-shell-dark.css
+#   gnome-shell-light.css
+#   gnome-shell-high-contrast.css
+# — the previous hook hard-coded "gnome-shell.css" and aborted with
+# FileNotFoundError on the first real Trixie build. We now iterate over
+# every *.css present in the extracted tree, attempt the substitution,
+# and require at least ONE successful patch (zero successful patches
+# means the schema changed again and we should investigate, not silently
+# ship a broken greeter).
 new_rule = (
     "#lockDialogGroup {\n"
     "  background: #600000 url(\"aims-os-greeter-bg.png\");\n"
@@ -163,13 +173,34 @@ new_rule = (
     "  background-position: center;\n"
     "}"
 )
-patched, n = re.subn(r"#lockDialogGroup\s*\{[^}]*\}", new_rule, css, count=1)
-if n != 1:
+
+css_files = sorted(pathlib.Path(".").glob("gnome-shell*.css"))
+if not css_files:
     sys.stderr.write(
-        "[aims-os/hook] could not locate #lockDialogGroup rule in gnome-shell.css\n"
+        "[aims-os/hook] no gnome-shell*.css found in gresource — schema "
+        "changed beyond gnome-shell-{,dark,light,high-contrast}.css ?\n"
     )
     sys.exit(1)
-css_path.write_text(patched)
+
+patched_count = 0
+for css_path in css_files:
+    css = css_path.read_text()
+    patched, n = re.subn(r"#lockDialogGroup\s*\{[^}]*\}", new_rule, css, count=1)
+    if n == 0:
+        sys.stderr.write(
+            f"[aims-os/hook] note: no #lockDialogGroup rule in {css_path.name}\n"
+        )
+        continue
+    css_path.write_text(patched)
+    sys.stderr.write(f"[aims-os/hook] patched #lockDialogGroup in {css_path.name}\n")
+    patched_count += 1
+
+if patched_count == 0:
+    sys.stderr.write(
+        "[aims-os/hook] no #lockDialogGroup rule found in any CSS variant — "
+        "GDM greeter background can't be re-skinned at the CSS layer.\n"
+    )
+    sys.exit(1)
 
 # --- 3b. Swap every Debian-branded raster/SVG for the AIMS logo. ----------
 # Match anything whose filename suggests Debian branding: debian-*, *swirl*,
