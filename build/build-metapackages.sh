@@ -171,6 +171,9 @@ stage_live_grub_theme() {
     # The theme itself + the assets it references
     cp "${BRAND_DIR}/grub/theme.txt"                "${BOOT_DIR}/live-theme/theme.txt"
     cp "${BRAND_DIR}/generated/grub/background.png" "${BOOT_DIR}/live-theme/background.png"
+    # info.png — the AIMS brand card (logo + wordmark + tagline)
+    # positioned by theme.txt's `+ image` directive.
+    cp "${BRAND_DIR}/generated/grub/info.png"       "${BOOT_DIR}/live-theme/info.png"
     # 9-patch selection pill (terracotta) — drawn behind the focused row.
     for f in c n s e w nw ne sw se; do
         cp "${BRAND_DIR}/generated/grub/select_${f}.png" \

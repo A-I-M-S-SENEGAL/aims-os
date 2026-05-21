@@ -1,79 +1,64 @@
 # =============================================================================
-# AIMS OS — GRUB boot menu theme (v5: hero-centred, gradient background)
+# AIMS OS — GRUB boot menu theme (SVG background + right-side menu)
 # =============================================================================
 # Layout summary (1920×1080 reference resolution):
 #
 #   ┌──────────────────────────────────────────────────────────────┐
-#   │                                                              │
-#   │                                                              │
-#   │                       ◯ (AIMS logo, 280 px)                  │
-#   │                                                              │
-#   │                          AIMS OS                             │
-#   │                     Live & Install Media                     │
-#   │                                                              │
-#   │                                                              │
-#   │           ┃ Démarrer en mode Live   ← solid terracotta pill  │
-#   │             Mode de secours                                  │
-#   │             Installer AIMS OS                                │
-#   │             Options d'installation avancées                  │
-#   │             Utilitaires                                      │
-#   │                                                              │
-#   │               Démarrage automatique dans 5 s                 │
-#   │     ↑↓ naviguer · Entrée démarrer · E éditer · C ligne       │
+#   │  Vimix-style diagonal      │                                  │
+#   │  stripes (cream/white) +   │                                  │
+#   │  layered terracotta        │     Démarrer en mode Live        │
+#   │  triangles, rendered from  │     Mode de secours              │
+#   │  branding/source/          │     Installer AIMS OS            │
+#   │  aims-grub-bg.svg          │     Options d'installation av…   │
+#   │                            │     Utilitaires                  │
+#   │  (left 1080 px = design)   │                                  │
+#   │                            │       ◯  AIMS OS                 │
+#   │                            │          Live & Install Media    │
+#   │                            │                                  │
+#   │                            │    Démarrage automatique dans 5 s│
+#   │     ↑↓ naviguer · Entrée démarrer · E éditer · C ligne        │
 #   └──────────────────────────────────────────────────────────────┘
+#       background : branding/source/aims-grub-bg.svg rasterised at
+#                    1080×1080 + extended to 1920×1080 with #2A282B
+#                    (the SVG's own bg colour) filling the right side.
 #
-# Design changes from v4:
-#
-#   1. background.png is no longer the maroon-lattice SVG. It is a
-#      radial gradient #500000 (centre) → #1A0000 (edges) with the
-#      AIMS logo + "AIMS OS" wordmark + tagline composited into the
-#      upper-middle of the canvas (see generate-assets.sh step 3).
-#      Result: a calm hero band on top, lots of negative space below
-#      where the menu sits.
-#
-#   2. boot_menu moves DOWN (top = 55 %) so the centred hero in
-#      background.png stays visible above it. v4 had top = 45 %
-#      which sat in the middle of the brand area.
-#
-#   3. Selection cues from v4 are kept (solid pill + #A89888 →
-#      #FFFFFF colour delta). Three compounding ways to identify the
-#      focused row: pill background, ~2.9× luminance jump, and
-#      live-build's --hotkey letter on each menuentry.
+# The design occupies the left 1080 px (≈ 56 % of canvas). Everything
+# interactive (boot_menu + info.png + timeout + hints) lives in the
+# right 840 px (56 %–100 %), entirely clear of the triangles and
+# stripes so the design reads as decoration, not background-noise
+# behind the menu.
 #
 # Reference: https://www.gnu.org/software/grub/manual/grub/html_node/Theme-file-format.html
 # =============================================================================
 
 # ---- Global appearance ------------------------------------------------------
-# desktop-color is the letterbox fallback for resolutions that don't match
-# 16:9 (e.g. portrait monitors, ultrawides). It matches the edge of the
-# gradient in background.png so the seam is invisible if any pixel of the
-# desktop-color leaks through.
+# desktop-color matches the SVG's own background so any letterbox
+# leakage at the canvas edges is invisible.
 desktop-image:    "background.png"
-desktop-color:    "#1A0000"
+desktop-color:    "#2A282B"
 title-text:       ""
 message-color:    "#F5EFE7"
 message-bg-color: "#1A0000"
 terminal-font:    "Unifont Regular 16"
 
-# ---- The boot menu ----------------------------------------------------------
-# Positioned BELOW the hero brand band (logo + "AIMS OS" + tagline sit
-# at y ≈ 38 %). Menu starts at y = 55 % and gets 30 % of the canvas
-# height, comfortably fitting 5–6 entries at item_height 44 + spacing 8.
+# ---- The boot menu (right region) ------------------------------------------
+# Anchored in the right half of the canvas, past the SVG design
+# (design ends at x = 1080 ≈ 56 %). Menu starts at left = 58 %
+# (x = 1113) with width = 38 % (731 px) so it has a 100-px right
+# margin before the canvas edge.
 #
-# Selection visibility relies on:
+# Selection visibility uses two compounding cues:
 #   1. solid terracotta pill (selected_item_pixmap_style = select_*.png,
-#      now with full-opaque corners — v4 fix for grub-efi-arm64 2.06's
+#      full-opaque corners — fix from v4 for grub-efi-arm64 2.06's
 #      gfxmenu refusal to render alpha-cornered 9-patches)
-#   2. text colour jump #A89888 → #FFFFFF (~2.9× luminance) so the
-#      focused row is the brightest line on screen even if the pill
-#      fails to paint
-#   3. live-build's --hotkey letters on each menuentry (l for Live,
-#      etc.) for users who prefer keyboard navigation
+#   2. text colour jump #A89888 → #FFFFFF (~2.9× luminance) — the
+#      focused row reads as the brightest line on the screen even
+#      if the pixmap pill fails to paint
 + boot_menu {
-    left   = 22%
-    top    = 55%
-    width  = 56%
-    height = 30%
+    left   = 58%
+    top    = 25%
+    width  = 38%
+    height = 40%
 
     selected_item_pixmap_style = "select_*.png"
 
@@ -86,28 +71,32 @@ terminal-font:    "Unifont Regular 16"
     item_padding    = 16
     item_spacing    = 8
 
-    # icon slots intentionally left at zero — grub-efi-arm64 2.06
-    # gfxmenu icon lookup is unreliable (we saw a black placeholder
-    # square on the first Trixie build). Re-enable when we have a
-    # confirmed-working setup.
     icon_width      = 0
     icon_height     = 0
     item_icon_space = 0
 }
 
+# ---- AIMS brand card -------------------------------------------------------
+# info.png — 600×220 transparent PNG containing the AIMS logo (140 px)
+# next to the "AIMS OS" wordmark + "Live & Install Media" tagline.
+# Positioned below the boot menu in the right region.
++ image {
+    top   = 68%
+    left  = 58%
+    width = 38%
+    file  = "info.png"
+}
+
 # ---- Countdown ("Démarrage automatique dans N secondes") --------------------
-# id="__timeout__" makes GRUB substitute the live countdown; %d is replaced
-# with the remaining seconds at each tick. Centred just below the menu,
-# muted cream so it doesn't compete with the brand or the focused entry.
-#
-# We use a plain label rather than progress_bar because grub-efi-arm64
-# 2.06 doesn't reliably render progress bars without pixmap_style backing —
-# the label is the safe path and still tells the user when auto-boot fires.
+# Centred under info.png in the right region so it stays clear of
+# the design's lower-left triangles. Plain label rather than
+# progress_bar because grub-efi-arm64 2.06 doesn't reliably render
+# progress bars without pixmap_style backing.
 + label {
     id    = "__timeout__"
-    left  = 25%
+    left  = 58%
     top   = 87%
-    width = 50%
+    width = 38%
     align = "center"
 
     text  = "Démarrage automatique dans %d secondes"
@@ -116,8 +105,10 @@ terminal-font:    "Unifont Regular 16"
 }
 
 # ---- Keyboard hints ---------------------------------------------------------
-# A static one-line cheat-sheet at the very bottom, in muted cream. Mirrors
-# the ↑↓ / Enter / E / C hotkeys most users will reach for.
+# A static one-line cheat-sheet at the very bottom. Full canvas
+# width (10 % – 90 %) — the muted cream colour stays readable both
+# on the dark slate (right) and on the design's edges (left) if the
+# text happens to span across.
 + label {
     left  = 10%
     top   = 94%

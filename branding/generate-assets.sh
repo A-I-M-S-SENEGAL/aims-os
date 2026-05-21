@@ -198,73 +198,131 @@ convert -size 600x4 "xc:#E6D8C8" \
     -strip "${OUT_DIR}/plymouth/progress-bar-bg.png"
 
 # -----------------------------------------------------------------------------
-# 3. GRUB background (v4 — hero centred on a soft radial gradient)
+# 3. GRUB background — Vimix-inspired diagonal triangle (AIMS colours)
 #
-# Earlier versions stamped the maroon-lattice SVG behind the menu. The
-# pattern was technically beautiful but visually busy on the boot screen
-# — the diamonds competed with the menu entries for attention. We swap
-# it for a hero-centred composition (the Pop!_OS / Sheffield school):
+# Pattern: a stack of triangles all sharing the same top-left vertex but
+# decreasing in size. Each later triangle paints over the centre of the
+# previous one, so what remains visible at the edges are three thin
+# diagonal "stripes" (cream / dark / cream) leading into a solid
+# terracotta triangle. This is exactly the Vimix grub2-themes look —
+# we just swap their teal for AIMS terracotta and use #1A0000 as the
+# canvas instead of dark slate.
 #
 #   ┌────────────────────────────────────────────────────────────┐
-#   │                                                            │
-#   │                                                            │
-#   │                   ◯ AIMS logo (280 px)                     │  ← upper-middle
-#   │                                                            │
-#   │                       AIMS OS                              │  ← DejaVu-Bold 72
-#   │                  Live & Install Media                      │  ← DejaVu 28
-#   │                                                            │
-#   │           (boot_menu lives here at y ≈ 55 %)               │
-#   │                                                            │
+#   │\                                                            │
+#   │ \   thin cream line (outer)                                 │
+#   │ |\                                                          │
+#   │ | \   dark gap                                              │
+#   │ |  \                                                        │
+#   │ |   \  cream band                                           │
+#   │ |    \                                                      │
+#   │ |     \  dark gap                                           │
+#   │ |▲▲▲▲▲                                                      │
+#   │ |▲▲▲▲   terracotta filled triangle                          │
+#   │  \▲▲▲                                                       │
+#   │   \▲▲                                                       │
+#   │    \▲                                                       │
+#   │     ▼   (triangle bottom-left vertex)                       │
+#   │                                                             │
+#   │           [boot_menu lives here, centred]                   │
+#   │                                                             │
+#   │           AIMS logo + "AIMS OS"  (info.png)                 │
+#   │              Démarrage automatique dans 5 s                 │
+#   │     ↑↓ naviguer · Entrée démarrer · E éditer · C cli        │
 #   └────────────────────────────────────────────────────────────┘
-#       background : radial gradient #500000 (centre) → #1A0000 (edges)
 #
-# Composition passes:
-#   1. paint a 1920×1080 radial gradient from #500000 (centre) to #1A0000
-#      (edges) — a calm "glow" under the brand area without any pattern
-#   2. composite the AIMS logo PNG at 280 px, centred horizontally,
-#      offset upward (y = 38 % of canvas) so the menu has room below
-#   3. stamp "AIMS OS" wordmark in DejaVu-Bold 72 cream, below the logo
-#   4. stamp "Live & Install Media" tagline in DejaVu 28 muted cream,
-#      below the wordmark
+# Why this works on EFI's low-bit-depth framebuffer:
+#   - solid colours throughout (no gradient → no banding)
+#   - hard polygon edges (no anti-aliased curve → no shimmer)
+#   - same shape repeated at five sizes → reads as deliberate design,
+#     not a glitch
 #
-# Why a single PNG instead of compositing text in the theme.txt:
-#   - DejaVu fonts render with anti-aliasing at build time; GRUB's
-#     internal PF2 font renderer is bitmap-only and renders text noisier
-#     at large sizes
-#   - the wordmark + tagline never change between builds, so baking them
-#     into the PNG saves theme.txt complexity
+# Vimix-faithful composition (verified against
+# raw.githubusercontent.com/vinceliuice/grub2-themes/master/backgrounds/
+# 1080p/background-vimix.jpg):
+#
+#   1. solid dark canvas (Vimix uses cool slate #383b3d; we use AIMS
+#      maroon-black #1A0000 to keep the brand palette)
+#   2. the "decoration band" at the TOP — two cream stripes (one
+#      thin white, one wider muted cream) painted at a SHALLOW angle
+#      that crosses the upper third of the canvas. NOT the same
+#      diagonal as the main accent triangle below
+#   3. the MAIN terracotta polygon — a 4-vertex shape that fills the
+#      left margin from mid-canvas to the bottom-left corner, peaks
+#      out to the right around y≈360, and meets the top edge near
+#      x≈170. This is the "big accent" that gives the theme its
+#      identity
+#
+# Vertex pairs (1920×1080):
+#   accent polygon  (170,0)  (660,360)  (0,1080)  (0,460)
+#   cream-band wide (60,0)   (770,0)    (290,170) (0,170)
+#   white-line thin (10,0)   (700,0)    (660,30)  (0,30)
+#
+# Painting order matters: dark canvas → cream band → white line
+# (slightly above the band, narrower) → terracotta polygon (over the
+# bottom band → left of the cream stripes, so the cream stripes
+# remain visible to the right of the polygon).
+#
+# The polygon's rightmost vertex (660,360) puts the accent's right
+# edge well clear of the boot_menu column (boot_menu left=30 % =
+# x=576 — but the polygon at the menu's top-y has tapered back
+# towards the left edge, so the menu sits over the dark zone).
+#
+# AIMS brand (logo + wordmark + tagline) ships separately as
+# info.png, positioned by theme.txt's + image directive.
 # -----------------------------------------------------------------------------
-log "generating GRUB background (hero + gradient) ..."
+log "generating GRUB background (rasterised SVG + 16:9 extension) ..."
+# Source: branding/source/aims-grub-bg.svg — a 2048×2048 SVG carrying
+# the Vimix-style diagonal stripes + triangles design, already
+# coloured in AIMS terracotta/cream on a #2A282B dark slate canvas.
+# The design is square (export tool default); we adapt it to GRUB's
+# 16:9 by:
+#
+#   1. rasterising to 1080×1080 (preserves aspect — design fits)
+#   2. compositing it on a 1920×1080 canvas, anchored to the LEFT
+#      with the SVG's own bg colour (#2A282B) filling the right
+#      840 px. The seam is invisible because both halves share the
+#      same dark slate, and the boot_menu will live in the clean
+#      right region.
+#
+# Sampling the bg colour: ImageMagick reports srgb(42,40,43) ≈
+# #2A282B at pixel (1000,500) of the rasterised render, so we use
+# that exact value for the canvas extension.
 GRUB_BG_TMP="$(mktemp --suffix=.png)"
-
-# Pass 1 — radial gradient #500000 → #1A0000. ImageMagick's radial-gradient
-# fills from the centre outward by default; the second colour is the edge
-# colour. The "plasma:" alternative would inject random noise — we want
-# a clean, deterministic look.
-convert -size 1920x1080 \
-    radial-gradient:'#500000'-'#1A0000' \
-    "${GRUB_BG_TMP}"
-
-# Pass 2-4 — composite the logo + wordmark + tagline on top.
-#   logo  : 280×280, anchored at y = 38 % of canvas (centre of logo)
-#   text 1: "AIMS OS"  — pointsize 72, ~70 px below logo bottom
-#   text 2: tagline    — pointsize 28, ~30 px below the wordmark
-# ImageMagick's `-gravity center` + `-geometry +X+Y` measures from the
-# canvas centre, positive Y goes DOWN. The logo's vertical anchor is
-# the geometric centre of the logo rectangle.
+rsvg-convert -h 1080 "${SRC_DIR}/aims-grub-bg.svg" -o "${GRUB_BG_TMP}"
 convert "${GRUB_BG_TMP}" \
-    \( "${LOGO_CIRCLE}" -resize 280x280 \) \
-        -gravity center -geometry +0-130 -composite \
-    \
-    -font "DejaVu-Sans-Bold" -pointsize 72 -fill "#F5EFE7" \
-        -gravity center -annotate +0+60  "AIMS OS" \
-    -font "DejaVu-Sans"      -pointsize 28 -fill "#E6D8C8" \
-        -gravity center -annotate +0+130 "Live & Install Media" \
-    \
+    -background "#2A282B" \
+    -gravity west -extent 1920x1080 \
     -strip "${OUT_DIR}/grub/background.png"
-
 rm -f "${GRUB_BG_TMP}"
 optipng -quiet -o2 "${OUT_DIR}/grub/background.png" 2>/dev/null || true
+
+# -----------------------------------------------------------------------------
+# 3b. GRUB info.png — AIMS logo + "AIMS OS" + tagline (transparent bg)
+#
+# Vimix-style brand card meant to be positioned by theme.txt's
+# `+ image { file = "info.png" }` directive. Keeping the asset
+# transparent + small (600×220) means theme.txt can move/scale it
+# without re-rendering background.png.
+#
+#   ┌──────────────────────────────────────┐
+#   │ ◯  AIMS OS                            │
+#   │    Live & Install Media               │
+#   └──────────────────────────────────────┘
+#
+# Logo 140×140 on the LEFT, wordmark (DejaVu Bold 56) + tagline
+# (DejaVu Regular 22 muted cream) stacked to the RIGHT.
+# -----------------------------------------------------------------------------
+log "generating GRUB info card (AIMS brand block) ..."
+convert -size 600x220 xc:transparent \
+    \( "${LOGO_CIRCLE}" -resize 140x140 \) \
+        -gravity west -geometry +10+0 -composite \
+    -font "DejaVu-Sans-Bold" -pointsize 56 -fill "#F5EFE7" \
+        -gravity west -annotate +175-25 "AIMS OS" \
+    -font "DejaVu-Sans"      -pointsize 22 -fill "#E6D8C8" \
+        -gravity west -annotate +177+30  "Live & Install Media" \
+    -strip "${OUT_DIR}/grub/info.png"
+optipng -quiet -o2 "${OUT_DIR}/grub/info.png" 2>/dev/null || true
 
 # ---- Selected-item highlight (9-patch pixmap) ------------------------------
 # Modern GRUB themes (Pop!_OS, Vimix, Tela) don't paint a panel behind the
