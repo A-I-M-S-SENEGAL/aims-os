@@ -185,10 +185,12 @@ extract_iso() {
     local dst="${OUT_DIR}/aims-os-${VERSION}-${arch}.iso"
 
     # live-build's output filename varies by version and binary-images
-    # setting. The Bookworm live-build (20230502) with --binary-images
-    # iso-hybrid produces `live-image-<arch>.hybrid.iso`; older releases
-    # produced `binary.iso`; some versions produce `live-image-<arch>.iso`.
-    # Search all the known names rather than hard-coding one.
+    # setting. The Trixie live-build (1:20250505) with --binary-images
+    # iso-hybrid produces `live-image-<arch>.hybrid.iso`; the older
+    # Bookworm 20230502 did the same; even older releases produced
+    # `binary.iso` or `live-image-<arch>.iso`. Search all known names
+    # rather than hard-coding one — keeps the script tolerant of future
+    # live-build releases.
     local src=""
     local candidate
     for candidate in \

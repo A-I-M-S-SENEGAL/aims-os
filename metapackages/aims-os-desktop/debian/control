@@ -26,8 +26,10 @@ Depends:
 # --- Calamares graphical installer -----------------------------------
  calamares,
  calamares-settings-debian,
- qml-module-qtquick-controls,
- qml-module-qtquick-controls2,
+# Calamares 3.3 (Trixie) is a Qt6 build — Qt5 QML modules don't apply.
+# qml6-module-qtquick-controls covers both classic Quick Controls and
+# what Qt5 called "Controls 2" (the "2" suffix was dropped in Qt6).
+ qml6-module-qtquick-controls,
 # --- Boot splash (themed by aims-os-branding) ------------------------
  plymouth,
  plymouth-themes,

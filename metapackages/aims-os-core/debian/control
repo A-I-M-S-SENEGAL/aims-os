@@ -102,6 +102,6 @@ Description: AIMS OS — system-level baseline
  GCC / gfortran / make / cmake build toolchain that AIMS C and Fortran
  coursework depends on.
  .
- Installing this metapackage on a vanilla Debian Bookworm replicates
+ Installing this metapackage on a vanilla Debian Trixie replicates
  the system-level baseline an AIMS OS install ships with, without
  touching the desktop or scientific stack.

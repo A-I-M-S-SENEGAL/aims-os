@@ -1,12 +1,12 @@
 Welcome to AIMS OS.
 
   Built at the African Institute for Mathematical Sciences — Senegal.
-  Debian 12 (Bookworm) base — GNOME desktop — scientific stack pre-loaded.
+  Debian 13 (Trixie) base — GNOME desktop — scientific stack pre-loaded.
 
 What's here
 -----------
   Python   numpy, scipy, pandas, matplotlib, sympy, scikit-learn, JupyterLab
-  Math     SageMath, Maxima, Octave, GeoGebra, gnuplot
+  Math     Maxima, Octave, GeoGebra, gnuplot (SageMath via `mamba install`)
   R        r-base + tidyverse + rmarkdown
   LaTeX    TeX Live full + texstudio + biber + French language packs
   Conda    `mamba` and `conda` (Miniforge3 installed under /opt/miniforge3)

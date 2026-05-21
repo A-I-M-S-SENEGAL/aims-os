@@ -4,7 +4,7 @@
 # Compiled into /etc/dconf/db/gdm by the 0090-dconf-update hook (via the
 # standard `dconf update` invocation, which scans every db.d/ folder). GDM
 # reads /etc/dconf/db/gdm through the system-db: line in
-# /usr/share/dconf/profile/gdm shipped by gdm3 43.0-3 on Bookworm — that
+# /usr/share/dconf/profile/gdm shipped by gdm3 (47.x on Trixie) — that
 # profile already exists, so we don't need to drop one ourselves.
 #
 # What we set:

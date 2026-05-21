@@ -3,7 +3,7 @@
 # AIMS OS — Calamares installer launcher (overrides calamares-settings-debian)
 # =============================================================================
 # This file overrides /usr/share/applications/install-debian.desktop from
-# calamares-settings-debian (12.0.9-1+deb12u2 on Bookworm). live-build's
+# calamares-settings-debian (13.0.x on Trixie). live-build's
 # includes.chroot stage copies it AFTER the package is installed, so our
 # values win.
 #

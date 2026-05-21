@@ -4,9 +4,11 @@
 
 AIMS OS is a custom GNU/Linux distribution designed for the African Institute for
 Mathematical Sciences — Senegal. It bundles a GNOME desktop with the scientific
-toolchain used in AIMS curricula (SageMath, Jupyter, Octave, R, TeXstudio, GeoGebra,
-the SciPy stack…) on top of a clean Debian 12 (Bookworm) base, with bilingual French
-and English support out of the box.
+toolchain used in AIMS curricula (Jupyter, Octave, R, TeXstudio, GeoGebra,
+the SciPy stack…) on top of a clean Debian 13 (Trixie) base, with bilingual French
+and English support out of the box. SageMath is install-on-demand via Miniforge
+(`mamba install -c conda-forge sagemath`) since upstream has not yet packaged it
+for Python 3.13.
 
 ---
 
@@ -14,16 +16,17 @@ and English support out of the box.
 
 | | |
 |---|---|
-| Codename | AIMS OS 1.0 |
-| Base | Debian 12 (Bookworm) |
-| Desktop | GNOME |
-| Installer | Calamares |
+| Codename | AIMS OS |
+| Version | 2.0 |
+| Base | Debian 13 (Trixie) |
+| Desktop | GNOME 48 |
+| Installer | Calamares 3.3 |
 | Architectures | amd64, arm64 |
 | Locales | fr_FR.UTF-8 (default), en_US.UTF-8 |
 | Timezone | Africa/Dakar |
 | Maintainer | AIMS Senegal IT &lt;hakim@aims-senegal.org&gt; |
 | Upstream | [github.com/A-I-M-S-SENEGAL/aims-os](https://github.com/A-I-M-S-SENEGAL/aims-os) |
-| Status | 0.1 — bootstrap |
+| Status | v2.0 in development on `feat/trixie`; v1.0 (Bookworm) on `main` |
 
 ## Repository layout
 

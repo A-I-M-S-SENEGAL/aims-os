@@ -385,7 +385,7 @@ Presentation {
                     Text {
                         width: parent.width
                         wrapMode: Text.WordWrap
-                        text: "Construit sur Debian 12 · GPL-3.0"
+                        text: "Construit sur Debian 13 · GPL-3.0"
                         color: "#1A1A1A"
                         font.pixelSize: 16
                     }

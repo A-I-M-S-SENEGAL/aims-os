@@ -193,7 +193,7 @@ That's QEMU emulation under Docker. Three options:
 | `docker/Dockerfile` | Builds the `aims-os-builder` image (Debian + live-build + helpers) |
 | `docker/entrypoint.sh` | Creates loop devices, then `exec`s the build command |
 | `build/build.sh` | Host-side wrapper: arch selection, docker run, ISO extraction |
-| `build/config/auto/config` | `lb config` parameters (Bookworm, GNOME, Calamares, branding) |
+| `build/auto/config` | `lb config` parameters (Trixie, GNOME, Calamares, branding) |
 | `build/config/package-lists/` | Lists of packages to install into the live system |
 | `build/config/hooks/` | Hooks executed inside the chroot (e.g. apply branding) |
 | `build/config/includes.chroot/` | Files copied verbatim into the live filesystem |

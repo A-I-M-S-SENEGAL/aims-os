@@ -39,8 +39,8 @@ Depends:
  python3-h5py,
  python3-pillow,
 # --- Jupyter (classic Notebook from Debian; JupyterLab via pipx/mamba) ---
-# Note: Debian Bookworm does not ship python3-jupyterlab — the JupyterLab
-# UI is not packaged. Users install it on demand:
+# Note: Debian (Bookworm AND Trixie) does not ship python3-jupyterlab —
+# the JupyterLab UI is not packaged upstream. Users install it on demand:
 #     pipx install jupyterlab
 #   or
 #     mamba install -c conda-forge jupyterlab
