@@ -86,7 +86,10 @@ Depends:
  gfortran,
  make,
  cmake,
- pkg-config,
+## pkg-config was renamed to pkgconf in Trixie (the legacy name is now
+## a transitional package). Depend on pkgconf directly to keep lintian
+## quiet and to avoid breaking when the transitional is removed.
+ pkgconf,
  autoconf,
  automake,
  libtool,

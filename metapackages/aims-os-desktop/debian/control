@@ -77,7 +77,10 @@ Depends:
  keepassxc,
  fish,
  zsh,
- neofetch,
+## neofetch was archived upstream in 2024 and dropped from Trixie. fastfetch
+## is the actively-maintained, drop-in-shape replacement (same fast-glance
+## "screenful of system info" output, just rewritten in C for performance).
+ fastfetch,
  ripgrep,
  fzf,
  fd-find,
