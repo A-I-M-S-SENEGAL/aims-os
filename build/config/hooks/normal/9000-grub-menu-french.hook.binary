@@ -27,24 +27,24 @@ set -e
 BANNER='[aims-os/grub-menu-french]'
 log() { printf '%s %s\n' "${BANNER}" "$*"; }
 
-# Find every grub.cfg that ended up in the binary/ tree — depending on
-# the bootloader mix (grub-pc, grub-efi, secure-boot shim) there can be
-# several copies. We patch all of them so the user sees the same labels
-# regardless of which boot path runs.
+# IMPORTANT: live-build's `binary_hooks` script does `cd binary/` BEFORE
+# invoking each hook (see scripts/build/binary_hooks in live-build), so
+# our working directory at hook time is already `binary/` — paths must
+# be relative to that, NOT to the live-build root. Previously this hook
+# used `binary/boot/grub` and silently no-op'd because it was looking
+# for `binary/binary/boot/grub`.
 #
-# IMPORTANT: pass `find` only the paths that actually exist. Earlier
-# version used `find binary/boot/grub binary/EFI ... 2>/dev/null` which
-# silences stderr but still leaves `find` exiting non-zero when one of
-# the dirs is missing — and `set -e` then kills the hook before it can
-# log anything useful. live-build's binary/ tree on a UEFI-only arm64
-# build has no binary/boot/grub at all, so that exact race used to take
-# down every ISO that didn't ship grub-pc.
+# Find every grub.cfg that ended up in binary/ — depending on the
+# bootloader mix (grub-pc, grub-efi, shim, arch-efi variants) there can
+# be several copies (e.g. boot/grub/grub.cfg AND boot/grub/arm64-efi/grub.cfg
+# and possibly EFI/boot/grub.cfg). We patch all of them so the user sees
+# the same labels regardless of which boot path runs.
 SEARCH_DIRS=""
-for d in binary/boot/grub binary/EFI; do
+for d in boot/grub EFI; do
     [ -d "$d" ] && SEARCH_DIRS="${SEARCH_DIRS} $d"
 done
 if [ -z "${SEARCH_DIRS}" ]; then
-    log "no grub.cfg parent dirs in binary/; skipping (different bootloader?)"
+    log "no grub.cfg parent dirs in $(pwd); skipping (different bootloader?)"
     exit 0
 fi
 GRUB_CFGS="$(find ${SEARCH_DIRS} -type f -name 'grub.cfg' 2>/dev/null || true)"
