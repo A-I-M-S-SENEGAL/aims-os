@@ -31,7 +31,23 @@ log() { printf '%s %s\n' "${BANNER}" "$*"; }
 # the bootloader mix (grub-pc, grub-efi, secure-boot shim) there can be
 # several copies. We patch all of them so the user sees the same labels
 # regardless of which boot path runs.
-GRUB_CFGS="$(find binary/boot/grub binary/EFI -type f -name 'grub.cfg' 2>/dev/null)"
+#
+# IMPORTANT: pass `find` only the paths that actually exist. Earlier
+# version used `find binary/boot/grub binary/EFI ... 2>/dev/null` which
+# silences stderr but still leaves `find` exiting non-zero when one of
+# the dirs is missing — and `set -e` then kills the hook before it can
+# log anything useful. live-build's binary/ tree on a UEFI-only arm64
+# build has no binary/boot/grub at all, so that exact race used to take
+# down every ISO that didn't ship grub-pc.
+SEARCH_DIRS=""
+for d in binary/boot/grub binary/EFI; do
+    [ -d "$d" ] && SEARCH_DIRS="${SEARCH_DIRS} $d"
+done
+if [ -z "${SEARCH_DIRS}" ]; then
+    log "no grub.cfg parent dirs in binary/; skipping (different bootloader?)"
+    exit 0
+fi
+GRUB_CFGS="$(find ${SEARCH_DIRS} -type f -name 'grub.cfg' 2>/dev/null || true)"
 
 if [ -z "${GRUB_CFGS}" ]; then
     log "no grub.cfg found under binary/; skipping (different bootloader?)"
