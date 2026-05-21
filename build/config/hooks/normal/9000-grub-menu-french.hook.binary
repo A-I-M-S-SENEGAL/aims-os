@@ -54,28 +54,57 @@ if [ -z "${GRUB_CFGS}" ]; then
     exit 0
 fi
 
-# The exact strings live-build writes:
-#   "Aims-os GNU/Linux"                            (Live entry — main)
-#   "Advanced options for Aims-os GNU/Linux"       (sub-menu label)
-#   "UEFI Firmware Settings"                       (firmware setup, UEFI only)
-# We replace each with the French label.
+# The exact strings live-build writes (verified against a built ISO):
 #
-# We also slip in two extra --class arguments so GRUB's icon lookup
-# picks up the live/advanced/uefi icons we ship under
-# live-theme/icons/ instead of falling back to the generic AIMS logo
-# bound to --class debian. The cost: a sed branch per pattern.
+#   "Live system (arm64)"                  → main live boot
+#   "Live system (arm64 fail-safe mode)"   → safe-mode live boot
+#   "Start installer"                      → Calamares launcher
+#   "Advanced install options ..."         → submenu (kernel cmdline tweaks)
+#   "Utilities..."                         → submenu (memtest, fwsetup)
+#   "UEFI Firmware Settings"               → inside the Utilities submenu
+#
+# We also slip a `--class debian` onto every menuentry that doesn't
+# already have a class argument, so the per-entry icon lookup (configured
+# in our theme.txt as icon_width/height/item_icon_space) resolves to
+# live-theme/icons/debian.png — the AIMS Africa-Sun logo. Without a
+# class, GRUB reserves the icon slot but draws nothing, producing the
+# small black placeholder square we saw on the previous boot test.
+#
+# The class injection is conservative: we only add `--class debian` if
+# the line has no existing `--class` token at all. That keeps the patch
+# idempotent and stays out of the way if live-build's template ever
+# starts emitting classes itself.
 
 for cfg in ${GRUB_CFGS}; do
     log "patching ${cfg}"
 
-    # ---- Main live entry --------------------------------------------------
-    sed -i 's|"Aims-os GNU/Linux"|"AIMS OS"|g'  "${cfg}"
+    # ---- Live entries ----------------------------------------------------
+    # The "(arm64)" / "(amd64)" architecture suffix is dropped — the user
+    # already saw the arch in the GRUB title bar (background.png).
+    sed -i 's|"Live system (arm64)"|"Démarrer en mode Live"|g'              "${cfg}"
+    sed -i 's|"Live system (amd64)"|"Démarrer en mode Live"|g'              "${cfg}"
+    sed -i 's|"Live system (arm64 fail-safe mode)"|"Mode de secours"|g'     "${cfg}"
+    sed -i 's|"Live system (amd64 fail-safe mode)"|"Mode de secours"|g'     "${cfg}"
 
-    # ---- Advanced submenu -------------------------------------------------
-    sed -i 's|"Advanced options for Aims-os GNU/Linux"|"Options avancées"|g' "${cfg}"
+    # ---- Installer entry -------------------------------------------------
+    sed -i 's|"Start installer"|"Installer AIMS OS"|g'                       "${cfg}"
 
-    # ---- UEFI firmware (only present on UEFI builds) ---------------------
-    sed -i 's|"UEFI Firmware Settings"|"Paramètres UEFI"|g' "${cfg}"
+    # ---- Submenus --------------------------------------------------------
+    # live-build's "Advanced install options ..." submenu name ends with a
+    # trailing space + "...". We sed the literal substring it writes.
+    sed -i "s|'Advanced install options ...'|'Options d\\\\'installation avancées'|g" "${cfg}"
+    sed -i "s|'Utilities...'|'Utilitaires'|g"                                "${cfg}"
+
+    # ---- Firmware setup --------------------------------------------------
+    sed -i 's|"UEFI Firmware Settings"|"Paramètres UEFI"|g'                  "${cfg}"
+
+    # ---- Inject --class debian on every classless menuentry --------------
+    # Matches a `menuentry "…"` line (or with -- prefix) that DOES NOT yet
+    # have `--class` anywhere on it, and inserts `--class debian ` before
+    # the trailing brace.
+    sed -i -E '/^[[:space:]]*menuentry / {
+        /--class/!s|(\{[[:space:]]*$)|--class debian \1|
+    }' "${cfg}"
 done
 
 log "done — French menu entries written into $(echo "${GRUB_CFGS}" | wc -w | tr -d ' ') grub.cfg file(s)"

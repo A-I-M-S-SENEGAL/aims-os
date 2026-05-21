@@ -6,18 +6,23 @@
 # Debian-side helpers (debootstrap, xorriso, squashfs-tools, bootloader
 # tooling, archive keyring, equivs for metapackages…).
 #
-# The image base is the same Debian release we are TARGETING (Bookworm) — this
-# avoids any host/target skew in live-build's behavior.
+# The image base is the same Debian release we are TARGETING (Trixie) —
+# this avoids any host/target skew in live-build's behavior. The Bookworm
+# version of live-build (20230502) had stale debootstrap scripts that
+# silently fell back to bookworm/main when handed `--distribution trixie`,
+# which produced a Bookworm chroot under a Trixie label — Calamares 3.2.61
+# instead of 3.3.14, with a black sidebar (PascalCase keys not recognised).
+# Trixie ships live-build 1:20240413+ which understands trixie natively.
 #
 # This Dockerfile is architecture-neutral. The target architecture is
 # selected by the caller via `docker run --platform linux/amd64` or
 # `linux/arm64`; Docker Desktop on Apple Silicon emulates amd64 via QEMU.
 # =============================================================================
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 LABEL org.opencontainers.image.title="AIMS OS builder"
-LABEL org.opencontainers.image.description="Debian Bookworm + live-build for assembling AIMS OS ISOs"
+LABEL org.opencontainers.image.description="Debian Trixie + live-build for assembling AIMS OS ISOs"
 LABEL org.opencontainers.image.vendor="AIMS Senegal"
 LABEL org.opencontainers.image.source="https://github.com/A-I-M-S-SENEGAL/aims-os"
 LABEL org.opencontainers.image.licenses="GPL-3.0-only"
