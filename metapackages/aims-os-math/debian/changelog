@@ -1,3 +1,23 @@
+aims-os-math (2.0+2) trixie; urgency=medium
+
+  * Fix install failure in v2.0+1: 7 of the curriculum-driven additions
+    turned out not to be packaged in Trixie main. packages.debian.org
+    returns HTTP 200 even for "Package not available in this suite"
+    error pages, so the first compatibility check was a false positive.
+    + Drop from Depends (install on demand via pipx/mamba):
+      python3-pyarrow, python3-polars, python3-duckdb, python3-spacy,
+      python3-gensim, python3-transformers, python3-pyfftw.
+    + Replace texlive-lang-african → texlive-lang-other. The
+      standalone African languages texlive package never existed
+      in any Debian suite (verified via packages.debian.org search);
+      texlive-lang-other is Trixie's "everything else" texlive
+      language meta-package and covers Wolof, Swahili, Amharic,
+      Hausa and Twi hyphenation patterns.
+    + Update Description and add inline NOTE comments pointing
+      students at the install-on-demand path.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 22 May 2026 08:00:00 +0000
+
 aims-os-math (2.0+1) trixie; urgency=medium
 
   * Align package set with the 2025-2026 AIMS curriculum (45 courses).

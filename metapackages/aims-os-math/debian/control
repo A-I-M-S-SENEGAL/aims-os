@@ -49,20 +49,20 @@ Depends:
 #     faster for large graphs); shipped by AIMS Desktop 2020.
 # python3-rpy2 — call R from Python (and vice-versa). Lets students
 #     prototype models in Python and validate with R libraries.
-# python3-pyfftw — FFTW bindings for Python (faster than numpy.fft on
-#     large arrays); pairs with the libfftw3-dev we already ship.
 # python3-tables — PyTables, HDF5 dataset wrapper with query syntax.
 #     Alternative to plain h5py for tabular scientific data.
 # python3-pygments — syntax highlighting library (used by Jupyter,
 #     mkdocs, sphinx, …).
 # python3-reportlab — programmatic PDF generation; common in statistics
 #     reports and grading rubrics.
+# NOTE: python3-pyfftw is intentionally NOT shipped — the Debian package
+# was dropped from Trixie. Install on demand via `pip install pyfftw`
+# (it picks up the libfftw3-dev headers we ship in aims-os-core).
  python3-mpi4py,
  python3-biopython,
  python3-skimage,
  python3-igraph,
  python3-rpy2,
- python3-pyfftw,
  python3-tables,
  python3-pygments,
  python3-reportlab,
@@ -108,9 +108,11 @@ Depends:
  r-cran-knitr,
  r-cran-rmarkdown,
 # --- LaTeX (the AIMS thesis pipeline, French + English + African) ----
-# texlive-lang-african — AIMS-specific: hyphenation patterns and
-#     babel modules for African languages (Wolof, Swahili, Amharic,
-#     Hausa, Twi, …). Shipped by upstream AIMS Desktop 2020.
+# texlive-lang-other — TeX Live "other languages" meta. In Trixie this
+#     absorbs the formerly-separate language packs and is the closest
+#     match for AIMS's African-language need (Wolof, Swahili, Amharic,
+#     Hausa, Twi hyphenation). The standalone `texlive-lang-african`
+#     package no longer exists in any Debian suite (verified 2026-05-22).
 # texlive-lang-arabic — Arabic typesetting (regional, used by some
 #     North African students).
 # texlive-publishers — extra article / thesis / book classes (acmart,
@@ -125,7 +127,7 @@ Depends:
  texlive-fonts-extra,
  texlive-lang-french,
  texlive-lang-english,
- texlive-lang-african,
+ texlive-lang-other,
  texlive-lang-arabic,
  texlive-publishers,
  texlive-pictures,
@@ -152,29 +154,21 @@ Depends:
  libmpfr-dev,
 # --- Big Data / data engineering (Data Mining & Big Data Analytics) --
 # dask + distributed — parallel pandas / numpy across cores and nodes.
-# pyarrow — Apache Arrow / Parquet I/O; the wire format every modern
-#     data tool speaks (Polars, DuckDB, Spark, BigQuery, …).
-# polars — Rust-backed DataFrame; orders of magnitude faster than
-#     pandas on the kind of HDF/CSV the High Dimensional Data
-#     Analysis course produces.
-# duckdb — in-process OLAP DB ("SQLite for analytics"). Lets students
-#     run real SQL on Parquet/CSV without standing up a server.
+# NOTE: PyArrow, Polars and DuckDB are NOT packaged in Trixie main
+# (verified 2026-05-22 via packages.debian.org). They are install-on-
+# demand via `pipx install` or `mamba install -c conda-forge`. We
+# document them here because they're course-critical and we want a
+# pointer for the student/instructor wiki.
  python3-dask,
  python3-distributed,
- python3-pyarrow,
- python3-polars,
- python3-duckdb,
 # --- Natural Language Processing (NLP, Generative AI courses) -------
 # nltk — the teaching toolkit; every NLP textbook uses it.
-# spacy — production-grade NLP pipelines.
-# gensim — topic modelling, word2vec, doc2vec.
-# transformers — HuggingFace Transformers (BERT, GPT, T5, …); the
-#     model weights themselves are pulled at runtime via `from_pretrained`
-#     so we ship just the library. Pairs with the Generative AI course.
+# NOTE: spaCy, gensim and HuggingFace Transformers are NOT packaged in
+# Trixie main (verified 2026-05-22). They evolve faster than Debian's
+# release cadence anyway, so they're install-on-demand via
+# `pipx install spacy gensim transformers` or
+# `mamba install -c conda-forge spacy gensim transformers`.
  python3-nltk,
- python3-spacy,
- python3-gensim,
- python3-transformers,
 # --- Computer Vision (Computer Vision course) ------------------------
 # opencv (cv2) — the standard CV library. scikit-image (already
 #     listed above) handles the science-y side; OpenCV handles the
@@ -248,8 +242,10 @@ Description: AIMS OS — scientific and mathematical software stack
  development headers for compiling numerical software.
  .
  The 2025-2026 AIMS curriculum adds a Big Data / data engineering
- layer (Dask, PyArrow, Polars, DuckDB), an NLP and Generative-AI
- layer (NLTK, spaCy, gensim, HuggingFace Transformers), Computer
+ layer (Dask + distributed; PyArrow, Polars and DuckDB stay install-
+ on-demand since Trixie does not yet package them), an NLP and
+ Generative-AI layer (NLTK; spaCy, gensim and HuggingFace
+ Transformers are install-on-demand for the same reason), Computer
  Vision (OpenCV alongside scikit-image), a climate-sciences layer
  (xarray, netCDF4, Cartopy), modern crypto primitives for the
  Post-Quantum Cryptography course, an Ethical Hacking / Network
@@ -260,7 +256,9 @@ Description: AIMS OS — scientific and mathematical software stack
  for the Database course.
  .
  PyTorch, TensorFlow, JAX, Keras and other rapidly-evolving ML
- frameworks (and Qiskit for the Quantum Computing course) are
- deliberately NOT included — installation via `mamba install`
+ frameworks (and Qiskit for the Quantum Computing course, plus
+ PyArrow, Polars, DuckDB, spaCy, gensim and HuggingFace Transformers
+ since Trixie does not yet package them) are deliberately NOT
+ included — installation via `mamba install`
  (Miniforge3 ships in aims-os-core's chroot) or `pipx install` is
  the recommended path so students get current versions.
