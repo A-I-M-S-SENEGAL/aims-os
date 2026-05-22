@@ -298,29 +298,45 @@ rm -f "${GRUB_BG_TMP}"
 optipng -quiet -o2 "${OUT_DIR}/grub/background.png" 2>/dev/null || true
 
 # -----------------------------------------------------------------------------
-# 3b. GRUB info.png — AIMS logo + "AIMS OS" + tagline (transparent bg)
+# 3b. GRUB info.png — AIMS logo + "AIMS OS" + tagline
 #
 # Vimix-style brand card meant to be positioned by theme.txt's
-# `+ image { file = "info.png" }` directive. Keeping the asset
-# transparent + small (600×220) means theme.txt can move/scale it
-# without re-rendering background.png.
+# `+ image { file = "info.png" }` directive.
 #
 #   ┌──────────────────────────────────────┐
 #   │ ◯  AIMS OS                            │
 #   │    Live & Install Media               │
 #   └──────────────────────────────────────┘
 #
-# Logo 140×140 on the LEFT, wordmark (DejaVu Bold 56) + tagline
-# (DejaVu Regular 22 muted cream) stacked to the RIGHT.
+# CRITICAL: render onto an OPAQUE background that matches the GRUB
+# canvas colour (#2A282B), and posterise the logo to a small palette.
+# Why:
+#   - GRUB EFI's framebuffer on arm64 is commonly RGB565 (16-bit, 5
+#     bits R + 6 bits G + 5 bits B). Smooth anti-aliased gradients
+#     in the logo's terracotta rays quantise into visible rainbow
+#     dithering — we saw exactly that on the v4 UTM boot test (the
+#     Africa Sun rendered as RGB-cycling noise).
+#   - Transparent PNGs make it worse: GRUB has to alpha-blend over
+#     the background at runtime, and that blend on a low-bit display
+#     adds its own quantisation pass on top of the source's
+#     anti-aliasing.
+# Fix:
+#   - composite the AIMS logo onto opaque #2A282B (same as canvas
+#     bg) BEFORE drawing the text on top. No alpha to blend at boot.
+#   - posterise the result to 32 colours with no dithering. The
+#     logo's terracotta rays become solid stepped colours that
+#     RGB565 can render losslessly, instead of a continuous gradient
+#     that has to be quantised at display time.
 # -----------------------------------------------------------------------------
-log "generating GRUB info card (AIMS brand block) ..."
-convert -size 600x220 xc:transparent \
+log "generating GRUB info card (AIMS brand block, posterised) ..."
+convert -size 600x220 "xc:#2A282B" \
     \( "${LOGO_CIRCLE}" -resize 140x140 \) \
-        -gravity west -geometry +10+0 -composite \
+        -gravity west -geometry +10+0 -compose over -composite \
     -font "DejaVu-Sans-Bold" -pointsize 56 -fill "#F5EFE7" \
         -gravity west -annotate +175-25 "AIMS OS" \
     -font "DejaVu-Sans"      -pointsize 22 -fill "#E6D8C8" \
         -gravity west -annotate +177+30  "Live & Install Media" \
+    +dither -colors 32 \
     -strip "${OUT_DIR}/grub/info.png"
 optipng -quiet -o2 "${OUT_DIR}/grub/info.png" 2>/dev/null || true
 
