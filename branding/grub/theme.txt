@@ -77,15 +77,13 @@ terminal-font:    "Unifont Regular 16"
 }
 
 # ---- AIMS brand card -------------------------------------------------------
-# info.png — 600×220 transparent PNG containing the AIMS logo (140 px)
-# next to the "AIMS OS" wordmark + "Live & Install Media" tagline.
-# Positioned below the boot menu in the right region.
-+ image {
-    top   = 68%
-    left  = 58%
-    width = 38%
-    file  = "info.png"
-}
+# The AIMS logo + "AIMS OS" wordmark + tagline are BAKED into
+# background.png at build time (see generate-assets.sh) rather than
+# loaded via a `+ image` directive. Reason: grub-efi-arm64 2.06's
+# `+ image` code path re-quantises PNGs into rainbow noise even on
+# truecolor inputs, while `desktop-image` blits them to the
+# framebuffer cleanly. Baking into the background means one PNG, one
+# rendering path, no surprises at boot.
 
 # ---- Countdown ("Démarrage automatique dans N secondes") --------------------
 # Centred under info.png in the right region so it stays clear of

@@ -2,40 +2,44 @@
 # =============================================================================
 # AIMS OS — hook 0030: UFW (Uncomplicated Firewall) baseline rules
 # =============================================================================
-# Sets sane default policies but leaves UFW INACTIVE on first boot —
-# matching what Ubuntu/Fedora/Mint do for desktop installs.
+# Establishes a sensible default policy and enables UFW at first boot:
 #
-# Defaults (loaded when the user runs `sudo ufw enable`):
 #   - DENY  all incoming connections   (no surface from the network)
 #   - ALLOW all outgoing connections   (apt, browsers, video calls)
 #   - DENY  routed/forwarded packets   (no accidental router behaviour)
 #   - LOG   low (only catch the noisy stuff in journal)
+#   - ENABLE the firewall right away
 #
-# Previously we set ENABLED=yes here, which broke connectivity in the
-# live session: even with conntrack ESTABLISHED rules, UFW's DROP
-# input policy silently kills incoming ICMP echo replies in some
-# UTM/QEMU network setups → `ping 1.1.1.1` hangs forever with no
-# error, students can't tell their network works. For a desktop
-# distribution the right default is "firewall installed and
-# pre-configured but OFF", with one explicit `sudo ufw enable` to
-# turn it on. AIMS-Sénégal IT can enable it via a Calamares post-
-# install script if a stricter posture is needed on lab images.
+# UFW's default before.rules include
+#   -A ufw-before-input -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+# so outbound-then-incoming exchanges (DNS replies, HTTP responses,
+# pong-to-ping) pass through cleanly. A professor or student with
+# sudo can open any extra port with `sudo ufw allow <port>`.
+#
+# Note on `ping` in UTM:  Apple's UTM Shared Network NAT silently
+# drops ICMP echo replies regardless of guest firewall state — even
+# with this hook patched to leave UFW disabled (v5 build), `ping
+# 8.8.8.8` still timed out while Firefox loaded sites fine. So UFW
+# was never the cause; ICMP is just blocked at the host's NAT.
+# Use `curl https://google.com` or open a browser to test connect-
+# ivity in UTM, or switch UTM to "Bridged" networking to get ICMP
+# through.
 # =============================================================================
 set -e
 
-# Pre-load defaults into /etc/default/ufw. These take effect the
-# moment the user runs `sudo ufw enable`, no extra config needed.
+# Write defaults *file* directly. `ufw default …` would queue these
+# for next start; writing the file makes the policy effective at
+# first boot and also covers the case where the ufw daemon isn't
+# running in chroot.
 sed -i \
     -e 's|^DEFAULT_INPUT_POLICY=.*|DEFAULT_INPUT_POLICY="DROP"|' \
     -e 's|^DEFAULT_OUTPUT_POLICY=.*|DEFAULT_OUTPUT_POLICY="ACCEPT"|' \
     -e 's|^DEFAULT_FORWARD_POLICY=.*|DEFAULT_FORWARD_POLICY="DROP"|' \
     /etc/default/ufw
 
-# Logging level (effective once UFW is enabled). ENABLED stays at the
-# Debian default ("no") so the live session and the installed system
-# both boot with the firewall off; `sudo ufw enable` flips it.
 sed -i \
+    -e 's|^ENABLED=.*|ENABLED=yes|' \
     -e 's|^LOGLEVEL=.*|LOGLEVEL=low|' \
     /etc/ufw/ufw.conf
 
-echo "[aims-os/hook] UFW defaults written (deny-in / allow-out / drop-forward), service left disabled — user enables with 'sudo ufw enable'"
+echo "[aims-os/hook] UFW defaults: deny-in / allow-out / drop-forward, enabled"

@@ -271,74 +271,86 @@ convert -size 600x4 "xc:#E6D8C8" \
 # AIMS brand (logo + wordmark + tagline) ships separately as
 # info.png, positioned by theme.txt's + image directive.
 # -----------------------------------------------------------------------------
-log "generating GRUB background (rasterised SVG + 16:9 extension) ..."
+log "generating GRUB background (SVG + 16:9 extension + brand baked-in) ..."
 # Source: branding/source/aims-grub-bg.svg — a 2048×2048 SVG carrying
 # the Vimix-style diagonal stripes + triangles design, already
 # coloured in AIMS terracotta/cream on a #2A282B dark slate canvas.
-# The design is square (export tool default); we adapt it to GRUB's
-# 16:9 by:
 #
-#   1. rasterising to 1080×1080 (preserves aspect — design fits)
-#   2. compositing it on a 1920×1080 canvas, anchored to the LEFT
-#      with the SVG's own bg colour (#2A282B) filling the right
-#      840 px. The seam is invisible because both halves share the
-#      same dark slate, and the boot_menu will live in the clean
-#      right region.
+# Pipeline:
+#   1. rasterise SVG to 1080×1080 PNG (preserves aspect — design fits)
+#   2. extend canvas to 1920×1080 anchored LEFT, fill the right 840 px
+#      with #2A282B (SVG's own bg colour). The seam is invisible.
+#   3. composite the AIMS brand block (logo + wordmark + tagline)
+#      DIRECTLY ONTO the background at the bottom-right, BEFORE
+#      writing background.png to disk.
 #
-# Sampling the bg colour: ImageMagick reports srgb(42,40,43) ≈
-# #2A282B at pixel (1000,500) of the rasterised render, so we use
-# that exact value for the canvas extension.
+# Why bake the brand into background.png instead of shipping it as
+# info.png + theme.txt `+ image`:
+#
+#   The previous build shipped info.png as a separate PNG positioned
+#   by theme.txt's + image directive. On grub-efi-arm64 2.06 the
+#   `+ image` element runs through a DIFFERENT rendering path than
+#   the `desktop-image` global background, and that path applies an
+#   extra runtime dither/blend pass that turned the AIMS logo + text
+#   into rainbow noise — every anti-aliased pixel cycled through
+#   random RGB values. The background.png (containing the triangles +
+#   stripes) rendered perfectly, because `desktop-image` blits the
+#   image to the framebuffer with no additional processing.
+#
+#   Solution: bake everything into `desktop-image`. One PNG, one
+#   rendering path, no surprises. We lose theme.txt's positioning
+#   knob for the brand, but at build time we composite it at exactly
+#   the right pixel coordinates and never have to think about it
+#   again at boot.
 GRUB_BG_TMP="$(mktemp --suffix=.png)"
 rsvg-convert -h 1080 "${SRC_DIR}/aims-grub-bg.svg" -o "${GRUB_BG_TMP}"
-convert "${GRUB_BG_TMP}" \
-    -background "#2A282B" \
-    -gravity west -extent 1920x1080 \
-    -strip "${OUT_DIR}/grub/background.png"
-rm -f "${GRUB_BG_TMP}"
-optipng -quiet -o2 "${OUT_DIR}/grub/background.png" 2>/dev/null || true
 
-# -----------------------------------------------------------------------------
-# 3b. GRUB info.png — AIMS logo + "AIMS OS" + tagline
-#
-# Vimix-style brand card meant to be positioned by theme.txt's
-# `+ image { file = "info.png" }` directive.
-#
-#   ┌──────────────────────────────────────┐
-#   │ ◯  AIMS OS                            │
-#   │    Live & Install Media               │
-#   └──────────────────────────────────────┘
-#
-# CRITICAL: render onto an OPAQUE background that matches the GRUB
-# canvas colour (#2A282B), and posterise the logo to a small palette.
-# Why:
-#   - GRUB EFI's framebuffer on arm64 is commonly RGB565 (16-bit, 5
-#     bits R + 6 bits G + 5 bits B). Smooth anti-aliased gradients
-#     in the logo's terracotta rays quantise into visible rainbow
-#     dithering — we saw exactly that on the v4 UTM boot test (the
-#     Africa Sun rendered as RGB-cycling noise).
-#   - Transparent PNGs make it worse: GRUB has to alpha-blend over
-#     the background at runtime, and that blend on a low-bit display
-#     adds its own quantisation pass on top of the source's
-#     anti-aliasing.
-# Fix:
-#   - composite the AIMS logo onto opaque #2A282B (same as canvas
-#     bg) BEFORE drawing the text on top. No alpha to blend at boot.
-#   - posterise the result to 32 colours with no dithering. The
-#     logo's terracotta rays become solid stepped colours that
-#     RGB565 can render losslessly, instead of a continuous gradient
-#     that has to be quantised at display time.
-# -----------------------------------------------------------------------------
-log "generating GRUB info card (AIMS brand block, posterised) ..."
-convert -size 600x220 "xc:#2A282B" \
+# Build the brand block in a temp 600×220 transparent PNG, then
+# composite onto the right-side dark area of the extended canvas.
+# Logo on the left, wordmark + tagline stacked to the right.
+GRUB_BRAND_TMP="$(mktemp --suffix=.png)"
+convert -size 600x220 xc:transparent \
     \( "${LOGO_CIRCLE}" -resize 140x140 \) \
         -gravity west -geometry +10+0 -compose over -composite \
     -font "DejaVu-Sans-Bold" -pointsize 56 -fill "#F5EFE7" \
         -gravity west -annotate +175-25 "AIMS OS" \
     -font "DejaVu-Sans"      -pointsize 22 -fill "#E6D8C8" \
         -gravity west -annotate +177+30  "Live & Install Media" \
-    +dither -colors 32 \
-    -strip "${OUT_DIR}/grub/info.png"
-optipng -quiet -o2 "${OUT_DIR}/grub/info.png" 2>/dev/null || true
+    -strip "${GRUB_BRAND_TMP}"
+
+# Final canvas: extend SVG render to 1920×1080, composite the brand
+# block at x=1180, y=780 (within the right dark region, below where
+# the boot_menu lives at top=25..65%), and force the output to a
+# 24-bit truecolor PNG with no alpha channel.
+#
+# The `-define png:color-type=2` flag matters: type 2 is "Truecolor"
+# (24-bit RGB). Without it ImageMagick may pick type 6 (RGBA, 32-bit)
+# or — worse — type 3 (indexed palette) if there are few enough
+# distinct colours. GRUB's gfxmenu image loader silently produces
+# rainbow noise on indexed-palette PNGs (linux.org GRUB guide:
+# "if you have an indexed image it will not work with GRUB as
+# wallpaper"). Truecolor PNG is the only format GRUB renders
+# faithfully on every codepath (desktop-image and + image alike).
+convert "${GRUB_BG_TMP}" \
+    -background "#2A282B" \
+    -gravity west -extent 1920x1080 \
+    -gravity northwest \
+    "${GRUB_BRAND_TMP}" -geometry +1180+780 -compose over -composite \
+    -alpha off \
+    -strip -define png:color-type=2 \
+    "${OUT_DIR}/grub/background.png"
+
+rm -f "${GRUB_BG_TMP}" "${GRUB_BRAND_TMP}"
+optipng -quiet -o2 "${OUT_DIR}/grub/background.png" 2>/dev/null || true
+
+# NOTE: we no longer ship a separate info.png. Earlier iterations
+# generated one and positioned it via theme.txt's `+ image` directive,
+# but on grub-efi-arm64 2.06 the `+ image` element renders PNGs
+# through a code path that re-quantises them into rainbow noise —
+# even after we forced opaque RGB. The desktop-image background
+# itself renders correctly, so we bake the AIMS brand block INTO
+# background.png at build time (see the composite step above) and
+# drop the separate info.png entirely.
 
 # ---- Selected-item highlight (9-patch pixmap) ------------------------------
 # Modern GRUB themes (Pop!_OS, Vimix, Tela) don't paint a panel behind the
