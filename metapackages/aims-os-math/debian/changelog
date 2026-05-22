@@ -1,3 +1,37 @@
+aims-os-math (2.0+1) trixie; urgency=medium
+
+  * Align package set with the 2025-2026 AIMS curriculum (45 courses).
+    + Big Data / data engineering (Data Mining and Big Data Analytics,
+      Case Study from Industries in Big Data, High Dimensional Data
+      Analysis): python3-dask, python3-distributed, python3-pyarrow,
+      python3-polars, python3-duckdb.
+    + NLP & Generative AI (Natural Language Processing, Generative AI):
+      python3-nltk, python3-spacy, python3-gensim, python3-transformers.
+    + Computer Vision (Computer Vision course): python3-opencv on top
+      of the scikit-image already shipped.
+    + Climate sciences (Climate Dynamic, Mathematical Methods for
+      Climate): python3-xarray, python3-netcdf4, python3-cartopy.
+    + Crypto primitives for the Post Quantum Cryptography course:
+      python3-cryptography, python3-pycryptodome. Qiskit deliberately
+      not shipped — `pipx install qiskit` for the latest upstream.
+    + Ethical Hacking, Computer Security 1, Mathematical Model for
+      Network Security, Auditing Computer Forensics: nmap, wireshark,
+      tcpdump, john, hashcat, aircrack-ng, sleuthkit, foremost,
+      binwalk, python3-scapy.
+    + Database course: postgresql-client, mariadb-client, redis-tools,
+      python3-psycopg2, python3-pymongo (clients only — labs use
+      remote DB hosts).
+    + Heritage additions from AIMS Desktop 2020: python3-mpi4py,
+      python3-biopython, python3-skimage, python3-igraph, python3-rpy2,
+      python3-pyfftw, python3-tables, python3-pygments,
+      python3-reportlab, plus texlive-lang-african (Wolof, Swahili,
+      Amharic, Hausa, Twi hyphenation), texlive-lang-arabic,
+      texlive-publishers, texlive-pictures, dvipng.
+  * All 36 new packages confirmed available on arm64 AND amd64 in
+    Trixie main.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 22 May 2026 00:00:00 +0000
+
 aims-os-math (2.0) trixie; urgency=medium
 
   * v2.0 — rebase to Debian 13 Trixie.

@@ -1,3 +1,22 @@
+aims-os-desktop (2.0+1) trixie; urgency=medium
+
+  * Align with the 2025-2026 AIMS curriculum.
+    + Web and Android Development course: nodejs, npm, default-jdk
+      (Java 21), gradle, kotlin, php-cli, composer. Android Studio
+      itself is install-on-demand via Flathub so students get
+      current versions.
+    + Heritage additions from AIMS Desktop 2020: pandoc (universal
+      document converter), pdftk-java (PDF split/merge/rotate), tilix
+      (tiling terminal), yt-dlp (offline lecture downloads).
+  * Replace neofetch (archived upstream in 2024, removed from Trixie)
+    with fastfetch, the actively-maintained C rewrite that produces
+    the same screenful of system info.
+  * Replace qml-module-qtquick-controls + -controls2 with the Trixie
+    Qt6 successor qml6-module-qtquick-controls — Calamares 3.3 in
+    Trixie is a Qt6 build and the Qt5 QML modules no longer apply.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 22 May 2026 00:00:00 +0000
+
 aims-os-desktop (2.0) trixie; urgency=medium
 
   * v2.0 — rebase to Debian 13 Trixie.

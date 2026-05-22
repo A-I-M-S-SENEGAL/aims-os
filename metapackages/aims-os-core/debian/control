@@ -93,6 +93,29 @@ Depends:
  autoconf,
  automake,
  libtool,
+# --- Hardware / network / shell utilities (heritage from AIMS Desktop)
+# bc — CLI calculator, expected by Bash users and many shell scripts.
+# lshw — list hardware (model, drivers) for support / troubleshooting.
+# smartmontools — disk health (SMART). Critical for AIMS lab machines
+#     where students keep their thesis data on aging drives.
+# zram-tools — compressed swap on RAM. Big win on older lab laptops
+#     with 4 GB RAM. AIMS Desktop 2020 shipped this for the same
+#     reason; default zramswap.service kicks in at boot.
+# wireless-tools — legacy iwconfig / iwlist. Lots of networking
+#     tutorials still reference these even though NetworkManager
+#     manages everything; keep them so `iwconfig wlan0` works.
+# rfkill — toggle wireless / Bluetooth via CLI (`rfkill block wifi`).
+# command-not-found — when a user types `htopx`, suggests `htop`.
+# wamerican / wfrench — system word lists used by ispell/aspell,
+#     spell-check in editors, password generators. AIMS Desktop
+#     shipped these via `task-french` already (we pull it).
+ bc,
+ lshw,
+ smartmontools,
+ zram-tools,
+ wireless-tools,
+ rfkill,
+ command-not-found,
 Description: AIMS OS — system-level baseline
  This metapackage installs the AIMS OS core system: the host firewall
  (UFW), AppArmor mandatory access control, automatic Debian-Security

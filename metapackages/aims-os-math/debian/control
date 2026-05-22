@@ -38,6 +38,34 @@ Depends:
  python3-lxml,
  python3-h5py,
  python3-pillow,
+# --- Additions from AIMS Desktop heritage ----------------------------
+# python3-mpi4py — MPI for Python, parallel computing. AIMS curriculum
+#     uses MPI for the HPC modules (Cooperative Numerical Methods,
+#     parallel linear algebra).
+# python3-biopython — bioinformatics (sequence analysis, BLAST APIs);
+#     used in AIMS Biological Modelling.
+# python3-skimage — scikit-image, image processing and computer vision.
+# python3-igraph — graph theory algorithms (different API from networkx,
+#     faster for large graphs); shipped by AIMS Desktop 2020.
+# python3-rpy2 — call R from Python (and vice-versa). Lets students
+#     prototype models in Python and validate with R libraries.
+# python3-pyfftw — FFTW bindings for Python (faster than numpy.fft on
+#     large arrays); pairs with the libfftw3-dev we already ship.
+# python3-tables — PyTables, HDF5 dataset wrapper with query syntax.
+#     Alternative to plain h5py for tabular scientific data.
+# python3-pygments — syntax highlighting library (used by Jupyter,
+#     mkdocs, sphinx, …).
+# python3-reportlab — programmatic PDF generation; common in statistics
+#     reports and grading rubrics.
+ python3-mpi4py,
+ python3-biopython,
+ python3-skimage,
+ python3-igraph,
+ python3-rpy2,
+ python3-pyfftw,
+ python3-tables,
+ python3-pygments,
+ python3-reportlab,
 # --- Jupyter (classic Notebook from Debian; JupyterLab via pipx/mamba) ---
 # Note: Debian (Bookworm AND Trixie) does not ship python3-jupyterlab —
 # the JupyterLab UI is not packaged upstream. Users install it on demand:
@@ -79,12 +107,28 @@ Depends:
  r-cran-dplyr,
  r-cran-knitr,
  r-cran-rmarkdown,
-# --- LaTeX (the AIMS thesis pipeline, French + English) --------------
+# --- LaTeX (the AIMS thesis pipeline, French + English + African) ----
+# texlive-lang-african — AIMS-specific: hyphenation patterns and
+#     babel modules for African languages (Wolof, Swahili, Amharic,
+#     Hausa, Twi, …). Shipped by upstream AIMS Desktop 2020.
+# texlive-lang-arabic — Arabic typesetting (regional, used by some
+#     North African students).
+# texlive-publishers — extra article / thesis / book classes (acmart,
+#     IEEEtran, llncs, …) — academic publishing standard.
+# texlive-pictures — TikZ / PGF graphics (already pulled transitively
+#     by texlive-latex-extra, but listing explicitly survives any
+#     upstream split).
+# dvipng — render LaTeX equations to PNG (used by Jupyter for inline
+#     math, Sphinx, mkdocs, …).
  texlive,
  texlive-latex-extra,
  texlive-fonts-extra,
  texlive-lang-french,
  texlive-lang-english,
+ texlive-lang-african,
+ texlive-lang-arabic,
+ texlive-publishers,
+ texlive-pictures,
  texlive-science,
  texlive-xetex,
  texlive-luatex,
@@ -92,6 +136,7 @@ Depends:
  texstudio,
  biber,
  latexmk,
+ dvipng,
 # --- Geometry, plotting, visualisation -------------------------------
  geogebra,
  gnuplot-qt,
@@ -105,6 +150,83 @@ Depends:
  libhdf5-dev,
  libgmp-dev,
  libmpfr-dev,
+# --- Big Data / data engineering (Data Mining & Big Data Analytics) --
+# dask + distributed — parallel pandas / numpy across cores and nodes.
+# pyarrow — Apache Arrow / Parquet I/O; the wire format every modern
+#     data tool speaks (Polars, DuckDB, Spark, BigQuery, …).
+# polars — Rust-backed DataFrame; orders of magnitude faster than
+#     pandas on the kind of HDF/CSV the High Dimensional Data
+#     Analysis course produces.
+# duckdb — in-process OLAP DB ("SQLite for analytics"). Lets students
+#     run real SQL on Parquet/CSV without standing up a server.
+ python3-dask,
+ python3-distributed,
+ python3-pyarrow,
+ python3-polars,
+ python3-duckdb,
+# --- Natural Language Processing (NLP, Generative AI courses) -------
+# nltk — the teaching toolkit; every NLP textbook uses it.
+# spacy — production-grade NLP pipelines.
+# gensim — topic modelling, word2vec, doc2vec.
+# transformers — HuggingFace Transformers (BERT, GPT, T5, …); the
+#     model weights themselves are pulled at runtime via `from_pretrained`
+#     so we ship just the library. Pairs with the Generative AI course.
+ python3-nltk,
+ python3-spacy,
+ python3-gensim,
+ python3-transformers,
+# --- Computer Vision (Computer Vision course) ------------------------
+# opencv (cv2) — the standard CV library. scikit-image (already
+#     listed above) handles the science-y side; OpenCV handles the
+#     engineering side (video I/O, feature detection, calibration).
+ python3-opencv,
+# --- Climate / geosciences (Climate Dynamic, Math Methods for Climate)
+# xarray — labelled multi-dimensional arrays; the de-facto standard
+#     for climate model output and reanalysis data.
+# netcdf4 — NetCDF file format reader (every climate dataset uses it).
+# cartopy — geographic projections / map plotting on top of matplotlib.
+ python3-xarray,
+ python3-netcdf4,
+ python3-cartopy,
+# --- Crypto (Post-Quantum Cryptography course) -----------------------
+# cryptography — modern primitives (AEAD, X.509, key derivation).
+# pycryptodome — drop-in PyCrypto replacement; lecturers still
+#     reference the PyCrypto API.
+# NOTE: Qiskit (Quantum Mechanics and Computing) is intentionally NOT
+# packaged — Debian's python3-qiskit is years behind upstream. Use
+# `pipx install qiskit` or `mamba install -c conda-forge qiskit`.
+ python3-cryptography,
+ python3-pycryptodome,
+# --- Ethical Hacking & Network Security ------------------------------
+# Covers Ethical Hacking, Computer Security 1 (Network Security),
+# Mathematical Model for Network Security, Auditing Computer Forensics.
+# nmap — port / service scanner.
+# wireshark + tcpdump — packet capture and analysis.
+# john + hashcat — password cracking (course requirement).
+# aircrack-ng — Wi-Fi security auditing.
+# sleuthkit + foremost + binwalk — disk / file-carving forensics.
+# scapy — Python packet crafting; pairs with the Computer Network
+#     course's protocol-design exercises.
+ nmap,
+ wireshark,
+ tcpdump,
+ john,
+ hashcat,
+ aircrack-ng,
+ sleuthkit,
+ foremost,
+ binwalk,
+ python3-scapy,
+# --- Databases (Database course) -------------------------------------
+# postgresql-client, mariadb-client, redis-tools — connect to the
+#     three reference servers without pulling the daemons themselves
+#     (lab uses external DB hosts).
+# psycopg2 + pymongo — Python drivers for PostgreSQL and MongoDB.
+ postgresql-client,
+ mariadb-client,
+ redis-tools,
+ python3-psycopg2,
+ python3-pymongo,
 # --- Data tools ------------------------------------------------------
  sqlite3,
 Description: AIMS OS — scientific and mathematical software stack
@@ -125,7 +247,20 @@ Description: AIMS OS — scientific and mathematical software stack
  Fortran code; and the OpenBLAS, LAPACK, FFTW, HDF5, GMP and MPFR
  development headers for compiling numerical software.
  .
- PyTorch, TensorFlow, Keras and other rapidly-evolving ML frameworks
- are deliberately NOT included — installation via `mamba install`
+ The 2025-2026 AIMS curriculum adds a Big Data / data engineering
+ layer (Dask, PyArrow, Polars, DuckDB), an NLP and Generative-AI
+ layer (NLTK, spaCy, gensim, HuggingFace Transformers), Computer
+ Vision (OpenCV alongside scikit-image), a climate-sciences layer
+ (xarray, netCDF4, Cartopy), modern crypto primitives for the
+ Post-Quantum Cryptography course, an Ethical Hacking / Network
+ Security toolkit (nmap, Wireshark, tcpdump, John the Ripper,
+ hashcat, aircrack-ng, scapy) plus Sleuth Kit, foremost and binwalk
+ for the Auditing Computer Forensics course, and the PostgreSQL,
+ MariaDB, Redis and MongoDB clients (plus psycopg2 and pymongo)
+ for the Database course.
+ .
+ PyTorch, TensorFlow, JAX, Keras and other rapidly-evolving ML
+ frameworks (and Qiskit for the Quantum Computing course) are
+ deliberately NOT included — installation via `mamba install`
  (Miniforge3 ships in aims-os-core's chroot) or `pipx install` is
  the recommended path so students get current versions.

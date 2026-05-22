@@ -1,3 +1,17 @@
+aims-os-core (2.0+1) trixie; urgency=medium
+
+  * Heritage additions from AIMS Desktop 2020: bc (CLI calculator),
+    lshw (hardware listing), smartmontools (disk SMART), zram-tools
+    (compressed swap on RAM — big win on 4 GB lab laptops),
+    wireless-tools (legacy iwconfig/iwlist still referenced in
+    networking tutorials), rfkill (CLI wireless toggle),
+    command-not-found.
+  * Switch pkg-config to pkgconf — in Trixie pkg-config is a
+    transitional package wrapping pkgconf; depending on pkgconf
+    directly silences lintian and survives the transitional removal.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 22 May 2026 00:00:00 +0000
+
 aims-os-core (2.0) trixie; urgency=medium
 
   * v2.0 — rebase to Debian 13 Trixie.

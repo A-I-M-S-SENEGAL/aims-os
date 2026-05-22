@@ -1,0 +1,21 @@
+# =============================================================================
+# AIMS OS — debconf preseed: wireshark non-root packet capture
+# =============================================================================
+# Wireshark's post-install asks whether non-root users should be allowed to
+# capture packets (the answer makes /usr/bin/dumpcap setuid root, restricted
+# to the `wireshark` group).
+#
+# We answer YES because:
+#   - The 2025-2026 AIMS curriculum's Ethical Hacking course needs students
+#     to capture traffic without running the GUI as root (running GUIs as
+#     root is itself a security smell).
+#   - In noninteractive mode (live-build default), the question defaults to
+#     "false" — meaning Wireshark installs but `dumpcap` only works under
+#     sudo, which silently breaks the student's first lab session.
+#
+# Students still need to be added to the `wireshark` group to actually
+# capture — that part is handled at first login by a separate hook
+# (aims-os welcome / setup script) since group membership requires a
+# username, which doesn't exist in the chroot build.
+# =============================================================================
+wireshark-common wireshark-common/install-setuid boolean true
