@@ -1,0 +1,16 @@
+[Unit]
+Description=AIMS OS first-boot user setup (docker/wireshark group membership)
+Documentation=https://github.com/A-I-M-S-SENEGAL/aims-os
+After=multi-user.target
+ConditionPathExists=!/var/lib/aims-os/firstboot.done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/aims-firstboot.sh
+RemainAfterExit=no
+TimeoutStartSec=30s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
