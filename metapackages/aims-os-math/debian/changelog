@@ -1,3 +1,20 @@
+aims-os-math (2.0+4) trixie; urgency=medium
+
+  * Refactor for AIMS filière structure: split the Big Data / NLP /
+    Computer Vision / Climate / Database stack into aims-os-bigdata,
+    and the cryptography / ethical-hacking / forensics stack into
+    aims-os-security. Both new metapackages Depend on aims-os-math,
+    so the AIMS OS ISO (which installs all three) gets the same set
+    of packages as before — no functional regression for installed
+    systems. The split makes the AIMS apt repo more useful for
+    standalone installs: a Regular-track student can apt-install
+    aims-os-math alone, a Coop Big Data student gets the Big Data
+    layer via aims-os-bigdata, a Coop Security student gets the
+    security layer via aims-os-security.
+  * Update Description to reflect the new scope.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 23 May 2026 22:00:00 +0000
+
 aims-os-math (2.0+3) trixie; urgency=medium
 
   * Python QA tooling for the Computing with Python course:

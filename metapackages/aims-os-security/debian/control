@@ -1,0 +1,81 @@
+Source: aims-os-security
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-security
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-math,
+# --- Cryptography (Post-Quantum Cryptography course) -----------------
+# cryptography — modern primitives (AEAD, X.509, key derivation).
+# pycryptodome — drop-in PyCrypto replacement; lecturers still
+#     reference the PyCrypto API.
+# NOTE: Qiskit (Quantum Mechanics and Computing) is intentionally NOT
+# packaged — Debian's python3-qiskit is years behind upstream. Use
+# `pipx install qiskit` or `mamba install -c conda-forge qiskit`.
+ python3-cryptography,
+ python3-pycryptodome,
+# --- Ethical Hacking & Network Security ------------------------------
+# Covers Ethical Hacking, Computer Security 1 (Network Security),
+# Mathematical Model for Network Security, Auditing Computer Forensics.
+# nmap — port / service scanner.
+# wireshark + tcpdump — packet capture and analysis. dumpcap is
+#     pre-configured setuid via build/config/preseed/wireshark.cfg.chroot
+#     so non-root members of the wireshark group can capture.
+# john + hashcat — password cracking (course requirement).
+# aircrack-ng — Wi-Fi security auditing.
+# sleuthkit + foremost + binwalk — disk / file-carving forensics.
+# scapy — Python packet crafting; pairs with the Computer Network
+#     course's protocol-design exercises.
+ nmap,
+ wireshark,
+ tcpdump,
+ john,
+ hashcat,
+ aircrack-ng,
+ sleuthkit,
+ foremost,
+ binwalk,
+ python3-scapy,
+Description: AIMS OS — Coop Computer Security track
+ Adds the cryptography, network-security and forensics tooling
+ required by the AIMS Coop Computer Security filière on top of
+ aims-os-math:
+ .
+ Cryptography primitives (python3-cryptography, python3-pycryptodome)
+ for the Post-Quantum Cryptography course.
+ .
+ Network-security toolkit (nmap, Wireshark, tcpdump, John the Ripper,
+ hashcat, aircrack-ng, scapy) for the Ethical Hacking, Computer
+ Security I: Network Security, and Mathematical Model for Network
+ Security courses.
+ .
+ Disk-forensics toolkit (Sleuth Kit, foremost, binwalk) for the
+ Auditing Computer Forensics and Investigation course.
+ .
+ Qiskit (Quantum Mechanics and Computing course) is install-on-demand
+ via `pipx install qiskit` or `mamba install -c conda-forge qiskit` —
+ the Debian package lags upstream by years and the course needs the
+ current API.
+ .
+ This metapackage Depends on aims-os-math, so installing it on a
+ vanilla Debian Trixie pulls the full SciPy / R / LaTeX scientific
+ stack as well. Regular-track students who don't need security tooling
+ should install aims-os-math directly.
+ .
+ Wireshark's dumpcap is setuid (so non-root members of the wireshark
+ group can capture packets) when installed via the AIMS OS ISO. When
+ installed via the AIMS OS apt repo onto a vanilla Debian, you'll be
+ prompted by debconf during install — answer "yes" for the same
+ behaviour, then add yourself to the wireshark group:
+   sudo usermod -aG wireshark $USER && newgrp wireshark

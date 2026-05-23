@@ -1,0 +1,14 @@
+aims-os-bigdata (2.0) trixie; urgency=medium
+
+  * Initial release. Carved out of aims-os-math to align with the AIMS
+    Coop Big Data filière. Depends on aims-os-math so installing it on
+    a vanilla Debian Trixie pulls the full SciPy / R / LaTeX baseline.
+    Big Data layer: python3-dask + python3-distributed.
+    NLP layer: python3-nltk (spaCy / gensim / transformers stay
+    install-on-demand via pipx/mamba).
+    Computer Vision: python3-opencv (scikit-image is in aims-os-math).
+    Climate sciences: python3-xarray, python3-netcdf4, python3-cartopy.
+    Database course: postgresql-client, mariadb-client, redis-tools,
+    python3-psycopg2, python3-pymongo.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 23 May 2026 22:00:00 +0000

@@ -44,7 +44,8 @@ Depends:
 #     parallel linear algebra).
 # python3-biopython — bioinformatics (sequence analysis, BLAST APIs);
 #     used in AIMS Biological Modelling.
-# python3-skimage — scikit-image, image processing and computer vision.
+# python3-skimage — scikit-image, general image processing for the
+#     numerical-methods side (Coop BD's CV stack is in aims-os-bigdata).
 # python3-igraph — graph theory algorithms (different API from networkx,
 #     faster for large graphs); shipped by AIMS Desktop 2020.
 # python3-rpy2 — call R from Python (and vice-versa). Lets students
@@ -152,75 +153,6 @@ Depends:
  libhdf5-dev,
  libgmp-dev,
  libmpfr-dev,
-# --- Big Data / data engineering (Data Mining & Big Data Analytics) --
-# dask + distributed — parallel pandas / numpy across cores and nodes.
-# NOTE: PyArrow, Polars and DuckDB are NOT packaged in Trixie main
-# (verified 2026-05-22 via packages.debian.org). They are install-on-
-# demand via `pipx install` or `mamba install -c conda-forge`. We
-# document them here because they're course-critical and we want a
-# pointer for the student/instructor wiki.
- python3-dask,
- python3-distributed,
-# --- Natural Language Processing (NLP, Generative AI courses) -------
-# nltk — the teaching toolkit; every NLP textbook uses it.
-# NOTE: spaCy, gensim and HuggingFace Transformers are NOT packaged in
-# Trixie main (verified 2026-05-22). They evolve faster than Debian's
-# release cadence anyway, so they're install-on-demand via
-# `pipx install spacy gensim transformers` or
-# `mamba install -c conda-forge spacy gensim transformers`.
- python3-nltk,
-# --- Computer Vision (Computer Vision course) ------------------------
-# opencv (cv2) — the standard CV library. scikit-image (already
-#     listed above) handles the science-y side; OpenCV handles the
-#     engineering side (video I/O, feature detection, calibration).
- python3-opencv,
-# --- Climate / geosciences (Climate Dynamic, Math Methods for Climate)
-# xarray — labelled multi-dimensional arrays; the de-facto standard
-#     for climate model output and reanalysis data.
-# netcdf4 — NetCDF file format reader (every climate dataset uses it).
-# cartopy — geographic projections / map plotting on top of matplotlib.
- python3-xarray,
- python3-netcdf4,
- python3-cartopy,
-# --- Crypto (Post-Quantum Cryptography course) -----------------------
-# cryptography — modern primitives (AEAD, X.509, key derivation).
-# pycryptodome — drop-in PyCrypto replacement; lecturers still
-#     reference the PyCrypto API.
-# NOTE: Qiskit (Quantum Mechanics and Computing) is intentionally NOT
-# packaged — Debian's python3-qiskit is years behind upstream. Use
-# `pipx install qiskit` or `mamba install -c conda-forge qiskit`.
- python3-cryptography,
- python3-pycryptodome,
-# --- Ethical Hacking & Network Security ------------------------------
-# Covers Ethical Hacking, Computer Security 1 (Network Security),
-# Mathematical Model for Network Security, Auditing Computer Forensics.
-# nmap — port / service scanner.
-# wireshark + tcpdump — packet capture and analysis.
-# john + hashcat — password cracking (course requirement).
-# aircrack-ng — Wi-Fi security auditing.
-# sleuthkit + foremost + binwalk — disk / file-carving forensics.
-# scapy — Python packet crafting; pairs with the Computer Network
-#     course's protocol-design exercises.
- nmap,
- wireshark,
- tcpdump,
- john,
- hashcat,
- aircrack-ng,
- sleuthkit,
- foremost,
- binwalk,
- python3-scapy,
-# --- Databases (Database course) -------------------------------------
-# postgresql-client, mariadb-client, redis-tools — connect to the
-#     three reference servers without pulling the daemons themselves
-#     (lab uses external DB hosts).
-# psycopg2 + pymongo — Python drivers for PostgreSQL and MongoDB.
- postgresql-client,
- mariadb-client,
- redis-tools,
- python3-psycopg2,
- python3-pymongo,
 # --- Python QA (Computing with Python course) ------------------------
 # black — opinionated formatter; pairs with ruff (installed via hook
 #     0100 since not in Trixie main).
@@ -230,37 +162,33 @@ Depends:
  python3-mypy,
 # --- Data tools ------------------------------------------------------
  sqlite3,
-Description: AIMS OS — scientific and mathematical software stack
- This metapackage installs the scientific computing layer that
- justifies AIMS OS's existence: the Python SciPy ecosystem (numpy,
- scipy, pandas, matplotlib, seaborn, sympy, scikit-learn, statsmodels,
- networkx) with the classic Jupyter Notebook + ipywidgets + the
- JupyterLab back-end libs (the JupyterLab UI itself is install-on-
- demand via `pipx install jupyterlab` since Debian does not yet
- package it; SageMath also install-on-demand on Trixie — see note below);
+Description: AIMS OS — Regular track (scientific & mathematical stack)
+ Mathematical / scientific computing layer for the AIMS Regular track
+ (Mathematical Sciences). This metapackage gives every AIMS student
+ the SciPy ecosystem (numpy, scipy, pandas, matplotlib, seaborn,
+ sympy, scikit-learn, statsmodels, networkx, scikit-image, igraph,
+ mpi4py for HPC, biopython, pytables, pygments, reportlab); the
+ classic Jupyter Notebook + ipywidgets + the JupyterLab back-end libs
+ (the JupyterLab UI itself is install-on-demand via `pipx install
+ jupyterlab` since Debian does not yet package it; SageMath also
+ install-on-demand on Trixie — see in-package notes);
  Maxima and wxMaxima for symbolic computation;
  GNU Octave with the scientific add-on modules (symbolic, statistics,
  optim, control, signal); R with the tidyverse, ggplot2, knitr and
- rmarkdown packages; the full TeX Live distribution with French and
- English language packs, texlive-science, XeTeX and LuaTeX support,
- TeXstudio and biber for thesis writing; GeoGebra and gnuplot for
- geometry and plotting; gdb and valgrind for debugging C / C++ /
- Fortran code; and the OpenBLAS, LAPACK, FFTW, HDF5, GMP and MPFR
- development headers for compiling numerical software.
+ rmarkdown packages; the full TeX Live distribution with French,
+ English, other-languages (including African hyphenation) and Arabic
+ language packs, texlive-science, XeTeX and LuaTeX support, TeXstudio
+ and biber for thesis writing; GeoGebra and gnuplot for geometry
+ and plotting; gdb and valgrind for debugging C / C++ / Fortran
+ code; and the OpenBLAS, LAPACK, FFTW, HDF5, GMP and MPFR development
+ headers for compiling numerical software. black + mypy for Python
+ code quality.
  .
- The 2025-2026 AIMS curriculum adds a Big Data / data engineering
- layer (Dask + distributed; PyArrow, Polars and DuckDB stay install-
- on-demand since Trixie does not yet package them), an NLP and
- Generative-AI layer (NLTK; spaCy, gensim and HuggingFace
- Transformers are install-on-demand for the same reason), Computer
- Vision (OpenCV alongside scikit-image), a climate-sciences layer
- (xarray, netCDF4, Cartopy), modern crypto primitives for the
- Post-Quantum Cryptography course, an Ethical Hacking / Network
- Security toolkit (nmap, Wireshark, tcpdump, John the Ripper,
- hashcat, aircrack-ng, scapy) plus Sleuth Kit, foremost and binwalk
- for the Auditing Computer Forensics course, and the PostgreSQL,
- MariaDB, Redis and MongoDB clients (plus psycopg2 and pymongo)
- for the Database course.
+ Coop-track students additionally install aims-os-bigdata (Big Data,
+ NLP, Computer Vision, Climate, DB clients) or aims-os-security
+ (cryptography, ethical hacking, forensics) on top of this metapackage.
+ Both depend on aims-os-math, so installing either is enough to get
+ the full stack.
  .
  PyTorch, TensorFlow, JAX, Keras and other rapidly-evolving ML
  frameworks (and Qiskit for the Quantum Computing course, plus

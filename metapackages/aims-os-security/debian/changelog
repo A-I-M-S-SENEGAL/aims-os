@@ -1,0 +1,14 @@
+aims-os-security (2.0) trixie; urgency=medium
+
+  * Initial release. Carved out of aims-os-math to align with the AIMS
+    Coop Computer Security filière. Depends on aims-os-math so
+    installing it on a vanilla Debian Trixie pulls the full SciPy / R /
+    LaTeX baseline.
+    Crypto primitives: python3-cryptography, python3-pycryptodome
+    (Qiskit stays install-on-demand via pipx since Debian's package
+    lags upstream).
+    Ethical Hacking / Network Security: nmap, wireshark, tcpdump,
+    john, hashcat, aircrack-ng, python3-scapy.
+    Forensics: sleuthkit, foremost, binwalk.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 23 May 2026 22:00:00 +0000

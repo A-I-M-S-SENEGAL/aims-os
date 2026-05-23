@@ -1,0 +1,78 @@
+Source: aims-os-bigdata
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-bigdata
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-math,
+# --- Big Data / data engineering (Data Mining & Big Data Analytics) --
+# dask + distributed — parallel pandas / numpy across cores and nodes.
+# NOTE: PyArrow, Polars and DuckDB are NOT packaged in Trixie main
+# (verified 2026-05-22). They are install-on-demand via
+# `pipx install` or `mamba install -c conda-forge`. We keep them
+# documented here because they're course-critical.
+ python3-dask,
+ python3-distributed,
+# --- Natural Language Processing (NLP, Generative AI courses) -------
+# nltk — the teaching toolkit; every NLP textbook uses it.
+# NOTE: spaCy, gensim and HuggingFace Transformers are NOT packaged in
+# Trixie main (verified 2026-05-22). They evolve faster than Debian's
+# release cadence — install-on-demand via
+# `pipx install spacy gensim transformers` or
+# `mamba install -c conda-forge spacy gensim transformers`.
+ python3-nltk,
+# --- Computer Vision (Computer Vision course) ------------------------
+# opencv (cv2) — the standard CV library. scikit-image (in aims-os-math)
+#     handles the science-y side; OpenCV handles the engineering side
+#     (video I/O, feature detection, calibration).
+ python3-opencv,
+# --- Climate / geosciences (Climate Dynamic, Math Methods for Climate)
+# xarray — labelled multi-dimensional arrays; the de-facto standard
+#     for climate model output and reanalysis data.
+# netcdf4 — NetCDF file format reader (every climate dataset uses it).
+# cartopy — geographic projections / map plotting on top of matplotlib.
+ python3-xarray,
+ python3-netcdf4,
+ python3-cartopy,
+# --- Databases (Database course) -------------------------------------
+# postgresql-client, mariadb-client, redis-tools — connect to the
+#     three reference servers without pulling the daemons themselves
+#     (lab uses external DB hosts).
+# psycopg2 + pymongo — Python drivers for PostgreSQL and MongoDB.
+ postgresql-client,
+ mariadb-client,
+ redis-tools,
+ python3-psycopg2,
+ python3-pymongo,
+Description: AIMS OS — Coop Big Data track
+ Adds the Big Data / data engineering layer required by the AIMS Coop
+ Big Data filière on top of aims-os-math: Dask + distributed for
+ parallel pandas/numpy across cores and nodes; NLTK for the Natural
+ Language Processing course; OpenCV for the Computer Vision course;
+ xarray, netCDF4 and Cartopy for the Climate Dynamic and Mathematical
+ Methods for Climate courses; PostgreSQL, MariaDB, Redis and MongoDB
+ clients (plus psycopg2 and pymongo Python drivers) for the Database
+ course — clients only, the labs talk to external DB hosts.
+ .
+ PyArrow, Polars, DuckDB, spaCy, gensim and HuggingFace Transformers
+ are deliberately NOT shipped here — none are packaged in Trixie main
+ and all evolve faster than the Debian release cadence. Install on
+ demand via `pipx install <name>` or
+ `mamba install -c conda-forge <name>` (Miniforge3 ships in
+ aims-os-core).
+ .
+ This metapackage Depends on aims-os-math, so installing it on a
+ vanilla Debian Trixie pulls the full SciPy / R / LaTeX scientific
+ stack as well. Regular-track students who don't need Big Data tooling
+ should install aims-os-math directly.

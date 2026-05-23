@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+# =============================================================================
+# AIMS OS — aims-os-core build rules
+# =============================================================================
+# Minimal debhelper rules. The package has no payload of its own; its
+# only purpose is to express Depends: on the AIMS OS system baseline.
+# The "dh $@" delegation hands every target to debhelper, which does
+# the right thing for a metapackage.
+# =============================================================================
+
+%:
+	dh $@

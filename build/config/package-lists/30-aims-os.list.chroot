@@ -1,8 +1,8 @@
 # =============================================================================
 # AIMS OS — package list (single entry point)
 # =============================================================================
-# This is the only package list live-build sees. The four names below
-# are the AIMS OS metapackages, all built in advance by
+# This is the only package list live-build sees. The names below are the
+# AIMS OS metapackages, all built in advance by
 # build/build-metapackages.sh and dropped into
 # build/config/packages.chroot/ so apt finds them as local sources
 # during the chroot stage.
@@ -12,10 +12,22 @@
 #   aims-os-core      base security, firmware, locales, CLI, build tools
 #   aims-os-desktop   GNOME, Calamares, browsers, LibreOffice, Flatpak,
 #                     user-facing apps and codecs
-#   aims-os-math      Python SciPy stack, JupyterLab, SageMath, Octave,
-#                     R + tidyverse, TeX Live, GeoGebra, numerical libs
-#   aims-os-branding  Plymouth + GRUB + wallpapers + identity (payload
-#                     lands in step 5)
+#   aims-os-math      Regular track — Python SciPy stack, Jupyter, Octave,
+#                     Maxima, R + tidyverse, TeX Live, GeoGebra, numerical
+#                     libs, mpi4py / biopython / skimage, black + mypy
+#   aims-os-bigdata   Coop Big Data — Dask, NLTK, OpenCV, xarray, netCDF,
+#                     Cartopy, Postgres/MariaDB/Redis clients, psycopg2,
+#                     pymongo (Depends on aims-os-math)
+#   aims-os-security  Coop Computer Security — cryptography, pycryptodome,
+#                     nmap, Wireshark, tcpdump, john, hashcat, aircrack-ng,
+#                     scapy, sleuthkit, foremost, binwalk (Depends on
+#                     aims-os-math)
+#   aims-os-branding  Plymouth + GRUB + wallpapers + identity
+#
+# The ISO ships ALL filière metapackages so any AIMS student can use
+# the same install regardless of track. Standalone apt-install on a
+# vanilla Debian Trixie picks just what's needed (aims-os-bigdata and
+# aims-os-security both pull aims-os-math transitively).
 #
 # To see the resolved package set: `apt-cache depends aims-os-desktop`
 # from a chroot, or inspect each metapackage's debian/control file.
@@ -24,4 +36,6 @@
 aims-os-core
 aims-os-desktop
 aims-os-math
+aims-os-bigdata
+aims-os-security
 aims-os-branding
