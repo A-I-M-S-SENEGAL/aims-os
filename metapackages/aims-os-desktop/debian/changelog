@@ -1,3 +1,27 @@
+aims-os-desktop (2.0+2) trixie; urgency=medium
+
+  * Modernise the developer toolchain for the 2025-2026 AIMS courses.
+    + Containers & orchestration (Web/Android Dev, MLOps): docker.io,
+      docker-compose (Trixie's docker-compose 2.26.1 IS Compose v2 —
+      the Go binary; Debian kept the legacy package name),
+      docker-buildx, podman, kubectl, ansible.
+    + Mobile development (Android course): android-tools-adb,
+      android-tools-fastboot.
+    + Modern dev CLI: neovim, httpie, rustup.
+    + Database labs: redis-server (complements redis-tools client).
+    + Drop Trixie's nodejs (20.19, EOL April 2026). Node.js 22 LTS
+      is installed via NodeSource apt repo in chroot hook 0095.
+  * Install via chroot hooks (not in Trixie main):
+    + 0095-nodesource — Node.js 22 LTS + bundled npm 10+.
+    + 0096-vscodium   — VSCodium (libre VS Code).
+    + 0097-cursor     — Cursor AI editor (channel 3.5 pinned).
+    + 0098-dbeaver    — DBeaver CE universal SQL GUI.
+    + 0099-rust-runtimes — Bun, Deno and uv binaries to /usr/local/bin.
+    + 0100-pipx-tools — ruff via system-wide pipx.
+    + 0101-user-groups — add live user to docker + wireshark groups.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 23 May 2026 09:00:00 +0000
+
 aims-os-desktop (2.0+1) trixie; urgency=medium
 
   * Align with the 2025-2026 AIMS curriculum.

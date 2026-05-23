@@ -1,3 +1,12 @@
+aims-os-math (2.0+3) trixie; urgency=medium
+
+  * Python QA tooling for the Computing with Python course:
+    + black (formatter) and python3-mypy (static type checker).
+    + ruff (fast Rust linter — not in Trixie main) is installed
+      system-wide via pipx in chroot hook 0100-pipx-tools.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 23 May 2026 09:00:00 +0000
+
 aims-os-math (2.0+2) trixie; urgency=medium
 
   * Fix install failure in v2.0+1: 7 of the curriculum-driven additions

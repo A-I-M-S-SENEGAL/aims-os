@@ -1,0 +1,79 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0099: Bun + Deno + uv (Rust/Zig binary runtimes)
+# =============================================================================
+# Three modern, single-binary, fast tools none of which are packaged in
+# Debian Trixie:
+#
+#   - Bun   : JavaScript / TypeScript runtime, bundler and package manager
+#             (Zig). Faster than Node for cold start; alternative to npm
+#             for the Web Dev course.
+#   - Deno  : TypeScript-first runtime by Node's original creator (Rust).
+#             Built-in formatter / linter / test runner; no node_modules.
+#   - uv    : Astral's blazing Python package manager (Rust). Resolves
+#             dependency trees in seconds; modern alternative to pip+venv.
+#             Used by the Python and Big Data courses for clean env setup.
+#
+# We pull the static binaries directly from each project's GitHub
+# release and place them in /usr/local/bin — system-wide, available to
+# the live user AND any Calamares-installed user. Upstream's curl-pipe-bash
+# scripts target $HOME, which doesn't make sense at build time.
+#
+# Versions are pinned per-build; bump them when you cut a new ISO.
+# =============================================================================
+set -e
+
+BANNER="[aims-os/hook/runtimes]"
+
+arch=$(dpkg --print-architecture)
+case "${arch}" in
+    arm64) BUN_ARCH=aarch64; DENO_ARCH=aarch64; UV_ARCH=aarch64 ;;
+    amd64) BUN_ARCH=x64;     DENO_ARCH=x86_64;  UV_ARCH=x86_64  ;;
+    *)
+        echo "${BANNER} arch ${arch} unsupported — skipping." >&2
+        exit 0
+        ;;
+esac
+
+# -----------------------------------------------------------------------------
+# Bun — fetch from GitHub releases, unzip, place at /usr/local/bin/bun
+# -----------------------------------------------------------------------------
+echo "${BANNER} installing Bun (latest) for linux-${BUN_ARCH}..."
+BUN_ZIP=/tmp/bun.zip
+curl -fL --retry 5 --retry-delay 5 \
+    "https://github.com/oven-sh/bun/releases/latest/download/bun-linux-${BUN_ARCH}.zip" \
+    -o "${BUN_ZIP}"
+unzip -j -o "${BUN_ZIP}" -d /tmp/bun-extract
+install -m 0755 "/tmp/bun-extract/bun" /usr/local/bin/bun
+ln -sf bun /usr/local/bin/bunx
+rm -rf "${BUN_ZIP}" /tmp/bun-extract
+bun --version
+
+# -----------------------------------------------------------------------------
+# Deno — fetch from GitHub releases, place at /usr/local/bin/deno
+# -----------------------------------------------------------------------------
+echo "${BANNER} installing Deno (latest) for linux-${DENO_ARCH}..."
+DENO_ZIP=/tmp/deno.zip
+curl -fL --retry 5 --retry-delay 5 \
+    "https://github.com/denoland/deno/releases/latest/download/deno-${DENO_ARCH}-unknown-linux-gnu.zip" \
+    -o "${DENO_ZIP}"
+unzip -j -o "${DENO_ZIP}" -d /tmp/deno-extract
+install -m 0755 "/tmp/deno-extract/deno" /usr/local/bin/deno
+rm -rf "${DENO_ZIP}" /tmp/deno-extract
+deno --version | head -1
+
+# -----------------------------------------------------------------------------
+# uv — fetch from Astral GitHub releases, place uv + uvx at /usr/local/bin
+# -----------------------------------------------------------------------------
+echo "${BANNER} installing uv (latest) for ${UV_ARCH}-unknown-linux-gnu..."
+UV_TAR=/tmp/uv.tar.gz
+curl -fL --retry 5 --retry-delay 5 \
+    "https://github.com/astral-sh/uv/releases/latest/download/uv-${UV_ARCH}-unknown-linux-gnu.tar.gz" \
+    -o "${UV_TAR}"
+tar -xzf "${UV_TAR}" -C /tmp
+install -m 0755 "/tmp/uv-${UV_ARCH}-unknown-linux-gnu/uv"  /usr/local/bin/uv
+install -m 0755 "/tmp/uv-${UV_ARCH}-unknown-linux-gnu/uvx" /usr/local/bin/uvx
+rm -rf "${UV_TAR}" "/tmp/uv-${UV_ARCH}-unknown-linux-gnu"
+uv --version
+
+echo "${BANNER} Bun + Deno + uv installed."

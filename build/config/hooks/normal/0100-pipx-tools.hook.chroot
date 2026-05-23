@@ -1,0 +1,33 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0100: pipx-installed system tools (ruff)
+# =============================================================================
+# ruff is Astral's blazing Python linter + formatter (Rust). The kind of
+# tool you want every Python file in the AIMS curriculum to be checked
+# against — replaces flake8 + isort + pyupgrade with one binary, runs in
+# milliseconds.
+#
+# Not in Debian Trixie. We install via pipx with PIPX_HOME=/opt/pipx and
+# PIPX_BIN_DIR=/usr/local/bin so the binary lands in $PATH for ALL users
+# (live + Calamares-installed) instead of being trapped in root's $HOME.
+# This is the documented "system-wide pipx" recipe from pipx's own docs.
+# =============================================================================
+set -e
+
+BANNER="[aims-os/hook/pipx]"
+
+echo "${BANNER} installing system-wide pipx tools (ruff)..."
+
+# pipx is already installed (aims-os-math depends on it). Direct it
+# to install into /opt + /usr/local/bin instead of root's home.
+export PIPX_HOME=/opt/pipx
+export PIPX_BIN_DIR=/usr/local/bin
+export PIPX_DEFAULT_PYTHON=/usr/bin/python3
+
+mkdir -p "${PIPX_HOME}" "${PIPX_BIN_DIR}"
+
+pipx install --global ruff 2>/dev/null \
+    || pipx install ruff   # --global is a recent flag; fall back if unsupported
+
+ruff --version
+echo "${BANNER} ruff installed system-wide."

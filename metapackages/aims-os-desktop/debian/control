@@ -107,9 +107,10 @@ Depends:
  flameshot,
 # --- Web & Android Development (course requirement) -----------------
 # Covers the 2025-2026 "Web and Android Development" course.
-# nodejs + npm — JavaScript runtime + package manager; required by
-#     every modern web stack (React, Vue, Next.js, Svelte, …) and
-#     by Android Studio's bundled tooling.
+# NOTE: nodejs is NOT pulled here. Trixie ships Node.js 20.19 which is
+# EOL in April 2026 — already dead by ship time. The chroot hook
+# 0095-nodesource swaps it out for Node 22 LTS from NodeSource (Active
+# until April 2027). We list nodejs in the Description for visibility.
 # default-jdk — Java 21 (Trixie's default JDK); required to run
 #     Android Studio and Gradle. Also covers the JVM half of the
 #     Web course (Spring Boot, Tomcat).
@@ -120,16 +121,54 @@ Depends:
 #     because Android Studio's embedded Kotlin is bundle-only.
 # php-cli + composer — for the legacy LAMP half of the course
 #     (Laravel, Symfony, vanilla PHP).
+# android-tools-adb / -fastboot — flash and debug Android devices
+#     over USB for the Android Development course's hardware labs.
 # Note: Android Studio itself is install-on-demand via Flatpak
 # (com.google.AndroidStudio on Flathub) — apt-shipping it would
 # pin it to whatever version Debian Trixie froze at release.
- nodejs,
- npm,
+# Cursor (AI editor) and VSCodium (libre VS Code) are installed via
+# chroot hooks 0096/0097 from upstream apt repos / .deb downloads.
+# Bun, Deno and uv come via hook 0099 (binary releases).
  default-jdk,
  gradle,
  kotlin,
  php-cli,
  composer,
+ android-tools-adb,
+ android-tools-fastboot,
+# --- Containers & orchestration (Web/Android, MLOps, Big Data) -------
+# docker.io — Docker Engine from Debian (Moby). 26.1.5 in Trixie;
+#     stable across the LTS window. Pulls containerd as a dep.
+# docker-compose — note: this Trixie package is COMPOSE V2 (the Go
+#     binary, version 2.26.1), not the deprecated Python v1. Debian
+#     kept the legacy name `docker-compose`. Invoked as
+#     `docker compose ...` (no dash).
+# docker-buildx — multi-arch / multi-stage container builds.
+# podman — daemonless, rootless container runtime; alternative to
+#     docker.io that students may prefer in lab environments.
+# kubectl — Kubernetes CLI (v1.32 in Trixie). Pairs with cloud /
+#     MLOps modules.
+# ansible — automation / Web Dev deployment workflows.
+ docker.io,
+ docker-compose,
+ docker-buildx,
+ podman,
+ kubectl,
+ ansible,
+# --- Modern dev CLI --------------------------------------------------
+# neovim — modern vim alternative (preferred by many TUI workflows).
+# httpie — human-friendly curl replacement for API testing.
+# rustup — Rust toolchain manager (manages stable/nightly toolchains).
+#     Trixie also ships rustc 1.85 directly — we keep rustup for
+#     users who need a newer toolchain on demand.
+ neovim,
+ httpie,
+ rustup,
+# --- Local DB labs (Database course) ---------------------------------
+# redis-server complements redis-tools (client) — labs need a local
+#     instance to push/pull from. Postgres / MariaDB clients are in
+#     aims-os-math; their daemons stay out (labs use remote hosts).
+ redis-server,
 # --- Multimedia codecs (free + non-free) -----------------------------
  gstreamer1.0-plugins-base,
  gstreamer1.0-plugins-good,
@@ -150,9 +189,15 @@ Description: AIMS OS — GNOME desktop, installer and user applications
  NetworkManager stack with OpenVPN support, a small set of useful
  utilities (KeepassXC, ghostwriter, fish, zsh, ripgrep, fzf, bat,
  p7zip, screenshots), the web and Android development stack
- (Node.js, npm, OpenJDK 21, Gradle, Kotlin, PHP, Composer) for the
- 2025-2026 Web and Android Development course, and the GStreamer
- codecs for media playback.
+ (OpenJDK 21, Gradle, Kotlin, PHP, Composer, adb/fastboot — plus
+ Node.js 22 LTS, Bun, Deno, Cursor and VSCodium installed via
+ chroot hooks since they're not in Trixie main or are EOL there),
+ a container / orchestration stack (Docker Engine + Compose v2 +
+ Buildx, Podman, kubectl, Ansible) for the 2025-2026 Web/Android
+ Development and MLOps workflows, a local Redis server for the
+ Database course's labs, modern dev CLI tools (neovim, httpie,
+ rustup), DBeaver CE (universal SQL GUI installed via upstream apt
+ repo), and the GStreamer codecs for media playback.
  .
  The fr_FR.UTF-8 locale and Africa/Dakar timezone are configured at
  the system level by aims-os-core; this metapackage adds the matching

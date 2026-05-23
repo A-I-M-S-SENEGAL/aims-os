@@ -1,0 +1,38 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0098: DBeaver Community Edition
+# =============================================================================
+# DBeaver is the universal SQL GUI (Postgres, MariaDB/MySQL, SQLite,
+# MongoDB, Redis, …) — the matching IDE for the AIMS "Database" course
+# and the data-engineering workflow built around our PyArrow / DuckDB /
+# Polars stack (install-on-demand). The Community Edition is FOSS
+# (Apache 2.0).
+#
+# Not in Debian main (upstream maintains its own apt repo at
+# https://dbeaver.io/debs/dbeaver-ce/). Repository is flat (Suite = "/")
+# and ships amd64 + arm64 packages.
+# =============================================================================
+set -e
+
+BANNER="[aims-os/hook/dbeaver]"
+KEYRING=/usr/share/keyrings/dbeaver.gpg
+
+echo "${BANNER} installing DBeaver CE via upstream apt repo..."
+
+# 1. GPG key
+curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key \
+    | gpg --dearmor --yes -o "${KEYRING}"
+
+# 2. Flat repo (Suite = /, no Components)
+cat > /etc/apt/sources.list.d/dbeaver.sources <<'EOF'
+Types: deb
+URIs: https://dbeaver.io/debs/dbeaver-ce
+Suites: /
+Signed-by: /usr/share/keyrings/dbeaver.gpg
+EOF
+
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y dbeaver-ce
+
+dbeaver --version 2>/dev/null | head -1 || true
+echo "${BANNER} DBeaver CE installed."

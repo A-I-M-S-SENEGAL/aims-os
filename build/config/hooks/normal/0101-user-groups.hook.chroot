@@ -1,0 +1,43 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0101: add live user to dev groups (docker, wireshark)
+# =============================================================================
+# live-build creates a default unprivileged user `user` (UID 1000) at
+# image-creation time. We add this user to:
+#
+#   - docker     : `docker run` / `docker compose` work without sudo,
+#                  so the Web Dev course's first lab session does not
+#                  need a root shell.
+#   - wireshark  : dumpcap is setuid (see config/preseed/wireshark.cfg.chroot),
+#                  but only members of the wireshark group can use it —
+#                  this gates network capture for the Ethical Hacking
+#                  course's lab 1.
+#
+# Both groups are created during package install (docker.io postinst
+# creates `docker`; wireshark-common postinst creates `wireshark`). They
+# exist by the time this hook runs (normal hooks run after package
+# install).
+#
+# For users created LATER by Calamares (the installed system), the
+# matching group membership has to be set up by a Calamares "users"
+# module config or by a first-boot service — out of scope here; the
+# user can do `sudo usermod -aG docker,wireshark $USER && newgrp` once.
+# =============================================================================
+set -e
+
+BANNER="[aims-os/hook/user-groups]"
+LIVE_USER=user
+
+if ! id "${LIVE_USER}" >/dev/null 2>&1; then
+    echo "${BANNER} live user '${LIVE_USER}' not yet present — skipping."
+    exit 0
+fi
+
+for grp in docker wireshark; do
+    if getent group "${grp}" >/dev/null 2>&1; then
+        usermod -aG "${grp}" "${LIVE_USER}"
+        echo "${BANNER} added ${LIVE_USER} to ${grp}."
+    else
+        echo "${BANNER} group ${grp} absent — skipping (package not installed?)."
+    fi
+done

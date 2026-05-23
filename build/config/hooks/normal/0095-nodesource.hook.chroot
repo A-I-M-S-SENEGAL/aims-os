@@ -1,0 +1,60 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0095: NodeSource Node.js 22 LTS
+# =============================================================================
+# Debian Trixie ships nodejs 20.19.2 (the v20 LTS line). That line reaches
+# end-of-life in April 2026 — i.e. it's already dead the moment AIMS OS
+# v2.0 ships. We swap it out for Node 22 LTS (Active maintenance until
+# April 2027, then Maintenance until April 2027 long-term) via the
+# NodeSource apt repository, the canonical "current LTS" source on
+# Debian.
+#
+# Why NodeSource and not nvm:
+#   - System-wide: works for the live user AND any Calamares-created user
+#   - Updates via `apt-get upgrade`, not yet-another version manager
+#   - Pulls a current npm (10.x+) as opposed to Trixie's npm 9.x
+#
+# We pin priority 700 on NodeSource so a future Trixie point-release that
+# happens to bump nodejs can't downgrade us back to the v20 line.
+#
+# Reference: https://github.com/nodesource/distributions
+# =============================================================================
+set -e
+
+BANNER="[aims-os/hook/nodesource]"
+KEYRING=/usr/share/keyrings/nodesource.gpg
+
+echo "${BANNER} replacing Trixie nodejs (20.x EOL) with NodeSource 22 LTS..."
+
+# 1. GPG key
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+    | gpg --dearmor --yes -o "${KEYRING}"
+
+# 2. Source list — the `nodistro` suite is NodeSource's distro-agnostic
+#    channel; same packages work on Debian Trixie, Bookworm and on Ubuntu.
+cat > /etc/apt/sources.list.d/nodesource.sources <<'EOF'
+Types: deb
+URIs: https://deb.nodesource.com/node_22.x
+Suites: nodistro
+Components: main
+Signed-by: /usr/share/keyrings/nodesource.gpg
+EOF
+
+# 3. Pin: prefer NodeSource's nodejs over Trixie's.
+cat > /etc/apt/preferences.d/nodesource-nodejs.pref <<'EOF'
+Package: nodejs
+Pin: origin deb.nodesource.com
+Pin-Priority: 700
+EOF
+
+# 4. Drop Trixie's nodejs + npm if they got pulled in (e.g. by
+#    aims-os-desktop). We're going to reinstall the NodeSource one.
+apt-get update
+apt-get remove -y --purge nodejs npm 2>/dev/null || true
+
+# 5. Install Node 22 LTS. NodeSource's nodejs bundles npm — no separate
+#    npm package needed (and indeed it isn't in this repo).
+DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs
+
+node --version && npm --version
+echo "${BANNER} Node $(node --version) / npm $(npm --version) installed."

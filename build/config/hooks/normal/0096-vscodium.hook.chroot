@@ -1,0 +1,45 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0096: VSCodium
+# =============================================================================
+# VSCodium is the libre rebuild of Microsoft's VS Code, with the
+# proprietary bits (telemetry, Marketplace) stripped out and the FOSS
+# Open VSX marketplace wired in. We ship it as the default IDE for the
+# CS / Web Dev / Android Dev tracks of the AIMS curriculum:
+#   - No Microsoft account, no telemetry
+#   - Same UX and extension ecosystem as VS Code via Open VSX
+#   - Apt-managed → security updates via the normal upgrade path
+#
+# Repository is the paulcarroty / vscodium-deb-rpm-repo, the official
+# upstream-blessed Debian repo (see https://vscodium.com/install).
+# Architectures: amd64 + arm64.
+#
+# We use the deb822 (.sources) format because that's what Trixie's apt
+# prefers (and it lets us list both arches in one field).
+# =============================================================================
+set -e
+
+BANNER="[aims-os/hook/vscodium]"
+KEYRING=/usr/share/keyrings/vscodium.gpg
+
+echo "${BANNER} installing VSCodium via paulcarroty apt repo..."
+
+# 1. GPG key
+curl -fsSL https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
+    | gpg --dearmor --yes -o "${KEYRING}"
+
+# 2. Repo (deb822 format — Trixie native)
+cat > /etc/apt/sources.list.d/vscodium.sources <<'EOF'
+Types: deb
+URIs: https://download.vscodium.com/debs
+Suites: vscodium
+Components: main
+Architectures: amd64 arm64
+Signed-by: /usr/share/keyrings/vscodium.gpg
+EOF
+
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y codium
+
+codium --version | head -1
+echo "${BANNER} VSCodium installed."

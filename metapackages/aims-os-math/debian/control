@@ -221,6 +221,13 @@ Depends:
  redis-tools,
  python3-psycopg2,
  python3-pymongo,
+# --- Python QA (Computing with Python course) ------------------------
+# black — opinionated formatter; pairs with ruff (installed via hook
+#     0100 since not in Trixie main).
+# mypy — gradual static type checker; required by the Computing with
+#     Python course's typed exercise grading rubric.
+ black,
+ python3-mypy,
 # --- Data tools ------------------------------------------------------
  sqlite3,
 Description: AIMS OS — scientific and mathematical software stack
