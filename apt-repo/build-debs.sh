@@ -28,12 +28,25 @@ rm -f "${OUT_DIR}"/*.deb "${OUT_DIR}"/*.changes "${OUT_DIR}"/*.buildinfo
 
 for pkg_dir in "${METAPKG_DIR}"/aims-os-*/; do
     pkg_name=$(basename "${pkg_dir}")
-    log "building ${pkg_name}..."
 
+    # aims-os-branding ships a generated payload (wallpapers, GRUB theme,
+    # Plymouth assets, Calamares branding) that lives under files/ only
+    # after build/build-metapackages.sh has run the ImageMagick pipeline
+    # to render them from branding/source/*. The apt-repo flow doesn't
+    # invoke that pipeline (it would need docker + librsvg + optipng on
+    # the runner), and standalone apt users don't want a wallpaper drop
+    # over their existing Debian anyway. Skip it.
+    if [ "${pkg_name}" = "aims-os-branding" ]; then
+        log "skipping ${pkg_name} (ISO-only, depends on render pipeline)"
+        continue
+    fi
+
+    log "building ${pkg_name}..."
     (
         cd "${pkg_dir}"
-        # -us -uc : skip signing here; apt-ftparchive's Release file is what
-        #           gets signed downstream. -b : binary-only.
+        # --no-sign : apt-ftparchive's Release file is what gets signed
+        #             downstream, no need to sign the .deb itself.
+        # -b        : binary-only build.
         dpkg-buildpackage --no-sign -b 2>&1 | tail -5
     )
 done
