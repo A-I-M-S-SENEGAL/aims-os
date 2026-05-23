@@ -24,17 +24,21 @@ BANNER="[aims-os/hook/cursor]"
 CURSOR_CHANNEL=3.5
 arch=$(dpkg --print-architecture)
 
+# dpkg ↔ Cursor URL arch mapping:
+#   dpkg `arm64` → Cursor `linux-arm64-deb`   (names match)
+#   dpkg `amd64` → Cursor `linux-x64-deb`     (Cursor uses x64, not amd64)
 case "${arch}" in
-    arm64|amd64) ;;
+    arm64) cursor_arch=arm64 ;;
+    amd64) cursor_arch=x64   ;;
     *)
         echo "${BANNER} arch ${arch} unsupported by Cursor — skipping." >&2
         exit 0
         ;;
 esac
 
-echo "${BANNER} downloading Cursor ${CURSOR_CHANNEL} for linux-${arch}..."
+echo "${BANNER} downloading Cursor ${CURSOR_CHANNEL} for linux-${cursor_arch}..."
 
-URL="https://api2.cursor.sh/updates/download/golden/linux-${arch}-deb/cursor/${CURSOR_CHANNEL}"
+URL="https://api2.cursor.sh/updates/download/golden/linux-${cursor_arch}-deb/cursor/${CURSOR_CHANNEL}"
 DEB=/tmp/cursor.deb
 
 curl -fL --retry 5 --retry-delay 5 --retry-all-errors "${URL}" -o "${DEB}"
