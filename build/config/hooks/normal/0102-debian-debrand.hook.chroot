@@ -103,11 +103,46 @@ fi
 echo "${BANNER} installed aims-os hicolor icon set (11 sizes)."
 
 # -----------------------------------------------------------------------------
-# 5. desktop-base/active-theme is a symlink that Debian points at the active
+# 5. /etc/skel/.face + .face.icon
+#    desktop-base ships a Debian-swirl PNG at /etc/skel/.face (and a symlink
+#    .face.icon → .face). Calamares' users module copies /etc/skel/ verbatim
+#    to every new user's home, so on a freshly installed system every account
+#    ends up with the Debian logo as its libaccountsservice avatar — which is
+#    exactly what the polkit dialog shows when no /var/lib/AccountsService/
+#    users/<name> override is present.
+#
+#    Replacing it here (post package-install, pre Calamares run) means every
+#    user the installer creates picks up the AIMS circle as their default
+#    avatar. They can still change it from GNOME Settings → Users.
+# -----------------------------------------------------------------------------
+if [ -d /etc/skel ]; then
+    cp -f "${LOGOS}/aims-circle-256.png" /etc/skel/.face
+    ln -sf .face /etc/skel/.face.icon
+    echo "${BANNER} replaced /etc/skel/.face (+ .face.icon symlink) with AIMS circle."
+fi
+
+# Live ISO user `user` was created at debootstrap time and got /etc/skel BEFORE
+# this hook runs — patch their home too, otherwise the live session keeps the
+# Debian face.
+for home in /home/*; do
+    [ -d "${home}" ] || continue
+    user_name=$(basename "${home}")
+    if [ -f "${home}/.face" ]; then
+        cp -f "${LOGOS}/aims-circle-256.png" "${home}/.face"
+        chown "${user_name}:${user_name}" "${home}/.face" 2>/dev/null || true
+        echo "${BANNER} replaced ${home}/.face with AIMS circle."
+    fi
+    if [ -L "${home}/.face.icon" ] || [ ! -e "${home}/.face.icon" ]; then
+        ln -sfn .face "${home}/.face.icon"
+        chown -h "${user_name}:${user_name}" "${home}/.face.icon" 2>/dev/null || true
+    fi
+done
+
+# -----------------------------------------------------------------------------
+# 6. desktop-base/active-theme is a symlink that Debian points at the active
 #    Trixie theme directory (futureprototype-theme). Leaving it alone is fine —
 #    its content (wallpapers, lockscreen) is already overridden by our
-#    aims-os-branding deb package elsewhere. We don't tear the directory
-#    structure apart, but we DO neutralise the Debian-homepage launcher above.
+#    aims-os-branding deb package elsewhere.
 # -----------------------------------------------------------------------------
 
 echo "${BANNER} Debian branding sweep complete."
