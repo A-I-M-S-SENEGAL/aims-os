@@ -8,8 +8,13 @@
 # from /etc/calamares/settings.conf with `branding: aims-os`.
 #
 # Visual identity (matches the rest of AIMS OS):
-#   primary  #803018  AIMS terracotta — sidebar, headings, accents
-#   accent   #A0392E  lighter terracotta — selection highlights
+#   primary  #84341D  AIMS terracotta — official, sampled from logo-aims.png.
+#                     Used for sidebar background, headings, body accents.
+#   accent   #A0392E  lighter terracotta — only where we need a deliberate
+#                     "active vs inactive" contrast on terracotta-on-terracotta
+#                     elements (SidebarBackgroundCurrent against the primary
+#                     SidebarBackground). Do NOT use as body text — primary
+#                     gives better contrast on cream.
 #   cream    #F5EFE7  background — slides, fills
 #   text     #1A1A1A  body copy — readable on cream
 #
@@ -104,12 +109,15 @@ slideshowAPI:            2
 # the active step too. Cleaner UX, and the contrast guarantees are
 # unchanged.
 #
-# WCAG contrast against the panel #803018 (luminance 0.068):
-#   SidebarText            #F5EFE7 → 8.1:1   (AAA, default step)
+# WCAG contrast against the panel #84341D (luminance 0.077):
+#   SidebarText            #F5EFE7 → 8.5:1   (AAA, default step)
 # Against the active-bg #A0392E (luminance 0.108):
 #   SidebarTextCurrent     #FFFFFF → 6.65:1  (AAA, active step)
+# Active-bg stays #A0392E so it visibly differs from the inactive panel —
+# making it #84341D would collapse the visual distinction (the two are
+# within 4 RGB units of each other).
 style:
-    SidebarBackground:        "#803018"
+    SidebarBackground:        "#84341D"
     SidebarBackgroundCurrent: "#A0392E"
     SidebarText:              "#F5EFE7"
     SidebarTextCurrent:       "#FFFFFF"

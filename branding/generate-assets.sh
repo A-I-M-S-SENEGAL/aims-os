@@ -27,8 +27,13 @@ set -euo pipefail
 # -----------------------------------------------------------------------------
 # Brand palette — single source of truth
 # -----------------------------------------------------------------------------
-COLOR_BRAND_PRIMARY="#803018"   # logo strokes — extracted from the source PNG
-COLOR_BRAND_ACCENT="#A0392E"    # lighter terracotta — UI accents, progress bar
+COLOR_BRAND_PRIMARY="#84341D"   # AIMS official — sampled from logo-aims.png
+                                # via Pillow (dominant of 493 px in the rays).
+                                # Primary use: brand mark, text on light bg.
+COLOR_BRAND_ACCENT="#A0392E"    # lighter terracotta — for elements that need
+                                # an extra visual "pop": progress bar fills,
+                                # active sidebar item highlight where the
+                                # default background is already terracotta.
 COLOR_BG_CREAM="#F5EFE7"        # cream — used for boot chain (Plymouth, GRUB)
 COLOR_BG_MAROON="#600000"       # deep maroon — lattice wallpaper base, matches SVG
 COLOR_TEXT_DARK="#1A1A1A"       # primary text on cream

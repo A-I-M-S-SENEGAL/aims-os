@@ -85,7 +85,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "AIMS OS"
-                        color: "#803018"
+                        color: "#84341D"
                         font.pixelSize: 34
                         font.bold: true
                     }
@@ -100,7 +100,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "African Institute for Mathematical Sciences — Sénégal"
-                        color: "#A0392E"
+                        color: "#84341D"
                         font.pixelSize: 14
                         font.italic: true
                     }
@@ -136,7 +136,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "Stack scientifique pré-installé"
-                        color: "#803018"
+                        color: "#84341D"
                         font.pixelSize: 26
                         font.bold: true
                     }
@@ -200,7 +200,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "Rédigez votre thèse, dès le premier boot"
-                        color: "#803018"
+                        color: "#84341D"
                         font.pixelSize: 26
                         font.bold: true
                     }
@@ -257,7 +257,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "Miniforge3 + Flathub"
-                        color: "#803018"
+                        color: "#84341D"
                         font.pixelSize: 26
                         font.bold: true
                     }
@@ -272,7 +272,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "$ mamba install -c conda-forge pytorch jupyterlab"
-                        color: "#A0392E"
+                        color: "#84341D"
                         font.pixelSize: 14
                         font.family: "monospace"
                     }
@@ -287,7 +287,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "$ flatpak install flathub org.zoom.Zoom"
-                        color: "#A0392E"
+                        color: "#84341D"
                         font.pixelSize: 14
                         font.family: "monospace"
                     }
@@ -323,7 +323,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "Sécurisé par défaut"
-                        color: "#803018"
+                        color: "#84341D"
                         font.pixelSize: 26
                         font.bold: true
                     }
@@ -387,7 +387,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "100 % logiciel libre"
-                        color: "#803018"
+                        color: "#84341D"
                         font.pixelSize: 28
                         font.bold: true
                     }
@@ -402,7 +402,7 @@ Presentation {
                         width: parent.width
                         wrapMode: Text.WordWrap
                         text: "github.com/A-I-M-S-SENEGAL/aims-os"
-                        color: "#A0392E"
+                        color: "#84341D"
                         font.pixelSize: 15
                         font.family: "monospace"
                     }
