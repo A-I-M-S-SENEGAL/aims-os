@@ -1,0 +1,99 @@
+# =============================================================================
+# AIMS OS — publish apt repo to GitHub Pages (official Pages-from-Actions)
+# =============================================================================
+# Builds the metapackage .deb files, generates a signed apt repository tree
+# under apt-repo/site/, and deploys it as the GitHub Pages site for this
+# repo (served at https://a-i-m-s-senegal.github.io/aims-os/).
+#
+# Uses GitHub's official Pages deployment actions (actions/upload-pages-
+# artifact@v3 + actions/deploy-pages@v4) rather than a third-party `gh-pages`
+# branch push — no orphan branch, no commit clutter, cleaner permissions.
+#
+# Triggers:
+#   - workflow_dispatch — manual republish
+#   - push tag v*       — publish alongside the matching ISO release
+#
+# Pre-reqs in repo settings:
+#   - Secret  AIMS_GPG_PRIVATE_KEY   armored GPG private key (no passphrase)
+#   - Settings → Pages → Build and deployment → Source: GitHub Actions
+# =============================================================================
+
+name: Publish apt repo
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+# Pages-from-Actions needs `pages: write` + `id-token: write` for the
+# OIDC trust handshake that lets the deploy step talk to the Pages API.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time per repo. Don't cancel an in-flight
+# publish — the .deb / signature work is non-idempotent enough that we want
+# the running job to finish cleanly.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build .debs, sign, deploy to Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build + apt-repo tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+              debhelper dpkg-dev apt-utils gnupg
+
+      - name: Build the .deb metapackages
+        run: ./apt-repo/build-debs.sh
+
+      - name: Import GPG signing key
+        env:
+          AIMS_GPG_PRIVATE_KEY: ${{ secrets.AIMS_GPG_PRIVATE_KEY }}
+        run: |
+          if [ -z "${AIMS_GPG_PRIVATE_KEY}" ]; then
+              echo "::error::AIMS_GPG_PRIVATE_KEY secret is empty — set it in Settings → Secrets and variables → Actions"
+              exit 1
+          fi
+          printf '%s\n' "${AIMS_GPG_PRIVATE_KEY}" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Build & sign repo tree
+        env:
+          GPG_KEY_ID: CEAB168E6D2E30FF
+        run: ./apt-repo/publish.sh
+
+      - name: Stage .nojekyll + landing README
+        run: |
+          # .nojekyll : Pages MUST NOT run Jekyll over an apt repo tree
+          # (it strips files / dirs starting with `_` and rewrites things).
+          touch apt-repo/site/.nojekyll
+          # Friendly landing page for visitors who hit the bare URL.
+          cp apt-repo/site-README.md apt-repo/site/README.md
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./apt-repo/site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

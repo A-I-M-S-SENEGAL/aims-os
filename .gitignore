@@ -86,3 +86,7 @@ venv/
 secrets/
 *.key
 *.pem
+
+# ---- apt-repo build output ----
+apt-repo/out/
+apt-repo/site/
