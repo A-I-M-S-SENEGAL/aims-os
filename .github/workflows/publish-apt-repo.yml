@@ -57,7 +57,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
-              debhelper dpkg-dev apt-utils gnupg
+              build-essential debhelper dpkg-dev apt-utils gnupg
 
       - name: Build the .deb metapackages
         run: ./apt-repo/build-debs.sh
