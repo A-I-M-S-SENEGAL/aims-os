@@ -3,202 +3,370 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AIMS OS apt repository</title>
-<meta name="description" content="Official apt repository for the AIMS OS scientific Linux distribution, served from GitHub Pages.">
+<title>AIMS OS — apt</title>
+<meta name="description" content="apt repository for the AIMS OS scientific Linux distribution. Install on any Debian Trixie box.">
+<link rel="icon" type="image/png" href="aims-logo-256.png">
 <style>
-  /* Brand tokens lifted from the welcome page so the apt repo landing
-     and the in-OS welcome read as one product. */
   :root {
-    --brand-500: #84341D;
-    --brand-600: #6B2A15;
-    --brand-400: #A24F2F;
-    --brand-300: #C76B4B;
-    --brand-200: #DD8060;
-    --ink-900:   #231F20;
-    --ink-500:   #6B635C;
-    --cream-50:  #F5EFE7;
-    --cream-100: #EBE2D2;
-    --bg:           var(--cream-50);
-    --surface:      #FFFFFF;
-    --surface-2:    #FAF6EF;
-    --border:       rgba(35, 31, 32, 0.10);
-    --text:         var(--ink-900);
-    --text-muted:   var(--ink-500);
-    --accent:       var(--brand-500);
-    --accent-hover: var(--brand-600);
-    --accent-soft:  rgba(132, 52, 29, 0.10);
-    --focus-ring:   0 0 0 3px rgba(132, 52, 29, 0.45);
-    --shadow-sm:    0 1px 2px rgba(35, 31, 32, 0.06),
-                    0 1px 3px rgba(35, 31, 32, 0.04);
-    --radius-sm: 6px;
-    --radius:    10px;
-    --space-2: 0.5rem;  --space-3: 0.75rem;
-    --space-4: 1rem;    --space-5: 1.5rem;
-    --space-6: 2rem;    --space-7: 3rem;
-    --space-8: 4rem;
-    --fs-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-    --fs-sm:   clamp(0.875rem, 0.85rem + 0.15vw, 0.95rem);
-    --fs-h1:   clamp(1.75rem, 1.4rem + 1.8vw, 2.5rem);
-    --fs-h2:   clamp(1.25rem, 1.1rem + 0.8vw, 1.5rem);
+    --ink:        #131110;
+    --ink-2:      #2A2520;
+    --paper:      #F8F4ED;
+    --paper-2:    #ECE6DC;
+    --rule:       rgba(19, 17, 16, 0.12);
+    --muted:      #6F6862;
+    --brand:      #84341D;
+    --brand-2:    #6B2A15;
+    --brand-soft: rgba(132, 52, 29, 0.06);
+    --bg:         var(--paper);
+    --fg:         var(--ink);
+    --surface:    #FFFFFF;
+    --code-bg:    #1A1614;
+    --code-fg:    #ECE6DC;
+    --code-dim:   #8B847C;
+    --code-key:   #E8B57A;
+    --code-str:   #B8D88A;
+    --code-cmt:   #6B635C;
+    --shadow:     0 1px 2px rgba(19, 17, 16, 0.04),
+                  0 8px 24px -8px rgba(19, 17, 16, 0.08);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg:           #1A1614;
-      --surface:      #25201D;
-      --surface-2:    #2C2622;
-      --border:       rgba(245, 239, 231, 0.08);
-      --text:         #ECE6DC;
-      --text-muted:   #B8AFA4;
-      --accent:       var(--brand-300);
-      --accent-hover: var(--brand-200);
-      --accent-soft:  rgba(199, 107, 75, 0.14);
-      --focus-ring:   0 0 0 3px rgba(199, 107, 75, 0.55);
-      --shadow-sm:    none;
+      --bg:         #0E0B09;
+      --fg:         #ECE6DC;
+      --paper-2:    #1A1614;
+      --rule:       rgba(245, 239, 231, 0.10);
+      --muted:      #8B847C;
+      --surface:    #15110F;
+      --brand:      #C76B4B;
+      --brand-2:    #DD8060;
+      --brand-soft: rgba(199, 107, 75, 0.10);
+      --shadow:     none;
     }
   }
   @media (prefers-contrast: more) {
-    :root { --border: currentColor; --text-muted: var(--text); }
+    :root { --rule: currentColor; --muted: var(--fg); }
   }
   *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   body {
     margin: 0;
-    font-family: "Inter", system-ui, -apple-system, sans-serif;
-    font-size: var(--fs-body);
-    line-height: 1.6;
-    color: var(--text);
     background: var(--bg);
-    -webkit-font-smoothing: antialiased;
-  }
-  h1 { font-size: var(--fs-h1); line-height: 1.2; margin: 0 0 var(--space-2); font-weight: 700; letter-spacing: -0.015em; }
-  h2 { font-size: var(--fs-h2); line-height: 1.3; margin: var(--space-7) 0 var(--space-3); font-weight: 600; padding-left: var(--space-3); border-left: 3px solid var(--accent); }
-  p  { margin: 0 0 var(--space-3); color: var(--text-muted); max-width: 75ch; }
-  a  { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-  a:hover { color: var(--accent-hover); text-decoration-thickness: 2px; }
-  code, pre, kbd {
-    font-family: "Fira Code", "JetBrains Mono", ui-monospace, monospace;
-    font-size: 0.92em;
-  }
-  code, kbd {
-    background: var(--accent-soft);
-    color: var(--accent);
-    padding: 0.1em 0.4em;
-    border-radius: var(--radius-sm);
-  }
-  pre {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: var(--space-4);
-    overflow-x: auto;
+    color: var(--fg);
+    font-family: -apple-system, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 17px;
     line-height: 1.55;
-    margin: var(--space-3) 0 var(--space-4);
-    color: var(--text);
-    font-size: var(--fs-sm);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01", "cv11";
   }
-  pre code { background: transparent; color: inherit; padding: 0; }
-  :focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
-  .skip-link {
-    position: absolute; left: var(--space-4); top: -3rem;
-    background: var(--accent); color: white; padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-sm); text-decoration: none; z-index: 100;
-    transition: top 150ms;
+  /* Subtle background grid. Density-tuned so it stays out of the way. */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: -1;
+    background-image:
+      radial-gradient(circle, var(--rule) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: 0 0;
+    opacity: 0.4;
+    pointer-events: none;
   }
-  .skip-link:focus-visible { top: var(--space-4); }
-  .wrap {
-    max-width: 980px;
+  a {
+    color: var(--brand);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--brand-soft);
+    text-underline-offset: 4px;
+    transition: text-decoration-color 120ms;
+  }
+  a:hover { text-decoration-color: var(--brand); }
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .skip {
+    position: absolute; left: 16px; top: -3rem;
+    background: var(--brand); color: white; padding: 8px 16px;
+    text-decoration: none; transition: top 120ms;
+  }
+  .skip:focus-visible { top: 16px; }
+
+  /* ---------- Top bar -------------------------------------------------- */
+  .topbar {
+    border-bottom: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(6px);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-inner {
+    max-width: 1080px;
     margin: 0 auto;
-    padding: clamp(var(--space-5), 4vw, var(--space-8)) clamp(var(--space-4), 4vw, var(--space-6)) var(--space-8);
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px;
   }
-  header.hero {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: var(--space-5);
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: var(--space-4);
-  }
-  .hero-logo {
-    width: clamp(64px, 8vw, 88px);
-    height: clamp(64px, 8vw, 88px);
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, var(--brand-400), var(--brand-600) 70%);
-    display: grid;
-    place-items: center;
-    color: white;
+  .topbar img { width: 24px; height: 24px; flex-shrink: 0; }
+  .topbar .brand-mark {
     font-weight: 700;
-    font-size: 1.3rem;
-    letter-spacing: 0.04em;
-    box-shadow: 0 8px 20px rgba(107, 42, 21, 0.30);
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+  .topbar .brand-mark span { color: var(--muted); font-weight: 400; }
+  .topbar nav { margin-left: auto; display: flex; gap: 22px; }
+  .topbar nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .topbar nav a:hover { color: var(--fg); }
+
+  /* ---------- Hero ----------------------------------------------------- */
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: clamp(48px, 8vw, 96px) 24px 96px;
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 28px;
+    align-items: start;
+    margin-bottom: clamp(36px, 6vw, 56px);
+  }
+  .hero img {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    box-shadow: 0 8px 28px -8px rgba(132, 52, 29, 0.4);
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 12px;
+    color: var(--brand);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  h1 {
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    font-weight: 800;
+    margin: 0 0 18px;
   }
   .lead {
-    color: var(--text-muted);
-    font-size: var(--fs-body);
-    margin-top: var(--space-2);
+    font-size: clamp(17px, 1.6vw, 19px);
+    color: var(--muted);
+    max-width: 60ch;
+    margin: 0 0 0;
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: var(--space-3) 0 var(--space-4);
-    font-size: var(--fs-sm);
+  .lead strong { color: var(--fg); font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .hero { grid-template-columns: 1fr; gap: 18px; }
+    .hero img { width: 72px; height: 72px; }
   }
-  th, td {
-    text-align: left;
-    padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
+
+  /* ---------- Section -------------------------------------------------- */
+  section { margin-top: clamp(40px, 5vw, 64px); }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
   }
-  th { background: var(--surface-2); color: var(--text); font-weight: 600; }
-  td code { white-space: nowrap; }
-  .fingerprint {
+  h2::before {
+    content: counter(sec, decimal-leading-zero);
+    counter-increment: sec;
     font-family: "Fira Code", ui-monospace, monospace;
-    font-size: var(--fs-sm);
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius);
-    letter-spacing: 0.04em;
-    margin: var(--space-2) 0 var(--space-4);
+    font-size: 12px;
+    color: var(--brand);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--brand-soft);
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: var(--brand-soft);
   }
-  footer.site-footer {
-    margin-top: var(--space-7);
-    padding-top: var(--space-5);
-    border-top: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: var(--fs-sm);
-    display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3);
+  body { counter-reset: sec; }
+  .section-lead {
+    color: var(--muted);
+    margin: 6px 0 18px;
+    max-width: 60ch;
   }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+
+  /* ---------- Code block (terminal-style) ------------------------------ */
+  .code {
+    position: relative;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border-radius: 10px;
+    padding: 18px 20px 18px 20px;
+    overflow-x: auto;
+    font-family: "Fira Code", "JetBrains Mono", ui-monospace, monospace;
+    font-size: 14px;
+    line-height: 1.65;
+    box-shadow: var(--shadow);
+    margin: 6px 0 0;
   }
+  .code pre { margin: 0; white-space: pre; }
+  .code .c  { color: var(--code-cmt); }
+  .code .k  { color: var(--code-key); }
+  .code .s  { color: var(--code-str); }
+  .code .d  { color: var(--code-dim); }
+  .code-label {
+    position: absolute;
+    top: 12px; right: 14px;
+    font-family: "Fira Code", ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--code-dim);
+    letter-spacing: 0.06em;
+    text-transform: lowercase;
+  }
+  .copy-hint {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* ---------- Filière list -------------------------------------------- */
+  .picks {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .picks li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .picks .label { font-weight: 500; color: var(--fg); }
+  .picks .label small { display: block; color: var(--muted); font-weight: 400; font-size: 13px; margin-top: 2px; }
+  .picks code {
+    font-family: "Fira Code", ui-monospace, monospace;
+    font-size: 13px;
+    background: var(--paper-2);
+    color: var(--fg);
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    border: 1px solid var(--rule);
+  }
+  @media (max-width: 640px) {
+    .picks li { grid-template-columns: 1fr; gap: 8px; }
+    .picks code { justify-self: start; }
+  }
+
+  /* ---------- Fingerprint card ---------------------------------------- */
+  .fp {
+    margin-top: 8px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+    font-family: "Fira Code", ui-monospace, monospace;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: var(--fg);
+    word-break: break-all;
+  }
+  .fp .meta {
+    display: block;
+    font-family: -apple-system, "Inter", system-ui, sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* ---------- Inline code in prose ------------------------------------ */
+  p code {
+    font-family: "Fira Code", ui-monospace, monospace;
+    font-size: 0.88em;
+    background: var(--paper-2);
+    color: var(--fg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--rule);
+  }
+  @media (prefers-color-scheme: dark) {
+    p code { background: var(--paper-2); }
+  }
+
+  /* ---------- Footer -------------------------------------------------- */
+  footer {
+    margin-top: clamp(56px, 8vw, 96px);
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 28px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  footer .grow { flex: 1; }
 </style>
 </head>
 <body>
 
-<a href="#main" class="skip-link">Skip to main content</a>
+<a href="#main" class="skip">Skip to content</a>
 
-<div class="wrap">
+<div class="topbar">
+  <div class="topbar-inner">
+    <img src="aims-logo-256.png" alt="">
+    <div class="brand-mark">AIMS OS <span>· apt</span></div>
+    <nav>
+      <a href="#setup">Setup</a>
+      <a href="#pick">Packages</a>
+      <a href="#verify">Verify</a>
+      <a href="https://github.com/A-I-M-S-SENEGAL/aims-os">GitHub</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap" id="main">
 
   <header class="hero">
-    <div class="hero-logo" aria-hidden="true">AIMS</div>
+    <img src="aims-logo-256.png" alt="AIMS OS logo">
     <div>
-      <h1>AIMS OS apt repository</h1>
+      <p class="eyebrow">Apt repository</p>
+      <h1>The AIMS OS stack, on any&nbsp;Debian.</h1>
       <p class="lead">
-        Official apt repo for the AIMS OS metapackages, served from GitHub Pages.
-        Install the AIMS OS scientific stack on top of any Debian Trixie box,
-        without flashing the full ISO.
+        Install the AIMS OS scientific and developer tooling on top of
+        a plain <strong>Debian 13 (Trixie)</strong> box. Same metapackages
+        as the AIMS OS ISO, no flashing required, updates land through
+        <code>apt-get upgrade</code> like anything else.
       </p>
     </div>
   </header>
 
-  <main id="main">
-
-    <h2>One-time setup</h2>
-    <p>Trust the signing key, add the deb822 source, refresh apt.</p>
-<pre><code>sudo curl -fsSL https://a-i-m-s-senegal.github.io/aims-os/aims-os-archive-keyring.gpg \
+  <section id="setup">
+    <h2>Trust and add the repo</h2>
+    <p class="section-lead">
+      One-time setup. Fetches the AIMS OS signing key, drops a deb822
+      source under <code>/etc/apt/sources.list.d/</code>, refreshes apt.
+    </p>
+    <div class="code">
+      <span class="code-label">shell</span>
+<pre><span class="c"># 1. Trust the signing key</span>
+<span class="k">sudo</span> curl -fsSL <span class="s">https://a-i-m-s-senegal.github.io/aims-os/aims-os-archive-keyring.gpg</span> \
     -o /usr/share/keyrings/aims-os-archive-keyring.gpg
 
-sudo tee /etc/apt/sources.list.d/aims-os.sources &gt;/dev/null &lt;&lt;'EOF'
+<span class="c"># 2. Add the source (deb822, used by Trixie's apt)</span>
+<span class="k">sudo</span> tee /etc/apt/sources.list.d/aims-os.sources <span class="d">&gt;/dev/null</span> &lt;&lt;<span class="s">'EOF'</span>
 Types: deb
 URIs: https://a-i-m-s-senegal.github.io/aims-os
 Suites: trixie
@@ -207,59 +375,79 @@ Architectures: amd64 arm64
 Signed-By: /usr/share/keyrings/aims-os-archive-keyring.gpg
 EOF
 
-sudo apt update</code></pre>
-
-    <h2>Pick what you need</h2>
-    <table>
-      <thead>
-        <tr><th>Filière / layer</th><th>Command</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Regular (Mathematical Sciences)</td><td><code>sudo apt install aims-os-math</code></td></tr>
-        <tr><td>Coop Big Data Analytics</td><td><code>sudo apt install aims-os-bigdata</code></td></tr>
-        <tr><td>Coop Computer Security</td><td><code>sudo apt install aims-os-security</code></td></tr>
-        <tr><td>GNOME desktop layer</td><td><code>sudo apt install aims-os-desktop</code></td></tr>
-        <tr><td>System baseline (firmware, locales, CLI)</td><td><code>sudo apt install aims-os-core</code></td></tr>
-        <tr><td>Everything</td><td><code>sudo apt install aims-os-{core,desktop,math,bigdata,security}</code></td></tr>
-      </tbody>
-    </table>
-    <p>
-      Both <code>aims-os-bigdata</code> and <code>aims-os-security</code> depend on
-      <code>aims-os-math</code>, so installing either pulls the SciPy / R / LaTeX / Jupyter
-      scientific baseline with them.
-    </p>
-
-    <h2>Verify the signature</h2>
-<pre><code>gpg --show-keys /usr/share/keyrings/aims-os-archive-keyring.gpg</code></pre>
-    <p>Expected fingerprint:</p>
-    <div class="fingerprint">7775 7473 70C3 E86F A12D &nbsp;06D7 CEAB 168E 6D2E 30FF</div>
-
-    <h2>What's in each metapackage</h2>
-    <p>
-      The <code>debian/control</code> files in the
-      <a href="https://github.com/A-I-M-S-SENEGAL/aims-os/tree/feat/trixie/metapackages">source repo</a>
-      are the truth. Every metapackage lists exactly what it pulls in its <code>Depends:</code> field.
-    </p>
-
-    <h2>Branding package note</h2>
-    <p>
-      <code>aims-os-branding</code> (wallpapers, GRUB theme, Plymouth splash, Calamares
-      branding) ships only with the AIMS OS ISO. The standalone apt repo skips it
-      because (a) the assets are generated by an ImageMagick / librsvg / optipng
-      pipeline that does not belong in CI, and (b) replacing the wallpapers on
-      someone's existing Debian without warning is rude. Grab the ISO if you
-      want the full branded experience.
-    </p>
-
-  </main>
-
-  <footer class="site-footer">
-    <div>AIMS OS · Debian 13 (Trixie) · maintained by AIMS Senegal IT</div>
-    <div>
-      <a href="https://github.com/A-I-M-S-SENEGAL/aims-os">Source</a> ·
-      <a href="https://github.com/A-I-M-S-SENEGAL/aims-os/issues">Bugs</a> ·
-      <a href="mailto:hakim@aims-senegal.org">Contact</a>
+<span class="k">sudo</span> apt update</pre>
     </div>
+  </section>
+
+  <section id="pick">
+    <h2>Pick what you need</h2>
+    <p class="section-lead">
+      Filière-aligned. <code>aims-os-bigdata</code> and
+      <code>aims-os-security</code> both depend on <code>aims-os-math</code>,
+      so installing either pulls the SciPy / R / LaTeX / Jupyter baseline
+      with them.
+    </p>
+    <ul class="picks">
+      <li>
+        <div class="label">Regular track <small>Mathematical Sciences</small></div>
+        <code>apt install aims-os-math</code>
+      </li>
+      <li>
+        <div class="label">Coop Big Data <small>Data Analytics, NLP, Vision, Climate, DB clients</small></div>
+        <code>apt install aims-os-bigdata</code>
+      </li>
+      <li>
+        <div class="label">Coop Security <small>Crypto, network audit, forensics</small></div>
+        <code>apt install aims-os-security</code>
+      </li>
+      <li>
+        <div class="label">GNOME desktop layer <small>Calamares, Firefox, LibreOffice, Cursor, VSCodium, Docker, …</small></div>
+        <code>apt install aims-os-desktop</code>
+      </li>
+      <li>
+        <div class="label">System baseline <small>Firmware, locales, CLI, build toolchain</small></div>
+        <code>apt install aims-os-core</code>
+      </li>
+      <li>
+        <div class="label">Everything (matches the ISO)</div>
+        <code>apt install aims-os-{core,desktop,math,bigdata,security}</code>
+      </li>
+    </ul>
+  </section>
+
+  <section id="verify">
+    <h2>Verify the signature</h2>
+    <p class="section-lead">
+      The repo's <code>Release</code> file is signed with the AIMS OS Repository
+      key. Check the fingerprint against the value below before trusting it.
+    </p>
+    <div class="code">
+      <span class="code-label">shell</span>
+<pre>gpg --show-keys /usr/share/keyrings/aims-os-archive-keyring.gpg</pre>
+    </div>
+    <div class="fp" aria-label="Expected fingerprint">
+      <span class="meta">Expected fingerprint</span>
+      7775 7473 70C3 E86F A12D&nbsp;&nbsp;06D7 CEAB 168E 6D2E 30FF
+    </div>
+  </section>
+
+  <section>
+    <h2>What's actually inside</h2>
+    <p class="section-lead">
+      The <code>debian/control</code> files in the
+      <a href="https://github.com/A-I-M-S-SENEGAL/aims-os/tree/feat/trixie/metapackages">source tree</a>
+      are the truth: every metapackage lists exactly what it pulls in its
+      <code>Depends:</code> field. <code>aims-os-branding</code> (wallpapers,
+      GRUB theme, Plymouth, Calamares branding) ships only with the ISO,
+      since rebranding someone's existing Debian without asking is rude.
+    </p>
+  </section>
+
+  <footer>
+    <div class="grow">AIMS OS · Debian 13 (Trixie) · AIMS Senegal IT</div>
+    <a href="https://github.com/A-I-M-S-SENEGAL/aims-os">Source</a>
+    <a href="https://github.com/A-I-M-S-SENEGAL/aims-os/issues">Issues</a>
+    <a href="mailto:hakim@aims-senegal.org">Contact</a>
   </footer>
 
 </div>

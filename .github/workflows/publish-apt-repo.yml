@@ -89,6 +89,8 @@ jobs:
           # tools that look for one.
           cp apt-repo/site-index.html  apt-repo/site/index.html
           cp apt-repo/site-README.md   apt-repo/site/README.md
+          # AIMS logo referenced by the landing page (and used as favicon).
+          cp apt-repo/aims-logo-256.png apt-repo/site/aims-logo-256.png
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
