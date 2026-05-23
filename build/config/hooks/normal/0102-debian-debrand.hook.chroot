@@ -1,0 +1,113 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — hook 0102: replace remaining Debian branding with AIMS
+# =============================================================================
+# Earlier hooks handle GRUB, Plymouth, GDM and Calamares branding. A few
+# Debian-branded surfaces survived and are visible to users:
+#
+#   * /usr/share/pixmaps/debian-logo.png      — the swirl that the polkit
+#       authentication dialog uses as the default user avatar when the
+#       account has no IconFile of its own. Shown to every user that
+#       hasn't picked an avatar in GNOME Settings → Users.
+#   * /usr/share/pixmaps/debian-security.png  — Debian Security launcher
+#       icon used by the debian-security.desktop entry.
+#   * /usr/share/applications/debian-{reference,security,homepage}.desktop
+#       — three Debian-themed launchers shipped by `desktop-base` /
+#       `debian-reference-common`. We don't want them in the AIMS app
+#       grid alongside "Installer AIMS OS".
+#
+# Strategy:
+#   1. dpkg-divert the two PNGs so apt-get upgrade can't restore them.
+#   2. Copy the matching AIMS-branded asset on top of each diverted path.
+#   3. Remove (or NoDisplay-mask) the three .desktop launchers.
+#   4. Add /usr/share/pixmaps/faces/aims-os.jpg to the GNOME face picker
+#      so users can choose the AIMS circle as their avatar.
+#
+# Assets are staged via includes.chroot at
+# /usr/share/aims-os/logos/aims-circle-{16..512}.png + aims-circle-face.jpg
+# (generated at build time from branding/source/aims_circle.png).
+# =============================================================================
+set -e
+
+BANNER="[aims-os/hook/debrand]"
+LOGOS=/usr/share/aims-os/logos
+
+# Sanity: the staged assets must be present (live-build copies includes.chroot
+# before hooks/normal run). If they aren't, refuse to dpkg-divert into
+# nothingness — better to leave the Debian swirl than to break image lookups.
+if [ ! -f "${LOGOS}/aims-circle-256.png" ]; then
+    echo "${BANNER} ERROR: AIMS logo assets not staged at ${LOGOS}; aborting." >&2
+    exit 1
+fi
+
+# -----------------------------------------------------------------------------
+# 1. /usr/share/pixmaps/debian-logo.png  →  AIMS circle 256x256
+# -----------------------------------------------------------------------------
+divert_with_aims_logo() {
+    target="$1"
+    source_logo="$2"
+    if [ ! -f "${target}" ]; then
+        echo "${BANNER} ${target} not present — skipping divert."
+        return 0
+    fi
+    if ! dpkg-divert --list "${target}" | grep -q "${target}"; then
+        dpkg-divert --add --rename --quiet \
+            --divert "${target}.distrib" "${target}"
+        echo "${BANNER} diverted ${target} → ${target}.distrib"
+    fi
+    cp -f "${source_logo}" "${target}"
+    echo "${BANNER} replaced ${target} with AIMS branding."
+}
+
+divert_with_aims_logo /usr/share/pixmaps/debian-logo.png      "${LOGOS}/aims-circle-256.png"
+divert_with_aims_logo /usr/share/pixmaps/debian-security.png  "${LOGOS}/aims-circle-256.png"
+
+# -----------------------------------------------------------------------------
+# 2. Remove the Debian-themed app launchers
+# -----------------------------------------------------------------------------
+for d in debian-reference-common.desktop \
+         debian-reference.desktop        \
+         debian-security.desktop         \
+         debian-homepage.desktop; do
+    f="/usr/share/applications/${d}"
+    if [ -f "${f}" ]; then
+        rm -f "${f}"
+        echo "${BANNER} removed ${f}"
+    fi
+done
+
+# -----------------------------------------------------------------------------
+# 3. AIMS face for the GNOME avatar picker
+#    (/usr/share/pixmaps/faces/ — already used by GNOME Settings → Users)
+# -----------------------------------------------------------------------------
+if [ -d /usr/share/pixmaps/faces ]; then
+    cp -f "${LOGOS}/aims-circle-face.jpg" \
+          /usr/share/pixmaps/faces/aims-os.jpg
+    echo "${BANNER} added /usr/share/pixmaps/faces/aims-os.jpg to face picker."
+fi
+
+# -----------------------------------------------------------------------------
+# 4. AIMS hicolor icon — gives our circle a canonical icon-name "aims-os"
+#    that any other .desktop file can reference (Icon=aims-os).
+# -----------------------------------------------------------------------------
+for size in 16 22 24 32 48 64 96 128 192 256 512; do
+    src="${LOGOS}/aims-circle-${size}.png"
+    dir="/usr/share/icons/hicolor/${size}x${size}/apps"
+    [ -f "${src}" ] || continue
+    mkdir -p "${dir}"
+    cp -f "${src}" "${dir}/aims-os.png"
+done
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -q -t /usr/share/icons/hicolor || true
+fi
+echo "${BANNER} installed aims-os hicolor icon set (11 sizes)."
+
+# -----------------------------------------------------------------------------
+# 5. desktop-base/active-theme is a symlink that Debian points at the active
+#    Trixie theme directory (futureprototype-theme). Leaving it alone is fine —
+#    its content (wallpapers, lockscreen) is already overridden by our
+#    aims-os-branding deb package elsewhere. We don't tear the directory
+#    structure apart, but we DO neutralise the Debian-homepage launcher above.
+# -----------------------------------------------------------------------------
+
+echo "${BANNER} Debian branding sweep complete."
