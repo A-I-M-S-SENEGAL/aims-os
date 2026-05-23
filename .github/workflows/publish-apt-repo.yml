@@ -78,13 +78,17 @@ jobs:
           GPG_KEY_ID: CEAB168E6D2E30FF
         run: ./apt-repo/publish.sh
 
-      - name: Stage .nojekyll + landing README
+      - name: Stage .nojekyll + landing page
         run: |
           # .nojekyll : Pages MUST NOT run Jekyll over an apt repo tree
           # (it strips files / dirs starting with `_` and rewrites things).
           touch apt-repo/site/.nojekyll
-          # Friendly landing page for visitors who hit the bare URL.
-          cp apt-repo/site-README.md apt-repo/site/README.md
+          # Branded landing page served at the bare URL. With .nojekyll
+          # set, GitHub Pages does not auto-render README.md, so we ship
+          # a real index.html. README.md stays around as a fallback for
+          # tools that look for one.
+          cp apt-repo/site-index.html  apt-repo/site/index.html
+          cp apt-repo/site-README.md   apt-repo/site/README.md
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
