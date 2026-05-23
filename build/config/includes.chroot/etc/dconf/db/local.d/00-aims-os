@@ -31,6 +31,14 @@ font-name='Cantarell 11'
 document-font-name='Cantarell 11'
 monospace-font-name='Fira Code 11'
 color-scheme='default'
+# GNOME 47+ system-wide accent colour. The official AIMS brand
+# (#84341D, sampled from the AIMS Senegal logo) falls at hue 12° —
+# between libadwaita's `red` preset (#e62d42, hue 355°) and `orange`
+# preset (#ed5b00, hue 23°). `orange` is the closer match in hue and
+# is therefore the right preset for AIMS branding. libadwaita's
+# accent system only accepts these 9 named presets — arbitrary hex
+# is not supported as a system default.
+accent-color='orange'
 
 [org/gnome/desktop/wm/preferences]
 button-layout='appmenu:minimize,maximize,close'

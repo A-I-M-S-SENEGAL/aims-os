@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=AIMS OS — Welcome
+Name[fr]=AIMS OS — Bienvenue
+GenericName=Welcome Tour
+GenericName[fr]=Page de bienvenue
+Comment=Tour of what AIMS OS ships and how to install more
+Comment[fr]=Découvrir ce que contient AIMS OS et comment installer plus
+Exec=aims-welcome --force
+Icon=help-about
+Terminal=false
+Categories=GNOME;GTK;System;Documentation;
+Keywords=welcome;intro;tour;help;guide;help-about;bienvenue;
+StartupNotify=true

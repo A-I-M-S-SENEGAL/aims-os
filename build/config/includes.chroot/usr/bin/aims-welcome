@@ -1,0 +1,45 @@
+#!/bin/sh
+# =============================================================================
+# aims-welcome — open the AIMS OS welcome page in the default browser.
+# =============================================================================
+# Usage:
+#   aims-welcome           Open only if the user has never seen it before.
+#                          Used by the GNOME autostart entry on first login.
+#   aims-welcome --force   Open unconditionally. Used by the application-grid
+#                          launcher so users can re-read the page later.
+#
+# A flag file in $XDG_CONFIG_HOME (defaults to ~/.config) records that the
+# welcome has been shown — we never re-open it automatically.
+# =============================================================================
+set -eu
+
+PAGE_URL="file:///usr/share/aims-os/welcome/index.html"
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/aims-os"
+FLAG="${CONFIG_DIR}/welcome-shown"
+
+force=0
+[ "${1:-}" = "--force" ] && force=1
+
+if [ "${force}" -eq 0 ] && [ -f "${FLAG}" ]; then
+    # Already shown for this user; the autostart entry is now a no-op.
+    exit 0
+fi
+
+mkdir -p "${CONFIG_DIR}"
+: > "${FLAG}"
+
+# Prefer xdg-open (respects the user's default browser); fall back to the
+# common candidates if xdg-open is somehow missing (it isn't on GNOME, but
+# defensive coding is cheap).
+if command -v xdg-open >/dev/null 2>&1; then
+    exec xdg-open "${PAGE_URL}"
+elif command -v firefox >/dev/null 2>&1; then
+    exec firefox "${PAGE_URL}"
+elif command -v firefox-esr >/dev/null 2>&1; then
+    exec firefox-esr "${PAGE_URL}"
+elif command -v chromium >/dev/null 2>&1; then
+    exec chromium "${PAGE_URL}"
+else
+    echo "aims-welcome: no browser found." >&2
+    exit 1
+fi

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIMS OS — Bienvenue · Welcome</title>
+<meta name="description" content="Welcome to AIMS OS — Debian-based educational operating system from the African Institute for Mathematical Sciences, Senegal.">
+<style>
+  /* =======================================================================
+     AIMS OS Welcome — modern, accessible (WCAG 2.2 AA), light + dark.
+     Typography uses fluid `clamp()`. Layout is CSS Grid + Flexbox, with
+     a max content width of ~75ch for line-length readability. Reduced
+     motion and high-contrast preferences are respected.
+     ======================================================================= */
+
+  /* ----- Design tokens ------------------------------------------------- */
+  /* Brand colours sampled directly from the AIMS Senegal official logo
+     (branding/source/logo-aims.png + aims_circle.png). Brand-500 is the
+     dominant ~493-pixel value in the rays/Africa silhouette. The lighter
+     variants are scaled lightness derivatives kept on the same hue. */
+  :root {
+    --brand-500: #84341D;               /* AIMS official brand */
+    --brand-600: #6B2A15;               /* darker hover */
+    --brand-400: #A24F2F;               /* mid (gradient stop) */
+    --brand-300: #C76B4B;               /* light, used in dark mode */
+    --brand-200: #DD8060;               /* lighter dark-mode hover */
+    --ink-900:   #231F20;               /* AIMS wordmark warm-black */
+    --ink-500:   #6B635C;
+    --cream-50:  #F5EFE7;
+    --cream-100: #EBE2D2;
+
+    --bg:            var(--cream-50);
+    --surface:       #FFFFFF;
+    --surface-2:     #FAF6EF;
+    --border:        rgba(35, 31, 32, 0.10);
+    --text:          var(--ink-900);
+    --text-muted:    var(--ink-500);
+    --accent:        var(--brand-500);
+    --accent-hover:  var(--brand-600);
+    --accent-soft:   rgba(132, 52, 29, 0.10);
+    --focus-ring:    0 0 0 3px rgba(132, 52, 29, 0.45);
+    --shadow-sm:     0 1px 2px rgba(35, 31, 32, 0.06),
+                     0 1px 3px rgba(35, 31, 32, 0.04);
+
+    --radius-sm: 6px;
+    --radius:    10px;
+    --radius-lg: 16px;
+
+    --space-1: 0.25rem;  --space-2: 0.5rem;
+    --space-3: 0.75rem;  --space-4: 1rem;
+    --space-5: 1.5rem;   --space-6: 2rem;
+    --space-7: 3rem;     --space-8: 4rem;
+
+    /* Fluid type — scales from 16px (mobile) to 18px (large desktop). */
+    --fs-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    --fs-sm:   clamp(0.875rem, 0.85rem + 0.15vw, 0.95rem);
+    --fs-h1:   clamp(1.75rem, 1.4rem + 1.8vw, 2.5rem);
+    --fs-h2:   clamp(1.25rem, 1.1rem + 0.8vw, 1.5rem);
+    --fs-h3:   clamp(1rem, 0.95rem + 0.3vw, 1.1rem);
+  }
+
+  /* ----- Dark mode ----------------------------------------------------- */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:           #1A1614;
+      --surface:      #25201D;
+      --surface-2:    #2C2622;
+      --border:       rgba(245, 239, 231, 0.08);
+      --text:         #ECE6DC;
+      --text-muted:   #B8AFA4;
+      --accent:       var(--brand-300);
+      --accent-hover: var(--brand-200);
+      --accent-soft:  rgba(199, 107, 75, 0.14);
+      --focus-ring:   0 0 0 3px rgba(199, 107, 75, 0.55);
+      --shadow-sm:    none;
+    }
+  }
+
+  /* ----- High-contrast preference -------------------------------------- */
+  @media (prefers-contrast: more) {
+    :root {
+      --border: currentColor;
+      --text-muted: var(--text);
+    }
+  }
+
+  /* ----- Reset + base -------------------------------------------------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { font-size: 100%; }
+  body {
+    margin: 0;
+    font-family: "Inter", "Cantarell", system-ui, -apple-system, sans-serif;
+    font-size: var(--fs-body);
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3 { line-height: 1.25; margin: 0 0 var(--space-2); color: var(--text); }
+  h1 { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -0.015em; }
+  h2 { font-size: var(--fs-h2); font-weight: 600; margin-top: var(--space-7); }
+  h3 { font-size: var(--fs-h3); font-weight: 600; }
+  p  { margin: 0 0 var(--space-3); color: var(--text-muted); max-width: 75ch; }
+  ul { padding-left: var(--space-5); margin: 0 0 var(--space-4); }
+  li { color: var(--text-muted); margin-bottom: var(--space-1); }
+  a  {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  a:hover { color: var(--accent-hover); text-decoration-thickness: 2px; }
+  code, pre, kbd {
+    font-family: "Fira Code", "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.92em;
+  }
+  code, kbd {
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 0.1em 0.4em;
+    border-radius: var(--radius-sm);
+  }
+  pre {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    overflow-x: auto;
+    line-height: 1.55;
+    margin: var(--space-3) 0 var(--space-4);
+    color: var(--text);
+  }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  pre .c { color: var(--text-muted); }
+
+  /* ----- Focus visible (keyboard) -------------------------------------- */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
+  }
+
+  /* ----- Skip link ----------------------------------------------------- */
+  .skip-link {
+    position: absolute;
+    left: var(--space-4);
+    top: -3rem;
+    background: var(--accent);
+    color: white;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    z-index: 100;
+    transition: top 150ms;
+  }
+  .skip-link:focus-visible { top: var(--space-4); }
+
+  /* ----- Layout -------------------------------------------------------- */
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: clamp(var(--space-5), 4vw, var(--space-8)) clamp(var(--space-4), 4vw, var(--space-6)) var(--space-8);
+  }
+
+  /* ----- Hero ---------------------------------------------------------- */
+  .hero {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-5);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--space-5);
+  }
+  .hero-logo {
+    flex-shrink: 0;
+    width: clamp(64px, 8vw, 88px);
+    height: clamp(64px, 8vw, 88px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--brand-400), var(--brand-600) 70%);
+    display: grid;
+    place-items: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.3rem;
+    letter-spacing: 0.04em;
+    box-shadow: 0 8px 20px rgba(107, 42, 21, 0.30);
+  }
+  .hero-text .subtitle {
+    margin-top: var(--space-1);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+  .lang-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+  .lang-toggle button {
+    background: transparent;
+    border: 0;
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font: inherit;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    cursor: pointer;
+    min-height: 36px;
+    min-width: 44px;
+    transition: background-color 150ms, color 150ms;
+  }
+  .lang-toggle button[aria-pressed="true"] {
+    background: var(--accent);
+    color: white;
+  }
+  .lang-toggle button:not([aria-pressed="true"]):hover {
+    color: var(--text);
+    background: var(--accent-soft);
+  }
+  @media (max-width: 580px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: left;
+    }
+    .lang-toggle { justify-self: start; }
+  }
+
+  /* ----- Section heading ----------------------------------------------- */
+  .section-title {
+    padding-left: var(--space-3);
+    border-left: 3px solid var(--accent);
+  }
+
+  /* ----- Card grid ----------------------------------------------------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: var(--space-4);
+    margin: var(--space-3) 0 var(--space-4);
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4) var(--space-5);
+    box-shadow: var(--shadow-sm);
+  }
+  .card h3 {
+    color: var(--accent);
+    margin-bottom: var(--space-1);
+  }
+  .card p { color: var(--text-muted); font-size: var(--fs-sm); margin: 0; }
+
+  /* ----- Footer -------------------------------------------------------- */
+  footer.site-footer {
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  /* ----- Reduced motion ------------------------------------------------ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* ----- Print --------------------------------------------------------- */
+  @media print {
+    body { background: white; color: black; }
+    .lang-toggle, .skip-link { display: none; }
+    .card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link" data-i18n="skip">Aller au contenu principal</a>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-logo" aria-hidden="true">AIMS</div>
+    <div class="hero-text">
+      <h1 data-i18n="title">Bienvenue dans AIMS OS</h1>
+      <p class="subtitle" data-i18n="subtitle">
+        Système éducatif basé sur Debian 13 — African Institute for Mathematical Sciences, Sénégal
+      </p>
+    </div>
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section aria-labelledby="h-stack">
+      <h2 id="h-stack" class="section-title" data-i18n="h-stack">Ce qui est pré-installé</h2>
+      <p data-i18n="p-stack">
+        AIMS OS v2.0 a été calibré sur les 45 cours du curriculum 2025-2026. La liste ci-dessous résume les piliers ; pour le détail, voir le projet upstream sur GitHub.
+      </p>
+      <div class="cards">
+        <article class="card">
+          <h3 data-i18n="c-math-h">Mathématiques &amp; science</h3>
+          <p data-i18n="c-math-p">NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, R + tidyverse, Octave, Maxima, GeoGebra, TeX Live, Jupyter.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="c-data-h">Big Data &amp; IA</h3>
+          <p data-i18n="c-data-p">Dask + distributed, NLTK, OpenCV, xarray, netCDF, scikit-image, mpi4py, biopython. PyTorch / JAX / Polars / DuckDB via pipx ou mamba.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="c-web-h">Dev Web &amp; Android</h3>
+          <p data-i18n="c-web-p">Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin, adb, fastboot, PHP, Composer.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="c-ctn-h">Conteneurs &amp; cloud</h3>
+          <p data-i18n="c-ctn-p">Docker Engine + Compose v2 + Buildx, Podman, kubectl, Ansible.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="c-ide-h">IDEs &amp; éditeurs</h3>
+          <p data-i18n="c-ide-p">VSCodium (libre), Cursor (AI), neovim, GNOME Text Editor.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="c-db-h">Bases de données</h3>
+          <p data-i18n="c-db-p">DBeaver CE + clients PostgreSQL, MariaDB, Redis (serveur local), MongoDB, SQLite.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="c-sec-h">Sécurité &amp; forensics</h3>
+          <p data-i18n="c-sec-p">nmap, Wireshark, tcpdump, John the Ripper, hashcat, aircrack-ng, Sleuth Kit, foremost, binwalk, scapy.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="c-office-h">Bureautique</h3>
+          <p data-i18n="c-office-p">LibreOffice complet (FR + EN), Firefox ESR, Chromium, Evolution, GIMP, Inkscape, VLC.</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-quick">
+      <h2 id="h-quick" class="section-title" data-i18n="h-quick">Pour aller plus loin</h2>
+      <p data-i18n="p-quick">Pour installer ce qui n'est pas inclus :</p>
+      <pre><code><span class="c" data-i18n="cm-apt"># Paquet Debian</span>
+sudo apt install &lt;paquet&gt;
+
+<span class="c" data-i18n="cm-pipx"># Outil Python isolé (ruff, jupyterlab, sagemath, …)</span>
+pipx install &lt;outil&gt;
+
+<span class="c" data-i18n="cm-mamba"># Environnement scientifique reproductible</span>
+mamba create -n monenv python=3.13 pytorch jupyterlab
+
+<span class="c" data-i18n="cm-flat"># App graphique sandboxée</span>
+flatpak install flathub &lt;app-id&gt;</code></pre>
+    </section>
+
+    <section aria-labelledby="h-res">
+      <h2 id="h-res" class="section-title" data-i18n="h-res">Ressources</h2>
+      <ul>
+        <li><span data-i18n="r-up">Projet upstream</span> :
+          <a href="https://github.com/A-I-M-S-SENEGAL/aims-os" rel="noreferrer">github.com/A-I-M-S-SENEGAL/aims-os</a></li>
+        <li><span data-i18n="r-aims">Site AIMS Sénégal</span> :
+          <a href="https://aims-senegal.org" rel="noreferrer">aims-senegal.org</a></li>
+        <li><span data-i18n="r-bug">Signaler un bug</span> :
+          <a href="mailto:hakim@aims-senegal.org">hakim@aims-senegal.org</a></li>
+        <li data-i18n="r-reopen">Cette page se rouvre depuis <code>Activités → AIMS OS — Bienvenue</code>.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div>AIMS OS v2.0 · Debian 13 (Trixie) · GNOME 48</div>
+    <div><a href="#" onclick="window.close(); return false;" data-i18n="close">Fermer cette page</a></div>
+  </footer>
+
+</div>
+
+<script>
+  /* Bilingual content via data-i18n keys. Default: FR, then check
+     localStorage and navigator.language. */
+  const i18n = {
+    fr: {
+      skip:      "Aller au contenu principal",
+      title:     "Bienvenue dans AIMS OS",
+      subtitle:  "Système éducatif basé sur Debian 13 — African Institute for Mathematical Sciences, Sénégal",
+      "h-stack": "Ce qui est pré-installé",
+      "p-stack": "AIMS OS v2.0 a été calibré sur les 45 cours du curriculum 2025-2026. La liste ci-dessous résume les piliers ; pour le détail, voir le projet upstream sur GitHub.",
+      "c-math-h":  "Mathématiques & science",
+      "c-math-p":  "NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, R + tidyverse, Octave, Maxima, GeoGebra, TeX Live, Jupyter.",
+      "c-data-h":  "Big Data & IA",
+      "c-data-p":  "Dask + distributed, NLTK, OpenCV, xarray, netCDF, scikit-image, mpi4py, biopython. PyTorch / JAX / Polars / DuckDB via pipx ou mamba.",
+      "c-web-h":   "Dev Web & Android",
+      "c-web-p":   "Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin, adb, fastboot, PHP, Composer.",
+      "c-ctn-h":   "Conteneurs & cloud",
+      "c-ctn-p":   "Docker Engine + Compose v2 + Buildx, Podman, kubectl, Ansible.",
+      "c-ide-h":   "IDEs & éditeurs",
+      "c-ide-p":   "VSCodium (libre), Cursor (AI), neovim, GNOME Text Editor.",
+      "c-db-h":    "Bases de données",
+      "c-db-p":    "DBeaver CE + clients PostgreSQL, MariaDB, Redis (serveur local), MongoDB, SQLite.",
+      "c-sec-h":   "Sécurité & forensics",
+      "c-sec-p":   "nmap, Wireshark, tcpdump, John the Ripper, hashcat, aircrack-ng, Sleuth Kit, foremost, binwalk, scapy.",
+      "c-office-h":"Bureautique",
+      "c-office-p":"LibreOffice complet (FR + EN), Firefox ESR, Chromium, Evolution, GIMP, Inkscape, VLC.",
+      "h-quick":   "Pour aller plus loin",
+      "p-quick":   "Pour installer ce qui n'est pas inclus :",
+      "cm-apt":    "# Paquet Debian",
+      "cm-pipx":   "# Outil Python isolé (ruff, jupyterlab, sagemath, …)",
+      "cm-mamba":  "# Environnement scientifique reproductible",
+      "cm-flat":   "# App graphique sandboxée",
+      "h-res":     "Ressources",
+      "r-up":      "Projet upstream",
+      "r-aims":    "Site AIMS Sénégal",
+      "r-bug":     "Signaler un bug",
+      "r-reopen":  "Cette page se rouvre depuis Activités → AIMS OS — Bienvenue.",
+      close:       "Fermer cette page",
+    },
+    en: {
+      skip:      "Skip to main content",
+      title:     "Welcome to AIMS OS",
+      subtitle:  "Educational system on Debian 13 — African Institute for Mathematical Sciences, Senegal",
+      "h-stack": "What's pre-installed",
+      "p-stack": "AIMS OS v2.0 is calibrated against the 45 courses of the 2025-2026 curriculum. The cards below summarise the pillars; see the upstream project on GitHub for the full list.",
+      "c-math-h":  "Math & science",
+      "c-math-p":  "NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, R + tidyverse, Octave, Maxima, GeoGebra, TeX Live, Jupyter.",
+      "c-data-h":  "Big Data & AI",
+      "c-data-p":  "Dask + distributed, NLTK, OpenCV, xarray, netCDF, scikit-image, mpi4py, biopython. PyTorch / JAX / Polars / DuckDB via pipx or mamba.",
+      "c-web-h":   "Web & Android Dev",
+      "c-web-p":   "Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin, adb, fastboot, PHP, Composer.",
+      "c-ctn-h":   "Containers & cloud",
+      "c-ctn-p":   "Docker Engine + Compose v2 + Buildx, Podman, kubectl, Ansible.",
+      "c-ide-h":   "IDEs & editors",
+      "c-ide-p":   "VSCodium (libre), Cursor (AI), neovim, GNOME Text Editor.",
+      "c-db-h":    "Databases",
+      "c-db-p":    "DBeaver CE + PostgreSQL, MariaDB, Redis (local server), MongoDB, SQLite clients.",
+      "c-sec-h":   "Security & forensics",
+      "c-sec-p":   "nmap, Wireshark, tcpdump, John the Ripper, hashcat, aircrack-ng, Sleuth Kit, foremost, binwalk, scapy.",
+      "c-office-h":"Office",
+      "c-office-p":"Full LibreOffice (FR + EN), Firefox ESR, Chromium, Evolution, GIMP, Inkscape, VLC.",
+      "h-quick":   "Going further",
+      "p-quick":   "To install what's not included:",
+      "cm-apt":    "# Debian package",
+      "cm-pipx":   "# Isolated Python tool (ruff, jupyterlab, sagemath, …)",
+      "cm-mamba":  "# Reproducible scientific environment",
+      "cm-flat":   "# Sandboxed graphical app",
+      "h-res":     "Resources",
+      "r-up":      "Upstream project",
+      "r-aims":    "AIMS Senegal site",
+      "r-bug":     "Report a bug",
+      "r-reopen":  "Reopen this page from Activities → AIMS OS — Welcome.",
+      close:       "Close this page",
+    },
+  };
+
+  function apply(lang) {
+    if (!i18n[lang]) lang = "fr";
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.dataset.i18n;
+      if (i18n[lang][key] !== undefined) el.textContent = i18n[lang][key];
+    });
+    document.querySelectorAll(".lang-toggle button").forEach(btn => {
+      const on = btn.dataset.lang === lang;
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    try { localStorage.setItem("aims-welcome-lang", lang); } catch (_) {}
+  }
+
+  document.querySelectorAll(".lang-toggle button").forEach(btn => {
+    btn.addEventListener("click", () => apply(btn.dataset.lang));
+  });
+
+  // Initial language: stored > navigator > fr.
+  let saved = null;
+  try { saved = localStorage.getItem("aims-welcome-lang"); } catch (_) {}
+  const navLang = (navigator.language || "fr").slice(0, 2).toLowerCase();
+  apply(saved || (navLang === "en" ? "en" : "fr"));
+</script>
+
+</body>
+</html>

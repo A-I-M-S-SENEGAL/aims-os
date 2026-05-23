@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=AIMS OS — Welcome
+Name[fr]=AIMS OS — Bienvenue
+Comment=Show the welcome page on first GNOME login
+Comment[fr]=Affiche la page de bienvenue au premier démarrage de session
+Exec=aims-welcome
+Icon=help-about
+Terminal=false
+Categories=GNOME;GTK;
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=4
+NoDisplay=true
+OnlyShowIn=GNOME;
