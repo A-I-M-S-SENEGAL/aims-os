@@ -1,0 +1,144 @@
+#!/bin/sh
+# =============================================================================
+# aims-version — print the AIMS OS release info
+# =============================================================================
+# Brand-aware one-screen system identity. Reads /etc/os-release for the
+# base distro fields, uname for the kernel, and gnome-shell --version
+# for the desktop (silently skipped if GNOME is not installed).
+#
+# Usage:
+#   aims-version              human-readable, coloured when stdout is a TTY
+#   aims-version --plain      no ANSI colour
+#   aims-version --json       machine-readable
+#   aims-version --verbose    add Python / R / Node / Docker versions (slow)
+#   aims-version --help
+#
+# Honours NO_COLOR (https://no-color.org/).
+# =============================================================================
+set -eu
+
+mode=human
+verbose=0
+use_color=1
+
+for arg; do
+    case "${arg}" in
+        --plain|--no-color) use_color=0 ;;
+        --json)             mode=json ;;
+        --verbose|-v)       verbose=1 ;;
+        --help|-h)
+            cat <<EOF
+Usage: aims-version [--plain] [--json] [--verbose]
+
+Prints the AIMS OS release identity.
+
+  --plain    disable ANSI colour
+  --json     emit JSON instead of the human-readable card
+  --verbose  also probe python3 / R / node / docker versions
+  --help     show this help
+
+Environment:
+  NO_COLOR   set to any value to disable colour (same as --plain)
+EOF
+            exit 0
+            ;;
+        *)
+            echo "aims-version: unknown option '${arg}' (try --help)" >&2
+            exit 2
+            ;;
+    esac
+done
+
+# Disable colour if stdout is not a terminal or NO_COLOR is set.
+[ -t 1 ] || use_color=0
+[ -n "${NO_COLOR:-}" ] && use_color=0
+
+# AIMS terracotta #84341D as 24-bit ANSI.
+if [ "${use_color}" -eq 1 ]; then
+    BRAND=$(printf '\033[38;2;132;52;29m')
+    DIM=$(printf '\033[2m')
+    BOLD=$(printf '\033[1m')
+    RESET=$(printf '\033[0m')
+else
+    BRAND=""; DIM=""; BOLD=""; RESET=""
+fi
+
+# ---- Gather facts -----------------------------------------------------------
+# Initialise so the renderer never trips on an unbound var when running
+# outside Debian (e.g. when the script is sanity-checked on macOS).
+aims_name="AIMS OS"
+aims_version=""
+aims_base="debian"
+
+# /etc/os-release is set by the aims-os-core post-install + by Debian.
+if [ -r /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    aims_name="${PRETTY_NAME:-${NAME:-AIMS OS}}"
+    aims_version="${VERSION:-}"
+    aims_base="${ID_LIKE:-debian}"
+fi
+
+# Override product name if /etc/os-release says "Debian" — that means
+# aims-os-core's branding step did not run; fall back to a sensible default.
+case "${aims_name}" in
+    *AIMS*) : ;;
+    *)      aims_name="AIMS OS" ;;
+esac
+
+debian_version=$(cat /etc/debian_version 2>/dev/null || echo "unknown")
+kernel=$(uname -srm)
+arch=$(uname -m)
+
+gnome_version=$(
+    gnome-shell --version 2>/dev/null \
+        | sed -E 's/^GNOME Shell //; s/^/GNOME /' \
+        || true
+)
+
+# ---- Render -----------------------------------------------------------------
+if [ "${mode}" = "json" ]; then
+    # No external jq dependency: we know our values are safe ASCII.
+    printf '{\n'
+    printf '  "name": "%s",\n'      "${aims_name}"
+    printf '  "version": "%s",\n'   "${aims_version}"
+    printf '  "debian": "%s",\n'    "${debian_version}"
+    printf '  "kernel": "%s",\n'    "${kernel}"
+    printf '  "arch": "%s",\n'      "${arch}"
+    printf '  "desktop": "%s",\n'   "${gnome_version}"
+    printf '  "source": "https://github.com/A-I-M-S-SENEGAL/aims-os"\n'
+    printf '}\n'
+    exit 0
+fi
+
+# Human card.
+printf '\n  %s%sAIMS OS%s  %s%s%s\n' \
+    "${BRAND}" "${BOLD}" "${RESET}" \
+    "${DIM}" "${aims_version}" "${RESET}"
+printf '  %sAfrican Institute for Mathematical Sciences \xc2\xb7 S\xc3\xa9n\xc3\xa9gal%s\n\n' \
+    "${DIM}" "${RESET}"
+
+printf '  %sBase    %s%s\n'    "${BRAND}" "${RESET}" "Debian ${debian_version}"
+printf '  %sKernel  %s%s\n'    "${BRAND}" "${RESET}" "${kernel}"
+[ -n "${gnome_version}" ] && \
+    printf '  %sDesktop %s%s\n' "${BRAND}" "${RESET}" "${gnome_version}"
+printf '  %sSource  %s%s\n'    "${BRAND}" "${RESET}" "https://github.com/A-I-M-S-SENEGAL/aims-os"
+
+if [ "${verbose}" -eq 1 ]; then
+    printf '\n  %sTools%s\n' "${BRAND}" "${RESET}"
+    probe() {
+        cmd="$1"; label="$2"; args="$3"
+        if command -v "${cmd}" >/dev/null 2>&1; then
+            v=$("${cmd}" ${args} 2>/dev/null | head -1)
+            printf '    %s%-10s%s%s\n' "${DIM}" "${label}" "${RESET}" "${v}"
+        fi
+    }
+    probe python3 Python "--version"
+    probe node    Node   "--version"
+    probe R       R      "--version | sed 's/^R version //'"
+    probe docker  Docker "--version"
+    probe codium  VSCodium "--version"
+    probe rstudio RStudio "--version"
+fi
+
+printf '\n'

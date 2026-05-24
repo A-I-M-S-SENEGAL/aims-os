@@ -1,45 +1,98 @@
 #!/bin/sh
 # =============================================================================
-# aims-welcome — open the AIMS OS welcome page in the default browser.
+# aims-welcome — open the AIMS OS welcome experience.
 # =============================================================================
-# Usage:
-#   aims-welcome           Open only if the user has never seen it before.
-#                          Used by the GNOME autostart entry on first login.
-#   aims-welcome --force   Open unconditionally. Used by the application-grid
-#                          launcher so users can re-read the page later.
+# Default behaviour opens the GUI welcome page in the user's browser the
+# first time the user logs in, then never again on its own. A flag file in
+# $XDG_CONFIG_HOME (defaults to ~/.config/aims-os/welcome-shown) gates the
+# autostart.
 #
-# A flag file in $XDG_CONFIG_HOME (defaults to ~/.config) records that the
-# welcome has been shown — we never re-open it automatically.
+# Usage:
+#   aims-welcome           Open the GUI only if never shown for this user.
+#                          The /etc/xdg/autostart entry calls this verbatim
+#                          at first login.
+#   aims-welcome --force   Open the GUI regardless of the flag. Used by the
+#                          application-grid "AIMS OS — Welcome" launcher so
+#                          users can re-read the page later.
+#   aims-welcome --text    Print the plain-text welcome card to stdout (no
+#                          browser). Looks up ~/.config/aims/welcome.txt
+#                          first, falls back to /etc/skel/.config/aims/
+#                          welcome.txt. Honours NO_COLOR.
+#   aims-welcome --help
 # =============================================================================
 set -eu
 
 PAGE_URL="file:///usr/share/aims-os/welcome/index.html"
+TEXT_USER="${XDG_CONFIG_HOME:-$HOME/.config}/aims/welcome.txt"
+TEXT_FALLBACK="/etc/skel/.config/aims/welcome.txt"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/aims-os"
 FLAG="${CONFIG_DIR}/welcome-shown"
 
+mode=gui
 force=0
-[ "${1:-}" = "--force" ] && force=1
+for arg; do
+    case "${arg}" in
+        --force|-f) force=1 ;;
+        --text|-t)  mode=text ;;
+        --help|-h)
+            sed -n '4,21p' "$0" | sed 's/^# //; s/^#//'
+            exit 0
+            ;;
+        *)
+            echo "aims-welcome: unknown option '${arg}' (try --help)" >&2
+            exit 2
+            ;;
+    esac
+done
 
+# ---- Text mode --------------------------------------------------------------
+if [ "${mode}" = "text" ]; then
+    if [ -r "${TEXT_USER}" ]; then
+        src="${TEXT_USER}"
+    elif [ -r "${TEXT_FALLBACK}" ]; then
+        src="${TEXT_FALLBACK}"
+    else
+        echo "aims-welcome: welcome.txt not found at ${TEXT_USER} or ${TEXT_FALLBACK}" >&2
+        exit 1
+    fi
+
+    # Brand title in terracotta when stdout is a TTY and NO_COLOR is unset.
+    if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+        BRAND=$(printf '\033[38;2;132;52;29m')
+        BOLD=$(printf '\033[1m')
+        RESET=$(printf '\033[0m')
+        # Tint only the first line ("Welcome to AIMS OS.") so the rest of
+        # the card reads cleanly in the terminal's default colour.
+        printf '%s%s' "${BRAND}" "${BOLD}"
+        head -1 "${src}"
+        printf '%s' "${RESET}"
+        tail -n +2 "${src}"
+    else
+        cat "${src}"
+    fi
+    exit 0
+fi
+
+# ---- GUI mode (default) -----------------------------------------------------
 if [ "${force}" -eq 0 ] && [ -f "${FLAG}" ]; then
-    # Already shown for this user; the autostart entry is now a no-op.
+    # Already shown for this user; the autostart entry is a no-op from here on.
     exit 0
 fi
 
 mkdir -p "${CONFIG_DIR}"
 : > "${FLAG}"
 
-# Prefer xdg-open (respects the user's default browser); fall back to the
-# common candidates if xdg-open is somehow missing (it isn't on GNOME, but
-# defensive coding is cheap).
+# Prefer xdg-open (respects the user's default browser); fall back to common
+# candidates if xdg-open is missing (defensive — GNOME always ships it).
 if command -v xdg-open >/dev/null 2>&1; then
     exec xdg-open "${PAGE_URL}"
-elif command -v firefox >/dev/null 2>&1; then
-    exec firefox "${PAGE_URL}"
 elif command -v firefox-esr >/dev/null 2>&1; then
     exec firefox-esr "${PAGE_URL}"
+elif command -v firefox >/dev/null 2>&1; then
+    exec firefox "${PAGE_URL}"
 elif command -v chromium >/dev/null 2>&1; then
     exec chromium "${PAGE_URL}"
 else
-    echo "aims-welcome: no browser found." >&2
+    echo "aims-welcome: no browser found, use 'aims-welcome --text' instead" >&2
     exit 1
 fi

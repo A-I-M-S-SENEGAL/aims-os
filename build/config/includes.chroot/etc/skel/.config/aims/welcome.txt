@@ -1,28 +1,41 @@
 Welcome to AIMS OS.
 
-  Built at the African Institute for Mathematical Sciences — Senegal.
-  Debian 13 (Trixie) base — GNOME desktop — scientific stack pre-loaded.
+  African Institute for Mathematical Sciences — Sénégal.
+  Debian 13 (Trixie) base · GNOME 48 · curriculum 2025-2026 calibrated.
 
-What's here
------------
-  Python   numpy, scipy, pandas, matplotlib, sympy, scikit-learn, JupyterLab
-  Math     Maxima, Octave, GeoGebra, gnuplot (SageMath via `mamba install`)
-  R        r-base + tidyverse + rmarkdown
-  LaTeX    TeX Live full + texstudio + biber + French language packs
-  Conda    `mamba` and `conda` (Miniforge3 installed under /opt/miniforge3)
+What's pre-installed
+--------------------
+  Math       NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn,
+             R + tidyverse, Octave, Maxima, GeoGebra, TeX Live, Jupyter
+  Big Data   Dask + distributed, NLTK, OpenCV, xarray, netCDF, scikit-image,
+             mpi4py, biopython; DBeaver, Postgres/MariaDB/Redis/MongoDB
+  Security   nmap, Wireshark, tcpdump, John, hashcat, aircrack-ng,
+             Sleuth Kit, foremost, binwalk, scapy, cryptography
+  Dev Web    Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin,
+             PHP, Composer, adb, fastboot
+  Containers Docker + Compose v2 + Buildx, Podman, kubectl, Ansible
+  IDEs       VSCodium, Cursor, RStudio, neovim
+  Office     LibreOffice (FR + EN), Firefox ESR, Chromium, GIMP, Inkscape
 
 How to install more
 -------------------
-  Debian:    sudo apt install <package>
-  Flathub:   flatpak install flathub <app-id>
-  Python:    pipx install <tool>         (or use `mamba create -n …`)
-  R:         install.packages("<pkg>")   (inside R)
+  Debian    sudo apt install <package>
+  Python    pipx install <tool>          (ruff, jupyterlab, sagemath, …)
+  Conda     mamba install -c conda-forge <pkg>
+  Flathub   flatpak install flathub <app-id>
+  R         install.packages("<pkg>")    (from inside R)
+
+On an existing Debian, add the AIMS OS apt repo:
+  https://a-i-m-s-senegal.github.io/aims-os/
 
 Quick references
 ----------------
-  System docs       man <command>          /usr/share/doc/<package>
-  Project upstream  https://github.com/A-I-M-S-SENEGAL/aims-os
-  Report a bug      hakim@aims-senegal.org
+  aims-version                  print this OS release info
+  aims-welcome --text           re-display this message (text)
+  aims-welcome                  re-display the GUI welcome page
+  aims-welcome --force          force-open the GUI welcome
 
-  aims-version       — print the OS release
-  aims-welcome       — re-display this message
+  man <command>                 system docs
+  /usr/share/doc/<package>      Debian package docs
+  https://github.com/A-I-M-S-SENEGAL/aims-os    project source
+  hakim@aims-senegal.org        report a bug
