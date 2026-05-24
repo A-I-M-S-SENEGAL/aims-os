@@ -1,61 +1,69 @@
 ---
-title: AIMS OS
-description: Documentation officielle d'AIMS OS, le système éducatif basé sur Debian 13 conçu pour le curriculum 2025-2026 de l'African Institute for Mathematical Sciences Sénégal.
-template: splash
-hero:
-  tagline: Le système d'exploitation calibré pour les 45 cours du curriculum AIMS 2025-2026. Base Debian 13 (Trixie), stack scientifique, dev moderne, branding AIMS Sénégal.
-  image:
-    file: ../../assets/aims-logo.png
-  actions:
-    - text: Installer depuis l'ISO
-      link: /install/iso/
-      icon: right-arrow
-      variant: primary
-    - text: Sur Debian existant (apt)
-      link: /install/apt/
-      icon: external
-      variant: secondary
-    - text: Source GitHub
-      link: https://github.com/A-I-M-S-SENEGAL/aims-os
-      icon: external
-      variant: minimal
+title: Documentation
+description: Documentation officielle d'AIMS OS, le système éducatif basé sur Debian 13 conçu pour les 45 cours du curriculum AIMS Sénégal 2025-2026.
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-## Par où commencer
+AIMS OS est un système d'exploitation conçu pour les étudiants de
+l'**African Institute for Mathematical Sciences Sénégal**. Base
+**Debian 13 (Trixie)**, GNOME 48 en français, et la stack
+scientifique et développeur préparée pour les 45 cours du
+curriculum 2025-2026.
 
-<CardGrid stagger>
-  <Card title="Installer AIMS OS" icon="rocket">
-    L'ISO complète sur une machine vierge, via UTM (Mac M-series) ou QEMU.
-    [Guide d'installation depuis l'ISO →](/install/iso/)
-  </Card>
-  <Card title="Ajouter sur un Debian existant" icon="seti:debian">
-    Le repo apt officiel laisse poser la stack AIMS sur un Trixie déjà en
-    place, sans toucher au système.
-    [Repo apt →](/install/apt/)
-  </Card>
-  <Card title="Choisir une filière" icon="puzzle">
-    Regular pour les Sciences Mathématiques, Coop Big Data pour Data
-    Analytics, Coop Security pour Cryptographie + Ethical Hacking.
-    [Comparer les filières →](/filieres/regular/)
-  </Card>
-  <Card title="Cartographier ses cours" icon="open-book">
-    Le mapping complet des 45 cours du curriculum vers les outils
-    pré-installés.
-    [Cartographie 2025-2026 →](/courses/mapping/)
-  </Card>
+## Démarrer
+
+<CardGrid>
+  <LinkCard
+    title="Installer depuis l'ISO"
+    description="Sur une machine vierge, via UTM (Mac M-series), QEMU, VirtualBox ou clé USB."
+    href="/install/iso/"
+  />
+  <LinkCard
+    title="Sur un Debian existant"
+    description="Le repo apt officiel laisse poser la stack sans toucher au système."
+    href="/install/apt/"
+  />
+  <LinkCard
+    title="Premier démarrage"
+    description="Ce qui se passe au premier login, et comment vérifier que tout fonctionne."
+    href="/install/first-boot/"
+  />
 </CardGrid>
 
-## Ce que vous obtenez
+## Filières
 
-AIMS OS regroupe sous une seule installation la stack scientifique
-nécessaire au curriculum (NumPy, SciPy, R, Octave, Maxima, TeX Live,
-Jupyter, ...), la couche développeur moderne (Node 22 LTS, Cursor,
-VSCodium, RStudio, Docker, Bun, Deno, uv, ...) et un bureau GNOME 48
-en français, le tout vérifié sur arm64 (Mac M-series via UTM) et amd64
-(PC portables des labs).
+<CardGrid>
+  <LinkCard
+    title="Regular — Sciences Mathématiques"
+    description="SciPy, R, Octave, Maxima, TeX Live, Jupyter, HPC. Tronc commun de la promotion."
+    href="/filieres/regular/"
+  />
+  <LinkCard
+    title="Coop — Big Data Analytics"
+    description="Dask, NLTK, OpenCV, xarray, NetCDF, clients PostgreSQL/MariaDB/Redis/MongoDB."
+    href="/filieres/bigdata/"
+  />
+  <LinkCard
+    title="Coop — Computer Security"
+    description="Cryptographie, nmap, Wireshark, John, hashcat, Sleuth Kit, scapy."
+    href="/filieres/security/"
+  />
+</CardGrid>
 
-L'installation prend une demi-heure en partant d'une clé USB ou d'une
-VM. La couche dev tient déjà debout après le premier reboot, sans
-configuration supplémentaire.
+## Cours 2025-2026
+
+<CardGrid>
+  <LinkCard
+    title="Cartographie cours → outils"
+    description="Pour chacun des 45 cours du curriculum, le métapaquet AIMS OS qui le couvre et les outils-clés."
+    href="/courses/mapping/"
+  />
+</CardGrid>
+
+## Ressources
+
+- **Source** : [github.com/A-I-M-S-SENEGAL/aims-os](https://github.com/A-I-M-S-SENEGAL/aims-os)
+- **Repo apt** : [a-i-m-s-senegal.github.io/aims-os](https://a-i-m-s-senegal.github.io/aims-os/)
+- **AIMS Sénégal** : [aims-senegal.org](https://aims-senegal.org)
+- **Bugs** : [hakim@aims-senegal.org](mailto:hakim@aims-senegal.org)

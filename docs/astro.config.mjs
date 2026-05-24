@@ -44,11 +44,6 @@ export default defineConfig({
         baseUrl: 'https://github.com/A-I-M-S-SENEGAL/aims-os/edit/main/docs/',
       },
       customCss: ['./src/styles/custom.css'],
-      components: {
-        // Replace Starlight's default Hero with our editorial layout
-        // (matches the apt-repo landing visual identity).
-        Hero: './src/components/Hero.astro',
-      },
       // Auto-prepend the configured `base` (/aims-os/docs) to absolute
       // root-anchored links inside Markdown content. Starlight handles
       // the base for its own sidebar / nav links but NOT for arbitrary
