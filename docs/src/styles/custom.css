@@ -227,16 +227,17 @@ nav[aria-label="Main"] a:hover {
   color: var(--aims-brand);
 }
 
-/* Active item: terracotta pill background needs a clearly contrasting
-   text colour. Starlight's default --sl-color-text-invert mapped
-   through indirections to a near-brand colour in our dark-mode remap.
-   Force white + bold + the darker brand-2 background for AA. */
+/* Active item. White text on a terracotta pill in both modes —
+   contrast needs a DARK terracotta background so white passes AA
+   (#84341D + white = 8.5:1 ✓). In dark mode I'd been using the
+   lightened brand variant (#E8997C ~ salmon), which dropped white
+   text to ~2.2:1 (FAIL). Force the canonical brand #84341D for the
+   active background in BOTH themes — same colour as the welcome
+   page logo, instantly recognisable. */
 nav[aria-label="Main"] a[aria-current="page"] {
   color: #ffffff !important;
+  background-color: #84341D !important;
   font-weight: 600;
-}
-:root[data-theme='dark'] nav[aria-label="Main"] a[aria-current="page"] {
-  background-color: var(--aims-brand-2) !important;
 }
 
 /* --- Focus rings: visible on every interactive element ------------------ */
