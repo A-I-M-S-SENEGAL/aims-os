@@ -1,0 +1,60 @@
+---
+title: AIMS OS
+description: Official documentation for AIMS OS, the Debian-13-based educational system tuned to the 2025-2026 curriculum of the African Institute for Mathematical Sciences Senegal.
+template: splash
+hero:
+  tagline: The operating system calibrated for the 45 courses of the AIMS 2025-2026 curriculum. Debian 13 (Trixie) base, scientific stack, modern dev tooling, AIMS Senegal branding.
+  image:
+    file: ../../../assets/aims-logo.png
+  actions:
+    - text: Install from the ISO
+      link: /en/install/iso/
+      icon: right-arrow
+      variant: primary
+    - text: On existing Debian (apt)
+      link: /en/install/apt/
+      icon: external
+      variant: secondary
+    - text: GitHub source
+      link: https://github.com/A-I-M-S-SENEGAL/aims-os
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Start here
+
+<CardGrid stagger>
+  <Card title="Install AIMS OS" icon="rocket">
+    The full ISO on bare metal, via UTM (Mac M-series) or QEMU.
+    [Install guide →](/en/install/iso/)
+  </Card>
+  <Card title="Add to an existing Debian" icon="seti:debian">
+    The official apt repo lets you put the AIMS stack on top of an
+    already-installed Trixie without touching the system.
+    [Apt repo →](/en/install/apt/)
+  </Card>
+  <Card title="Pick a track" icon="puzzle">
+    Regular for Mathematical Sciences, Coop Big Data for Data
+    Analytics, Coop Security for Cryptography + Ethical Hacking.
+    [Compare tracks →](/en/filieres/regular/)
+  </Card>
+  <Card title="Map your courses" icon="open-book">
+    The full mapping from the 45 curriculum courses to the
+    pre-installed tooling.
+    [2025-2026 mapping →](/en/courses/mapping/)
+  </Card>
+</CardGrid>
+
+## What you get
+
+AIMS OS bundles, under a single install, the scientific stack the
+curriculum needs (NumPy, SciPy, R, Octave, Maxima, TeX Live, Jupyter,
+...), the modern developer layer (Node 22 LTS, Cursor, VSCodium,
+RStudio, Docker, Bun, Deno, uv, ...) and a French-localised GNOME 48
+desktop, all verified on arm64 (Mac M-series via UTM) and amd64
+(lab laptops).
+
+The install takes about half an hour from a USB stick or a VM. The
+dev layer is already up after the first reboot, no extra config.

@@ -10,22 +10,24 @@ M-series, QEMU/KVM sur Linux, VirtualBox, VMware).
 
 ## Télécharger
 
-Les ISO sont publiées en tant qu'artefacts GitHub Actions sur le
-projet upstream :
+Liens stables vers la dernière release. GitHub redirige toujours
+vers la version la plus récente :
 
-[Liste des builds AIMS OS sur GitHub](https://github.com/A-I-M-S-SENEGAL/aims-os/actions/workflows/build-iso.yml?query=is%3Asuccess+branch%3Amain)
+- **arm64** (Mac M-series sous UTM, serveurs ARM) :
+  [aims-os-1.0-arm64.iso](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-arm64.iso)
+  · [SHA-256](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-arm64.iso.sha256)
+- **amd64** (PC portables x86_64) :
+  [aims-os-1.0-amd64.iso](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-amd64.iso)
+  · [SHA-256](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-amd64.iso.sha256)
 
-Choisissez le dernier build réussi sur `main` et téléchargez :
-
-- `aims-os-1.0-arm64.iso` pour les Mac M-series (UTM, Asahi Linux) et
-  les serveurs ARM
-- `aims-os-1.0-amd64.iso` pour les PC portables x86_64
-
-Vérifiez la somme SHA-256 livrée à côté avant de booter :
+Vérifiez la somme avant de booter :
 
 ```bash
 shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
 ```
+
+Toutes les versions, notes de release et builds en cours :
+[github.com/A-I-M-S-SENEGAL/aims-os/releases](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
 
 ## Booter dans UTM (Mac M-series)
 

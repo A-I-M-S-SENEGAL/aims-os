@@ -22,9 +22,15 @@ export default defineConfig({
         replacesTitle: false,
       },
       favicon: '/favicon.png',
-      defaultLocale: 'fr',
+      // Bilingual setup. French is the root locale (no URL prefix —
+      // pages live at /docs/install/iso/ etc.), English is under /en/
+      // (so /docs/en/install/iso/). Starlight shows a language picker
+      // in the top bar automatically. Per-page translation lives at
+      // src/content/docs/en/<same-path-as-fr>.md.
+      defaultLocale: 'root',
       locales: {
-        fr: { label: 'Français', lang: 'fr' },
+        root: { label: 'Français', lang: 'fr' },
+        en:   { label: 'English',  lang: 'en' },
       },
       social: [
         {
