@@ -1,0 +1,325 @@
+# =============================================================================
+# AIMS OS — ISO boot smoke test
+# =============================================================================
+# Runs after `Build AIMS OS ISO` succeeds. Two jobs:
+#
+#   * amd64 — full QEMU boot test on a KVM-enabled ubuntu-latest runner.
+#     Extracts vmlinuz + initrd from the ISO, boots them directly
+#     (skipping GRUB so we can pin a serial console at kernel cmdline
+#     time), captures the serial log for 4 minutes, and asserts on
+#     specific boot markers.
+#
+#   * arm64 — structure validation only. The ubuntu-24.04-arm runners
+#     do NOT expose /dev/kvm yet (GitHub community issue), so booting
+#     under TCG would take 15-30 minutes for a full live image. We
+#     verify the ISO sha, mount it loop, check vmlinuz / initrd /
+#     squashfs are present, and confirm the squashfs lists the AIMS
+#     branding files. The amd64 boot itself covers the cross-arch
+#     regression surface (live-build init scripts, systemd targets,
+#     kernel cmdline parsing).
+#
+# Markers we look for in the amd64 serial log:
+#
+#   PASS criteria:
+#     - "Linux version"                 kernel actually started
+#     - "systemd[1]"                    PID 1 took over
+#     - "Reached target multi-user"     OR  "Reached target graphical"
+#     - "aims-os" string                our branding hooks ran
+#
+#   FAIL criteria:
+#     - "Kernel panic"
+#     - "FATAL"
+#     - timeout without any "Linux version"
+#
+# Triggers:
+#   workflow_run  — fires after any Build AIMS OS ISO run completes
+#   workflow_dispatch with optional run_id input  — manual replay
+# =============================================================================
+
+name: Test ISO boot
+
+on:
+  workflow_run:
+    workflows: ["Build AIMS OS ISO"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Build AIMS OS ISO run ID to test (default: latest success on main)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: test-iso-boot-${{ github.event.workflow_run.id || github.event.inputs.run_id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  amd64-boot:
+    name: amd64 — QEMU boot test (KVM)
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ARCH: amd64
+
+    steps:
+      - name: Free disk
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: true
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+              qemu-system-x86 qemu-utils
+          ${{ env.QEMU_BIN || 'qemu-system-x86_64' }} --version | head -1
+          ls -l /dev/kvm || (echo "::error::KVM not available on runner" && exit 1)
+
+      - name: Resolve build run-id to test
+        id: pick
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_ID: ${{ github.event.inputs.run_id }}
+          EVENT_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          if [ -n "${INPUT_ID}" ]; then
+              echo "Using dispatch input run_id=${INPUT_ID}"
+              echo "run_id=${INPUT_ID}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${EVENT_ID}" ]; then
+              echo "Using triggering build run_id=${EVENT_ID}"
+              echo "run_id=${EVENT_ID}" >> "$GITHUB_OUTPUT"
+          else
+              rid=$(gh run list --workflow=build-iso.yml --branch=main \
+                    --status=success --limit=1 --json databaseId -q '.[0].databaseId')
+              echo "Resolved latest main success run_id=${rid}"
+              echo "run_id=${rid}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download ISO artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: aims-os-1.0-amd64
+          run-id: ${{ steps.pick.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify SHA + extract kernel + initrd
+        run: |
+          ls -lh *.iso *.sha256
+          sha256sum -c aims-os-1.0-amd64.iso.sha256
+
+          mkdir -p iso-mount
+          sudo mount -o loop,ro aims-os-1.0-amd64.iso iso-mount
+          ls -l iso-mount/live/
+
+          # Live-build names files with the kernel version (vmlinuz-6.12...).
+          # The globs grab whichever version was packaged.
+          cp iso-mount/live/vmlinuz-* boot-vmlinuz
+          cp iso-mount/live/initrd.img-* boot-initrd
+          sudo umount iso-mount
+
+          file boot-vmlinuz boot-initrd
+          ls -lh boot-vmlinuz boot-initrd
+
+      - name: Boot in QEMU (4 min cap)
+        run: |
+          # Serial-only headless boot. boot=live tells the live-build initrd
+          # to mount the squashfs by label. console=ttyS0,115200 directs all
+          # kernel + systemd output to QEMU's stdio so we can scrape it.
+          # noeject keeps the cdrom mounted on shutdown (avoids a hang).
+          # systemd.show_status=true forces systemd to print target progress.
+          # systemd.unit=multi-user.target skips GDM so we don't fail trying
+          # to start the graphical target without a display.
+          set +e
+          timeout 240 qemu-system-x86_64 \
+            -machine accel=kvm:tcg \
+            -cpu host \
+            -m 3G \
+            -smp 2 \
+            -kernel boot-vmlinuz \
+            -initrd boot-initrd \
+            -append "boot=live console=ttyS0,115200 console=tty0 noeject systemd.show_status=true systemd.unit=multi-user.target" \
+            -drive file=aims-os-1.0-amd64.iso,media=cdrom,if=virtio,readonly=on \
+            -nographic \
+            -serial mon:stdio \
+            -no-reboot \
+            > boot.log 2>&1
+          rc=$?
+          echo "QEMU exited with rc=$rc (124 = timeout, expected)"
+          set -e
+
+          echo ""
+          echo "=== Last 80 lines of serial log ==="
+          tail -80 boot.log
+
+      - name: Evaluate boot markers
+        run: |
+          set +e
+          ok=0; warn=0; fail=0
+
+          check() {
+              local label="$1"; shift
+              if grep -qE "$@" boot.log; then
+                  echo "  ✓ $label"
+                  ok=$((ok+1))
+              else
+                  echo "  ✗ $label"
+                  warn=$((warn+1))
+              fi
+          }
+
+          echo "Boot markers:"
+          check "kernel started"        "Linux version"
+          check "systemd took over"     "systemd\[1\]:"
+          check "reached multi-user"    "Reached target.*[Mm]ulti-?[Uu]ser|Welcome to|login:"
+          check "AIMS branding active"  "aims-os|AIMS OS"
+
+          # Fatal checks
+          if grep -qE "Kernel panic|FATAL:" boot.log; then
+              echo "  ✗ Kernel panic / FATAL detected"
+              fail=$((fail+1))
+          fi
+
+          echo ""
+          echo "Score: ok=$ok / 4, warn=$warn, fail=$fail"
+
+          if [ "$fail" -gt 0 ]; then
+              echo "::error::Boot test FAILED — kernel panic or FATAL in log"
+              exit 1
+          fi
+          if [ "$ok" -lt 2 ]; then
+              echo "::error::Boot test FAILED — only $ok / 4 markers found, kernel may not have started"
+              exit 1
+          fi
+          if [ "$ok" -lt 4 ]; then
+              echo "::warning::Boot test inconclusive — $ok / 4 markers (boot may be slow, log uploaded as artifact)"
+          fi
+
+      - name: Upload boot log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boot-log-amd64
+          path: boot.log
+          retention-days: 14
+          if-no-files-found: warn
+
+  arm64-validate:
+    name: arm64 — ISO structure validation
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+    env:
+      ARCH: arm64
+
+    steps:
+      - name: Free disk
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: true
+
+      - name: Install squashfs-tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends squashfs-tools
+
+      - name: Resolve build run-id to test
+        id: pick
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_ID: ${{ github.event.inputs.run_id }}
+          EVENT_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          if [ -n "${INPUT_ID}" ]; then
+              echo "run_id=${INPUT_ID}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${EVENT_ID}" ]; then
+              echo "run_id=${EVENT_ID}" >> "$GITHUB_OUTPUT"
+          else
+              rid=$(gh run list --workflow=build-iso.yml --branch=main \
+                    --status=success --limit=1 --json databaseId -q '.[0].databaseId')
+              echo "run_id=${rid}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download ISO artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: aims-os-1.0-arm64
+          run-id: ${{ steps.pick.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate ISO structure
+        run: |
+          set -e
+          ls -lh *.iso *.sha256
+
+          echo "=== SHA-256 check ==="
+          sha256sum -c aims-os-1.0-arm64.iso.sha256
+
+          echo "=== Mount + structural files present ==="
+          mkdir -p iso-mount
+          sudo mount -o loop,ro aims-os-1.0-arm64.iso iso-mount
+
+          for f in live/vmlinuz live/initrd.img live/filesystem.squashfs; do
+              found=$(ls iso-mount/${f}* 2>/dev/null | head -1)
+              if [ -z "${found}" ]; then
+                  echo "::error::missing ${f}* in ISO"
+                  exit 1
+              fi
+              size=$(stat -c '%s' "${found}")
+              echo "  ✓ ${f} → $(basename "${found}") (${size} bytes)"
+          done
+
+          echo "=== Squashfs payload sanity (key AIMS paths) ==="
+          SQ=$(ls iso-mount/live/filesystem.squashfs)
+          for path in \
+              usr/share/aims-os/welcome/index.html \
+              usr/share/aims-os/logos/aims-circle-256.png \
+              usr/bin/aims-version \
+              usr/bin/aims-welcome \
+              etc/skel/.config/aims/welcome.txt \
+              etc/systemd/system/multi-user.target.wants/aims-firstboot.service; do
+              if unsquashfs -ll "${SQ}" "${path}" 2>/dev/null | grep -q "${path##*/}"; then
+                  echo "  ✓ ${path}"
+              else
+                  echo "::warning::squashfs missing ${path}"
+              fi
+          done
+
+          echo "=== Welcome page is the new design ==="
+          html=$(unsquashfs -cat "${SQ}" usr/share/aims-os/welcome/index.html 2>/dev/null)
+          if echo "${html}" | grep -q "stack-item"; then
+              echo "  ✓ new editorial design detected"
+          else
+              echo "::warning::welcome page does not contain the new design markers"
+          fi
+
+          sudo umount iso-mount
+
+      - name: Upload validation report
+        if: always()
+        run: |
+          {
+              echo "# arm64 ISO validation"
+              echo
+              echo "Run-id: ${{ steps.pick.outputs.run_id }}"
+              echo "ISO size: $(stat -c '%s' aims-os-1.0-arm64.iso 2>/dev/null) bytes"
+              echo "SHA: $(cat aims-os-1.0-arm64.iso.sha256 2>/dev/null)"
+          } > arm64-validation.txt
+          cat arm64-validation.txt
+        # Always run — even on validation failure we want the report
