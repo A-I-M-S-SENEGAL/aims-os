@@ -10,23 +10,32 @@ M-series, QEMU/KVM sur Linux, VirtualBox, VMware).
 
 ## Télécharger
 
-Liens stables vers la dernière release. GitHub redirige toujours
-vers la version la plus récente :
+Les ISO vivent sur Cloudflare R2 (GitHub Releases cape les assets à
+2 GiB et nos images font ~8,5 GB). Liens stables, mis à jour à chaque
+release :
 
 - **arm64** (Mac M-series sous UTM, serveurs ARM) :
-  [aims-os-1.0-arm64.iso](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-arm64.iso)
-  · [SHA-256](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-arm64.iso.sha256)
+  [aims-os-1.0-arm64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso)
+  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso.sha256)
 - **amd64** (PC portables x86_64) :
-  [aims-os-1.0-amd64.iso](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-amd64.iso)
-  · [SHA-256](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-amd64.iso.sha256)
+  [aims-os-1.0-amd64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-amd64.iso)
+  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-amd64.iso.sha256)
 
-Vérifiez la somme avant de booter :
+Vérifiez la somme avant de booter (le `.sha256` est aussi attaché à
+la [release GitHub correspondante](https://github.com/A-I-M-S-SENEGAL/aims-os/releases),
+ça permet de pinner la version) :
 
 ```bash
 shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
 ```
 
-Toutes les versions, notes de release et builds en cours :
+Pour une version précise au lieu de "latest", remplacez `latest` par
+le tag dans l'URL — par exemple
+`.r2.dev/v2.0.0-rc1/aims-os-1.0-arm64.iso`. Les versions taggées
+sont immuables, idéales pour les déploiements de laboratoire qui
+veulent figer une image.
+
+Toutes les releases :
 [github.com/A-I-M-S-SENEGAL/aims-os/releases](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
 
 ## Booter dans UTM (Mac M-series)

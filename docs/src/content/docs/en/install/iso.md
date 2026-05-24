@@ -9,23 +9,30 @@ in a VM (UTM on Mac M-series, QEMU/KVM on Linux, VirtualBox, VMware).
 
 ## Download
 
-Stable links to the latest release. GitHub always redirects to the
-most recent version:
+ISOs live on Cloudflare R2 (GitHub Releases cap assets at 2 GiB and
+our images are ~8.5 GB). Stable links, updated on every release:
 
 - **arm64** (Mac M-series under UTM, ARM servers):
-  [aims-os-1.0-arm64.iso](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-arm64.iso)
-  · [SHA-256](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-arm64.iso.sha256)
+  [aims-os-1.0-arm64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso)
+  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso.sha256)
 - **amd64** (x86_64 laptops):
-  [aims-os-1.0-amd64.iso](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-amd64.iso)
-  · [SHA-256](https://github.com/A-I-M-S-SENEGAL/aims-os/releases/latest/download/aims-os-1.0-amd64.iso.sha256)
+  [aims-os-1.0-amd64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-amd64.iso)
+  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-amd64.iso.sha256)
 
-Check the checksum before booting:
+Check the checksum before booting. The `.sha256` is also attached
+to the matching [GitHub Release](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
+so you can pin a version:
 
 ```bash
 shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
 ```
 
-All releases, release notes and in-flight builds:
+For a specific version instead of "latest", swap `latest` for the
+tag in the URL — for example
+`.r2.dev/v2.0.0-rc1/aims-os-1.0-arm64.iso`. Tagged versions are
+immutable, useful for lab deployments that want to pin an image.
+
+All releases:
 [github.com/A-I-M-S-SENEGAL/aims-os/releases](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
 
 ## Boot in UTM (Mac M-series)

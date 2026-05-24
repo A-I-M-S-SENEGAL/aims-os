@@ -133,12 +133,91 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
-      - name: Attach ISO to GitHub Release (on tag push)
+      # ----------------------------------------------------------------------
+      # Long-term ISO hosting on Cloudflare R2.
+      # GitHub Releases reject assets > 2 GiB; our ISOs are ~8.5 GB. R2 has
+      # no per-object limit (10 GB free tier, free egress for public reads)
+      # so we upload the .iso + .sha256 there twice:
+      #   - aims-os-iso/<tag>/aims-os-1.0-<arch>.iso  (immutable, versioned)
+      #   - aims-os-iso/latest/aims-os-1.0-<arch>.iso (overwritten each tag)
+      # The "latest/" alias is what the docs link to so users always pull
+      # the most recent release without us editing URLs.
+      # ----------------------------------------------------------------------
+      - name: Upload ISO + sha256 to Cloudflare R2
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION:    auto
+          R2_ENDPOINT:           ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET:             ${{ secrets.R2_BUCKET }}
+          TAG:                   ${{ github.ref_name }}
+          ARCH:                  ${{ matrix.arch }}
+        run: |
+          # aws CLI v2 is pre-installed on ubuntu-latest runners.
+          aws --version
+
+          ISO="build/out/aims-os-1.0-${ARCH}.iso"
+          SHA="${ISO}.sha256"
+          ls -lh "${ISO}" "${SHA}"
+
+          # Versioned copy (immutable, kept indefinitely).
+          aws s3 cp "${ISO}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
+              --endpoint-url "${R2_ENDPOINT}" \
+              --content-type application/x-iso9660-image \
+              --no-progress
+          aws s3 cp "${SHA}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso.sha256" \
+              --endpoint-url "${R2_ENDPOINT}" \
+              --content-type text/plain \
+              --no-progress
+
+          # latest/ alias (overwritten each tag — server-side copy from the
+          # versioned object so we don't re-upload the 8 GB payload).
+          aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
+                    "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso" \
+              --endpoint-url "${R2_ENDPOINT}" \
+              --no-progress
+          aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso.sha256" \
+                    "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso.sha256" \
+              --endpoint-url "${R2_ENDPOINT}" \
+              --no-progress
+
+          echo "✓ Uploaded to R2:"
+          echo "    ${{ secrets.R2_PUBLIC_BASE }}/${TAG}/aims-os-1.0-${ARCH}.iso"
+          echo "    ${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-1.0-${ARCH}.iso"
+
+      # ----------------------------------------------------------------------
+      # GitHub Release. .iso is too big for releases (2 GiB limit), so we
+      # only attach the .sha256 here and put the R2 download URLs in the
+      # release body. The .sha256 is what users need anyway to verify the
+      # download they grabbed from R2.
+      # ----------------------------------------------------------------------
+      - name: Attach SHA-256 + download links to GitHub Release (on tag push)
         if: success() && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            build/out/aims-os-*.iso
-            build/out/aims-os-*.iso.sha256
+          files: build/out/aims-os-*.iso.sha256
           fail_on_unmatched_files: true
           generate_release_notes: true
+          body: |
+            ## Download
+
+            ISOs are hosted on Cloudflare R2 (GitHub Releases cap assets at 2 GiB; our images are ~8.5 GB).
+
+            **${{ github.ref_name }} — pinned to this release**
+
+            - arm64: <${{ secrets.R2_PUBLIC_BASE }}/${{ github.ref_name }}/aims-os-1.0-arm64.iso>
+            - amd64: <${{ secrets.R2_PUBLIC_BASE }}/${{ github.ref_name }}/aims-os-1.0-amd64.iso>
+
+            **Always-latest aliases (overwritten by each new release)**
+
+            - arm64: <${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-1.0-arm64.iso>
+            - amd64: <${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-1.0-amd64.iso>
+
+            ## Verify
+
+            ```bash
+            shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
+            ```
+
+            The `.sha256` files attached to this release pin the bytes for ${{ github.ref_name }}; the bytes on R2 must match.
