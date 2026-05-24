@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightBasePath from 'starlight-base-path';
 
 // AIMS OS docs site.
 //
@@ -48,6 +49,13 @@ export default defineConfig({
         // (matches the apt-repo landing visual identity).
         Hero: './src/components/Hero.astro',
       },
+      // Auto-prepend the configured `base` (/aims-os/docs) to absolute
+      // root-anchored links inside Markdown content. Starlight handles
+      // the base for its own sidebar / nav links but NOT for arbitrary
+      // `[text](/install/iso/)` constructions in MDX. The plugin runs as
+      // a remark transformer so we keep human-friendly paths in source
+      // and the deployed HTML resolves to the right URL.
+      plugins: [starlightBasePath()],
       sidebar: [
         {
           // Site root (index.mdx) is reachable via the title / logo, not

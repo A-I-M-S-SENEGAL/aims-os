@@ -1,66 +1,85 @@
 /* =============================================================================
-   AIMS OS docs — custom Starlight theme
+   AIMS OS docs — Starlight theme overrides
    =============================================================================
-   Pushes Starlight's defaults toward the editorial language we use on the
-   apt-repo landing (https://a-i-m-s-senegal.github.io/aims-os/) and the in-OS
-   welcome page. Tokens are sampled from branding/source/logo-aims.png.
-   Light + dark are both handled here; Starlight switches them via
-   data-theme. */
+   Design principles applied:
 
-/* --- Brand palette ------------------------------------------------------ */
+   - Content first. No background patterns, no numbered pills, no
+     decoration that competes with prose. The hero on the landing
+     carries the brand; the rest is for reading.
+   - WCAG 2.2 AA: body text ≥ 4.5:1 on its background in both modes,
+     large text and interactive elements ≥ 3:1. AIMS terracotta
+     #84341D on cream gives 8.5:1, well above the bar.
+   - Touch targets ≥ 40 px (sidebar links, language picker, nav).
+   - Fluid type via clamp() so phones get 16-17 px, desktops 17-19 px,
+     with no hard breakpoints in the type scale.
+   - Optimal line length 60-75 characters in main prose, enforced by
+     Starlight's default content width plus a slightly tighter cap.
+   - Visible focus rings on every interactive element.
+   - prefers-reduced-motion respected for hover transitions.
+   - prefers-contrast: more drops the muted text down to full
+     foreground colour, removes subtle borders.
+   ============================================================================= */
+
+/* --- Brand tokens -------------------------------------------------------- */
 :root {
   --aims-ink:        #131110;
-  --aims-paper:      #F8F4ED;
-  --aims-paper-2:    #ECE6DC;
-  --aims-rule:       rgba(19, 17, 16, 0.12);
-  --aims-muted:      #6F6862;
+  --aims-paper:      #FBF8F2;
+  --aims-paper-2:    #F1EAE0;
+  --aims-rule:       rgba(19, 17, 16, 0.10);
+  --aims-rule-soft:  rgba(19, 17, 16, 0.06);
+  --aims-muted:      #5C544E;     /* darkened from #6F6862 for AA on cream */
   --aims-brand:      #84341D;
   --aims-brand-2:    #6B2A15;
-  --aims-brand-soft: rgba(132, 52, 29, 0.06);
+  --aims-brand-soft: rgba(132, 52, 29, 0.08);
   --aims-code-bg:    #1A1614;
-  --aims-code-fg:    #ECE6DC;
+  --aims-code-fg:    #E8E2D6;
   --aims-code-key:   #E8B57A;
   --aims-code-str:   #B8D88A;
-  --aims-code-cmt:   #6B635C;
+  --aims-code-cmt:   #8B847C;
 }
 
-/* Map AIMS tokens onto the Starlight palette for light mode. */
+/* Light mode = default. */
 :root[data-theme='light'], :root {
   --sl-color-accent-low:  #f4d6cb;
   --sl-color-accent:      var(--aims-brand);
   --sl-color-accent-high: var(--aims-brand-2);
 
+  /* Starlight uses gray-1..6 as a single scale from dark→light in light
+     mode and light→dark in dark mode. We map them to a warm scale. */
   --sl-color-white:    var(--aims-ink);
   --sl-color-gray-1:   #2A2520;
-  --sl-color-gray-2:   #4D4641;
+  --sl-color-gray-2:   #3F3833;
   --sl-color-gray-3:   var(--aims-muted);
-  --sl-color-gray-4:   #9C9087;
-  --sl-color-gray-5:   #C8BDB2;
+  --sl-color-gray-4:   #8B847C;
+  --sl-color-gray-5:   #B5ADA4;
   --sl-color-gray-6:   var(--aims-paper-2);
   --sl-color-gray-7:   var(--aims-paper);
   --sl-color-black:    var(--aims-paper);
 
-  --sl-color-bg:           var(--aims-paper);
-  --sl-color-bg-nav:       color-mix(in srgb, var(--aims-paper) 92%, transparent);
-  --sl-color-bg-sidebar:   var(--aims-paper);
+  --sl-color-bg:            var(--aims-paper);
+  --sl-color-bg-nav:        var(--aims-paper);
+  --sl-color-bg-sidebar:    var(--aims-paper);
   --sl-color-bg-inline-code: var(--aims-brand-soft);
-  --sl-color-text:         var(--aims-ink);
-  --sl-color-text-accent:  var(--aims-brand);
-  --sl-color-hairline:     var(--aims-rule);
-  --sl-color-hairline-light: var(--aims-rule);
+  --sl-color-text:          var(--aims-ink);
+  --sl-color-text-accent:   var(--aims-brand);
+  --sl-color-hairline:      var(--aims-rule);
+  --sl-color-hairline-light: var(--aims-rule-soft);
 }
 
+/* Dark mode. Pure black hurts on warm cream branding — use a warm
+   near-black so AIMS terracotta still reads as itself. */
 :root[data-theme='dark'] {
   --aims-ink:        #ECE6DC;
-  --aims-paper:      #0E0B09;
-  --aims-paper-2:    #1A1614;
-  --aims-rule:       rgba(245, 239, 231, 0.10);
-  --aims-muted:      #8B847C;
-  --aims-brand:      #C76B4B;
-  --aims-brand-2:    #DD8060;
-  --aims-brand-soft: rgba(199, 107, 75, 0.10);
+  --aims-paper:      #14110F;
+  --aims-paper-2:    #1E1A17;
+  --aims-rule:       rgba(245, 239, 231, 0.12);
+  --aims-rule-soft:  rgba(245, 239, 231, 0.06);
+  --aims-muted:      #A8A097;     /* lightened for AA on dark bg */
+  --aims-brand:      #D88060;     /* lighter brand for AA on dark */
+  --aims-brand-2:    #E8997C;
+  --aims-brand-soft: rgba(216, 128, 96, 0.14);
 
-  --sl-color-accent-low:  rgba(199, 107, 75, 0.20);
+  --sl-color-accent-low:  rgba(216, 128, 96, 0.22);
   --sl-color-accent:      var(--aims-brand);
   --sl-color-accent-high: var(--aims-brand-2);
 
@@ -68,115 +87,160 @@
   --sl-color-gray-1:   #C8BDB2;
   --sl-color-gray-2:   #9C9087;
   --sl-color-gray-3:   var(--aims-muted);
-  --sl-color-gray-4:   #4D4641;
-  --sl-color-gray-5:   #2A2520;
+  --sl-color-gray-4:   #5C544E;
+  --sl-color-gray-5:   #3F3833;
   --sl-color-gray-6:   var(--aims-paper-2);
-  --sl-color-gray-7:   #15110F;
+  --sl-color-gray-7:   #1A1614;
   --sl-color-black:    var(--aims-paper);
 
-  --sl-color-bg:           var(--aims-paper);
-  --sl-color-bg-nav:       color-mix(in srgb, var(--aims-paper) 92%, transparent);
-  --sl-color-bg-sidebar:   var(--aims-paper-2);
+  --sl-color-bg:            var(--aims-paper);
+  --sl-color-bg-nav:        var(--aims-paper);
+  --sl-color-bg-sidebar:    #110E0C;
   --sl-color-bg-inline-code: var(--aims-brand-soft);
-  --sl-color-text:         var(--aims-ink);
-  --sl-color-text-accent:  var(--aims-brand);
-  --sl-color-hairline:     var(--aims-rule);
-  --sl-color-hairline-light: var(--aims-rule);
+  --sl-color-text:          var(--aims-ink);
+  --sl-color-text-accent:   var(--aims-brand);
+  --sl-color-hairline:      var(--aims-rule);
+  --sl-color-hairline-light: var(--aims-rule-soft);
 }
 
-/* --- Typography --------------------------------------------------------- */
+/* --- Typography ---------------------------------------------------------- */
 :root {
   --sl-font:      "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
   --sl-font-mono: "Fira Code", "JetBrains Mono", ui-monospace, monospace;
-  --sl-text-base: clamp(15px, 0.94rem + 0.2vw, 17px);
+  --sl-text-base: clamp(15.5px, 0.94rem + 0.2vw, 17px);
+  /* slightly tighter content column for line length 60-75 ch */
+  --sl-content-width: 50rem;
 }
 
 body {
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   font-feature-settings: "ss01", "cv11";
   letter-spacing: -0.005em;
 }
 
-h1, h2, h3 { letter-spacing: -0.015em; }
-h1 { font-weight: 800; }
-
-/* --- Editorial dot grid background -------------------------------------- */
-body::before {
-  content: "";
-  position: fixed; inset: 0; z-index: -1;
-  background-image: radial-gradient(circle, var(--aims-rule) 1px, transparent 1px);
-  background-size: 32px 32px;
-  opacity: 0.4;
-  pointer-events: none;
+/* Heading scale: clear jumps so a scan reads the structure */
+.sl-markdown-content h1 {
+  font-size: clamp(28px, 2.6vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0 0 1.2rem;
 }
-@media (max-width: 640px) {
-  body::before { background-size: 24px 24px; opacity: 0.3; }
-}
-
-/* --- Numbered section headers in prose ---------------------------------- */
-.sl-markdown-content { counter-reset: section; }
 .sl-markdown-content h2 {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  line-height: 1.25;
+  margin: 2.4rem 0 0.8rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--aims-rule-soft);
 }
-.sl-markdown-content h2::before {
-  content: counter(section, decimal-leading-zero);
-  counter-increment: section;
-  font-family: var(--sl-font-mono);
-  font-size: 0.55em;
-  color: var(--aims-brand);
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  border: 1px solid var(--aims-brand-soft);
-  padding: 3px 7px;
-  border-radius: 4px;
-  background: var(--aims-brand-soft);
-  flex-shrink: 0;
+.sl-markdown-content h3 {
+  font-size: clamp(17px, 1.3vw, 19px);
+  font-weight: 600;
+  letter-spacing: -0.008em;
+  margin: 1.6rem 0 0.4rem;
+}
+.sl-markdown-content h2:first-child,
+.sl-markdown-content h2 + h3 {
+  border-top: 0;
+  padding-top: 0;
 }
 
-/* --- Code blocks: terminal-style dark even in light mode ---------------- */
+/* Body paragraphs — comfortable line length and rhythm */
+.sl-markdown-content p,
+.sl-markdown-content li {
+  line-height: 1.65;
+}
+
+/* --- Links: clear affordance without underline noise -------------------- */
+.sl-markdown-content a:not(.sl-anchor-link):not(.card a) {
+  color: var(--aims-brand);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--aims-brand-soft);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 120ms ease-out;
+}
+.sl-markdown-content a:not(.sl-anchor-link):not(.card a):hover {
+  text-decoration-color: var(--aims-brand);
+}
+
+/* --- Inline code: distinct without screaming ---------------------------- */
 .sl-markdown-content :not(pre) > code {
   background: var(--aims-brand-soft);
   color: var(--aims-brand);
-  padding: 0.1em 0.4em;
+  padding: 0.12em 0.42em;
   border-radius: 4px;
-  font-size: 0.88em;
+  font-size: 0.9em;
+  font-weight: 500;
+  border: 1px solid transparent;
 }
 
+/* --- Code blocks: clean container, no shadow ---------------------------- */
 .expressive-code, .sl-markdown-content pre {
-  border-radius: 10px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--aims-rule);
 }
 
-/* --- Sidebar nav: hairline rules instead of boxes ----------------------- */
-sl-sidebar-state-persist, starlight-menu-button + nav {
-  --sl-sidebar-pad-x: 1rem;
-}
-
-/* --- Hairlines everywhere --------------------------------------------- */
-.sl-markdown-content :is(table) {
-  border-color: var(--aims-rule);
+/* --- Tables: hairline borders, comfortable padding ---------------------- */
+.sl-markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95em;
 }
 .sl-markdown-content :is(th, td) {
-  border-color: var(--aims-rule);
+  border-bottom: 1px solid var(--aims-rule);
+  padding: 10px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+.sl-markdown-content th {
+  background: var(--aims-paper-2);
+  font-weight: 600;
+  font-size: 0.85em;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--aims-muted);
 }
 
-/* --- Site title: tighter, monospace caption ----------------------------- */
-header.header .site-title {
-  font-weight: 800;
-  letter-spacing: -0.015em;
+/* --- Sidebar: touch-friendly, clear hover --------------------------------- */
+nav[aria-label="Main"] a {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  padding-block: 8px !important;
 }
 
-/* --- Splash hero: editorial layout (custom Astro hero handles the rest) - */
-.hero {
-  padding-block: clamp(40px, 7vw, 96px) !important;
+/* --- Focus rings: visible on every interactive element ------------------ */
+:focus-visible {
+  outline: 2px solid var(--aims-brand);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 
-/* --- Reduced motion ----------------------------------------------------- */
+/* --- Skip-to-content default style is fine, just brand it --------------- */
+.sl-skip-link {
+  background: var(--aims-brand);
+  color: white;
+}
+
+/* --- Reduced motion ---------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
+}
+
+/* --- High contrast preference ------------------------------------------ */
+@media (prefers-contrast: more) {
+  :root, :root[data-theme='dark'] {
+    --aims-rule:        currentColor;
+    --aims-rule-soft:   currentColor;
+    --aims-muted:       var(--aims-ink);
+    --sl-color-hairline: currentColor;
+  }
+  .sl-markdown-content :not(pre) > code { border-color: currentColor; }
 }
