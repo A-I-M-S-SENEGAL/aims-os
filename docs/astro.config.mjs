@@ -44,9 +44,10 @@ export default defineConfig({
       },
       sidebar: [
         {
+          // Site root (index.mdx) is reachable via the title / logo, not
+          // via the sidebar — Starlight rejects `slug: "index"`.
           label: 'Démarrer',
           items: [
-            { label: 'Présentation', slug: 'index' },
             { label: 'Installer depuis l\'ISO', slug: 'install/iso' },
             { label: 'Sur Debian existant (apt)', slug: 'install/apt' },
             { label: 'Premier démarrage', slug: 'install/first-boot' },
