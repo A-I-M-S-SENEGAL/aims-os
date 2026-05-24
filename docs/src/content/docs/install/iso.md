@@ -87,7 +87,7 @@ Le déroulé suit le pattern Calamares standard :
 8. **Terminer** — redémarrer dans le système installé
 
 Si l'installation se bloque sur l'étape Terminer avec une erreur
-"gestionnaire de paquets" — c'est un bug connu corrigé dans la v9.1
+"gestionnaire de paquets". C’est un bug connu corrigé dans la v9.1
 et au-delà. Le système est en réalité installé, vous pouvez redémarrer
 manuellement.
 

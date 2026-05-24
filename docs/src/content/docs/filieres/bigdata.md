@@ -33,7 +33,7 @@ mamba install -c conda-forge pyarrow polars duckdb
 
 ### NLP
 `python3-nltk`. spaCy, gensim et HuggingFace Transformers ne sont pas
-packagés en version courante par Debian — installez à la demande :
+packagés en version courante par Debian. Installez à la demande :
 
 ```bash
 pipx install spacy gensim transformers

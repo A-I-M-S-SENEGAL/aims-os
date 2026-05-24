@@ -4,27 +4,33 @@
 // (https://a-i-m-s-senegal.github.io/aims-os/): grid with the AIMS logo
 // on the left, eyebrow + big title + lead on the right, action buttons
 // underneath. Triggers from any docs page with frontmatter.hero set.
-import type { Props } from '@astrojs/starlight/props';
+//
+// Defensive about missing entry/hero — Starlight calls Hero on the
+// generated 404 page too, where `Astro.props.entry` is undefined.
 import { Image } from 'astro:assets';
 import aimsLogo from '../assets/aims-logo.png';
 
-const { data } = Astro.props.entry;
+const entry = (Astro.props as { entry?: { data?: { hero?: any; title?: string } } }).entry;
+const data = entry?.data ?? {};
 const hero = data.hero;
+const title = hero?.title ?? data.title ?? 'AIMS OS';
 ---
+
+{!hero ? null : (
 
 <div class="aims-hero not-content">
   <div class="aims-hero-row">
     <Image src={aimsLogo} alt="AIMS OS logo" width={96} height={96} class="aims-hero-logo" />
     <div class="aims-hero-text">
       <p class="aims-eyebrow">AIMS OS</p>
-      <h1 class="aims-h1">{hero?.title ?? data.title}</h1>
-      {hero?.tagline && <p class="aims-lead" set:html={hero.tagline} />}
+      <h1 class="aims-h1">{title}</h1>
+      {hero.tagline && <p class="aims-lead" set:html={hero.tagline} />}
     </div>
   </div>
 
-  {hero?.actions && hero.actions.length > 0 && (
+  {hero.actions && hero.actions.length > 0 && (
     <div class="aims-actions">
-      {hero.actions.map((a) => (
+      {hero.actions.map((a: { variant?: string; link: string; text: string }) => (
         <a class={`aims-action aims-action-${a.variant ?? 'primary'}`} href={a.link}>
           {a.text}
         </a>
@@ -32,6 +38,8 @@ const hero = data.hero;
     </div>
   )}
 </div>
+
+)}
 
 <style>
   .aims-hero {

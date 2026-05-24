@@ -26,7 +26,7 @@ pygments, reportlab.
 
 ### Jupyter
 jupyter-notebook, jupyter-server, ipywidgets, nbconvert. La UI
-JupyterLab elle-même n'est pas packagée par Debian — installez à la
+JupyterLab elle-même n’est pas packagée par Debian. Installez à la
 demande avec `pipx install jupyterlab` ou `mamba install -c
 conda-forge jupyterlab`.
 

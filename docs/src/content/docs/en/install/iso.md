@@ -81,7 +81,7 @@ The flow follows the standard Calamares pattern:
 7. **Install** — runs ~20-30 minutes on a modern VM
 8. **Finish** — reboot into the installed system
 
-If the install hangs at Finish with a "package manager" error — that's
+If the install hangs at Finish with a "package manager" error. That’s
 a known bug fixed in v9.1 and later. The system is actually installed,
 you can reboot manually.
 
