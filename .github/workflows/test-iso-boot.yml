@@ -83,8 +83,14 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
               qemu-system-x86 qemu-utils
-          ${{ env.QEMU_BIN || 'qemu-system-x86_64' }} --version | head -1
+          qemu-system-x86_64 --version | head -1
+          # /dev/kvm exists on ubuntu-latest but the default `runner` user
+          # is not in the `kvm` group. The cleanest fix in CI is to run
+          # qemu via sudo (no group / re-login dance). Confirm here:
           ls -l /dev/kvm || (echo "::error::KVM not available on runner" && exit 1)
+          sudo test -r /dev/kvm && sudo test -w /dev/kvm \
+              && echo "✓ /dev/kvm readable+writable via sudo" \
+              || (echo "::error::sudo cannot access /dev/kvm" && exit 1)
 
       - name: Resolve build run-id to test
         id: pick
@@ -141,8 +147,11 @@ jobs:
           # systemd.unit=multi-user.target skips GDM so we don't fail trying
           # to start the graphical target without a display.
           set +e
-          timeout 240 qemu-system-x86_64 \
-            -machine accel=kvm:tcg \
+          # sudo so qemu can open /dev/kvm; runner user isn't in the kvm group.
+          # -cpu host requires KVM, which is why this whole job pivots on KVM
+          # being accessible — confirmed in the Install QEMU step.
+          sudo timeout 240 qemu-system-x86_64 \
+            -machine accel=kvm \
             -cpu host \
             -m 3G \
             -smp 2 \
@@ -156,6 +165,9 @@ jobs:
             > boot.log 2>&1
           rc=$?
           echo "QEMU exited with rc=$rc (124 = timeout, expected)"
+          # sudo wrote boot.log as root; chown to runner so subsequent steps
+          # (read / upload) work without a second sudo.
+          sudo chown "$(id -u):$(id -g)" boot.log
           set -e
 
           echo ""
