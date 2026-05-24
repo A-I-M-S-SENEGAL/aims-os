@@ -54,12 +54,14 @@
     background: var(--bg);
     color: var(--fg);
     font-family: -apple-system, "Inter", "Segoe UI", system-ui, sans-serif;
-    font-size: 17px;
+    font-size: clamp(16px, 0.94rem + 0.2vw, 17px);
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     font-feature-settings: "ss01", "cv11";
+    text-size-adjust: 100%;
   }
-  /* Subtle background grid. Density-tuned so it stays out of the way. */
+  /* Subtle background grid. Density-tuned so it stays out of the way.
+     Smaller cells on mobile so the dots stay visible on dense displays. */
   body::before {
     content: "";
     position: fixed; inset: 0; z-index: -1;
@@ -69,6 +71,9 @@
     background-position: 0 0;
     opacity: 0.4;
     pointer-events: none;
+  }
+  @media (max-width: 640px) {
+    body::before { background-size: 24px 24px; opacity: 0.3; }
   }
   a {
     color: var(--brand);
@@ -102,7 +107,7 @@
   .topbar-inner {
     max-width: 1080px;
     margin: 0 auto;
-    padding: 14px 24px;
+    padding: 12px clamp(16px, 4vw, 24px);
     display: flex; align-items: center; gap: 12px;
     font-size: 14px;
   }
@@ -111,31 +116,49 @@
     font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--fg);
+    /* Allow the brand mark to truncate on tiny screens rather than break the row. */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .topbar .brand-mark span { color: var(--muted); font-weight: 400; }
-  .topbar nav { margin-left: auto; display: flex; gap: 22px; }
+  .topbar nav {
+    margin-left: auto;
+    display: flex;
+    gap: 22px;
+    flex-shrink: 0;
+  }
   .topbar nav a {
     color: var(--muted);
     text-decoration: none;
     font-weight: 500;
   }
   .topbar nav a:hover { color: var(--fg); }
+  /* Below ~720 px the four nav links crowd the brand. Drop the in-page
+     anchors (page is short enough to scroll) and keep only the GitHub
+     link, which goes off-site and is the most useful. */
+  @media (max-width: 720px) {
+    .topbar nav a.in-page { display: none; }
+    .topbar nav { gap: 0; }
+  }
 
   /* ---------- Hero ----------------------------------------------------- */
   .wrap {
     max-width: 880px;
     margin: 0 auto;
-    padding: clamp(48px, 8vw, 96px) 24px 96px;
+    padding: clamp(40px, 7vw, 96px) clamp(16px, 4vw, 24px) clamp(48px, 8vw, 96px);
   }
   .hero {
     display: grid;
-    grid-template-columns: 96px 1fr;
-    gap: 28px;
+    grid-template-columns: clamp(72px, 12vw, 96px) 1fr;
+    gap: clamp(20px, 3vw, 28px);
     align-items: start;
-    margin-bottom: clamp(36px, 6vw, 56px);
+    margin-bottom: clamp(32px, 6vw, 56px);
   }
   .hero img {
-    width: 96px; height: 96px;
+    width: clamp(72px, 12vw, 96px);
+    height: clamp(72px, 12vw, 96px);
     border-radius: 50%;
     box-shadow: 0 8px 28px -8px rgba(132, 52, 29, 0.4);
   }
@@ -162,27 +185,28 @@
   }
   .lead strong { color: var(--fg); font-weight: 600; }
 
-  @media (max-width: 600px) {
-    .hero { grid-template-columns: 1fr; gap: 18px; }
-    .hero img { width: 72px; height: 72px; }
+  @media (max-width: 540px) {
+    .hero { grid-template-columns: 1fr; gap: 16px; }
+    .hero img { width: 64px; height: 64px; }
   }
 
   /* ---------- Section -------------------------------------------------- */
   section { margin-top: clamp(40px, 5vw, 64px); }
   h2 {
-    font-size: 22px;
+    font-size: clamp(19px, 2vw, 22px);
     font-weight: 700;
     letter-spacing: -0.015em;
     margin: 0 0 6px;
     display: flex;
     align-items: baseline;
     gap: 12px;
+    flex-wrap: wrap;
   }
   h2::before {
     content: counter(sec, decimal-leading-zero);
     counter-increment: sec;
     font-family: "Fira Code", ui-monospace, monospace;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--brand);
     font-weight: 500;
     letter-spacing: 0.05em;
@@ -190,6 +214,7 @@
     padding: 3px 7px;
     border-radius: 4px;
     background: var(--brand-soft);
+    flex-shrink: 0;
   }
   body { counter-reset: sec; }
   .section-lead {
@@ -204,10 +229,11 @@
     background: var(--code-bg);
     color: var(--code-fg);
     border-radius: 10px;
-    padding: 18px 20px 18px 20px;
+    padding: clamp(14px, 2.5vw, 20px);
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     font-family: "Fira Code", "JetBrains Mono", ui-monospace, monospace;
-    font-size: 14px;
+    font-size: clamp(12.5px, 1.4vw, 14px);
     line-height: 1.65;
     box-shadow: var(--shadow);
     margin: 6px 0 0;
@@ -263,8 +289,14 @@
     border: 1px solid var(--rule);
   }
   @media (max-width: 640px) {
-    .picks li { grid-template-columns: 1fr; gap: 8px; }
-    .picks code { justify-self: start; }
+    .picks li { grid-template-columns: 1fr; gap: 8px; padding: 14px 0; }
+    .picks code {
+      justify-self: start;
+      /* Long apt install lines wrap on small screens instead of overflowing. */
+      white-space: normal;
+      word-break: break-word;
+      max-width: 100%;
+    }
   }
 
   /* ---------- Fingerprint card ---------------------------------------- */
@@ -273,13 +305,14 @@
     background: var(--surface);
     border: 1px solid var(--rule);
     border-radius: 10px;
-    padding: 16px 20px;
+    padding: clamp(14px, 2.5vw, 20px);
     box-shadow: var(--shadow);
     font-family: "Fira Code", ui-monospace, monospace;
-    font-size: 14px;
-    letter-spacing: 0.08em;
+    font-size: clamp(12px, 1.4vw, 14px);
+    letter-spacing: 0.06em;
     color: var(--fg);
-    word-break: break-all;
+    overflow-wrap: anywhere;
+    line-height: 1.7;
   }
   .fp .meta {
     display: block;
@@ -329,9 +362,9 @@
     <img src="aims-logo-256.png" alt="">
     <div class="brand-mark">AIMS OS <span>· apt</span></div>
     <nav>
-      <a href="#setup">Setup</a>
-      <a href="#pick">Packages</a>
-      <a href="#verify">Verify</a>
+      <a href="#setup" class="in-page">Setup</a>
+      <a href="#pick" class="in-page">Packages</a>
+      <a href="#verify" class="in-page">Verify</a>
       <a href="https://github.com/A-I-M-S-SENEGAL/aims-os">GitHub</a>
     </nav>
   </div>
