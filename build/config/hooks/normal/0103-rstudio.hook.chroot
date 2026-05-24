@@ -15,6 +15,12 @@
 # compatible with Trixie's glibc 2.41. Bump RSTUDIO_VERSION when you
 # cut a new ISO.
 #
+# URL gotcha: Posit's dailies index lists builds under noble-${arch}/
+# directories, but the actual .deb files live under jammy/${arch}/ on S3
+# (Posit only does the jammy build and reuses it under the noble label).
+# So the path component below is `jammy`, not `noble`, even though we want
+# Ubuntu 24.04 behaviour.
+#
 # Reference: https://dailies.rstudio.com/
 # =============================================================================
 set -e
@@ -33,7 +39,7 @@ esac
 
 echo "${BANNER} downloading RStudio ${RSTUDIO_VERSION} for ${arch}..."
 
-URL="https://s3.amazonaws.com/rstudio-ide-build/electron/noble/${arch}/rstudio-${RSTUDIO_VERSION}-${arch}.deb"
+URL="https://s3.amazonaws.com/rstudio-ide-build/electron/jammy/${arch}/rstudio-${RSTUDIO_VERSION}-${arch}.deb"
 DEB=/tmp/rstudio.deb
 
 curl -fL --retry 5 --retry-delay 5 --retry-all-errors "${URL}" -o "${DEB}"
