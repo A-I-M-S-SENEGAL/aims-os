@@ -213,6 +213,21 @@ nav[aria-label="Main"] a {
   padding-block: 8px !important;
 }
 
+/* Active sidebar item: terracotta pill background needs a clearly
+   contrasting text colour. Starlight's default --sl-color-text-invert
+   maps through several indirections that broke for us in dark mode
+   (text rendered same colour as the brand-coloured background).
+   Force white on the active link and bump the bg contrast in dark mode
+   so the result is unambiguously legible. */
+nav[aria-label="Main"] a[aria-current="page"] {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+:root[data-theme='dark'] nav[aria-label="Main"] a[aria-current="page"] {
+  /* Darker brand shade on dark bg so white text passes WCAG AA. */
+  background-color: var(--aims-brand-2) !important;
+}
+
 /* --- Focus rings: visible on every interactive element ------------------ */
 :focus-visible {
   outline: 2px solid var(--aims-brand);
