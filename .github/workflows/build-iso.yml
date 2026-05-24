@@ -80,20 +80,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Free disk space (~31 GB reclaimed)
+      - name: Free disk space (~40 GB reclaimed)
         uses: jlumbroso/free-disk-space@main
         with:
           tool-cache: true
           android: true
           dotnet: true
           haskell: true
-          # Skip the slow "large-packages" pass; we don't need it after
-          # the tool-cache + Android + .NET + Haskell removal.
-          large-packages: false
-          # Keep docker images — the runner ships some we don't, but our
-          # build pulls debian:trixie-slim anyway and Docker storage is
-          # on a separate partition.
-          docker-images: false
+          # Enable large-packages: the v10 ISO crossed 9 GB after we added
+          # Cursor + DBeaver + RStudio + Node 22 + Bun + Deno + uv. The arm64
+          # runner ran out of room at the xorriso assembly step:
+          #   xorriso : FAILURE : Image size 4436797s exceeds free space on
+          #   media 3761570s
+          # large-packages adds ~5 GB by purging azure-cli, google-chrome,
+          # powershell, mono, etc. Costs ~3 min of build time, well worth it.
+          large-packages: true
+          # docker-images: clear the runner's pre-baked images. We build our
+          # own aims-os-builder image fresh in the workflow, so the runner's
+          # cached postgres / mysql / etc. images are pure ballast for us.
+          # Frees another ~3 GB.
+          docker-images: true
           swap-storage: true
 
       - name: Show available disk space
