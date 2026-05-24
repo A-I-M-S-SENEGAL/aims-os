@@ -52,28 +52,61 @@ export default defineConfig({
       // and the deployed HTML resolves to the right URL.
       plugins: [starlightBasePath()],
       sidebar: [
+        // Site root (index.mdx) is reachable via the title / logo, not
+        // via the sidebar — Starlight rejects `slug: "index"`.
+        // Labels default to French (root locale); `translations.en` gives
+        // the English version of each label on /en/ pages.
         {
-          // Site root (index.mdx) is reachable via the title / logo, not
-          // via the sidebar — Starlight rejects `slug: "index"`.
           label: 'Démarrer',
+          translations: { en: 'Get started' },
           items: [
-            { label: 'Installer depuis l\'ISO', slug: 'install/iso' },
-            { label: 'Sur Debian existant (apt)', slug: 'install/apt' },
-            { label: 'Premier démarrage', slug: 'install/first-boot' },
+            {
+              label: 'Installer depuis l\'ISO',
+              translations: { en: 'Install from the ISO' },
+              slug: 'install/iso',
+            },
+            {
+              label: 'Sur Debian existant (apt)',
+              translations: { en: 'On existing Debian (apt)' },
+              slug: 'install/apt',
+            },
+            {
+              label: 'Premier démarrage',
+              translations: { en: 'First boot' },
+              slug: 'install/first-boot',
+            },
           ],
         },
         {
           label: 'Filières',
+          translations: { en: 'Tracks' },
           items: [
-            { label: 'Regular — Sciences Math', slug: 'filieres/regular' },
-            { label: 'Coop — Big Data', slug: 'filieres/bigdata' },
-            { label: 'Coop — Security', slug: 'filieres/security' },
+            {
+              label: 'Regular — Sciences Math',
+              translations: { en: 'Regular — Mathematical Sciences' },
+              slug: 'filieres/regular',
+            },
+            {
+              label: 'Coop — Big Data',
+              translations: { en: 'Coop — Big Data' },
+              slug: 'filieres/bigdata',
+            },
+            {
+              label: 'Coop — Security',
+              translations: { en: 'Coop — Computer Security' },
+              slug: 'filieres/security',
+            },
           ],
         },
         {
           label: 'Cours 2025-2026',
+          translations: { en: '2025-2026 Courses' },
           items: [
-            { label: 'Cartographie cours → outils', slug: 'courses/mapping' },
+            {
+              label: 'Cartographie cours → outils',
+              translations: { en: 'Course → tool mapping' },
+              slug: 'courses/mapping',
+            },
           ],
         },
         // Dépannage and Contribuer groups are deliberately omitted for v1.
