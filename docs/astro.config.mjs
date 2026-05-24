@@ -66,14 +66,12 @@ export default defineConfig({
             { label: 'Cartographie cours → outils', slug: 'courses/mapping' },
           ],
         },
-        {
-          label: 'Dépannage',
-          autogenerate: { directory: 'troubleshooting' },
-        },
-        {
-          label: 'Contribuer',
-          autogenerate: { directory: 'contributing' },
-        },
+        // Dépannage and Contribuer groups are deliberately omitted for v1.
+        // Starlight 0.39 renders empty autogenerate groups as empty
+        // expandable items in the sidebar (intentional transparency,
+        // see withastro/starlight#1409). Re-add them with real content,
+        // not as placeholders, when troubleshooting/ and contributing/
+        // grow real pages.
       ],
     }),
   ],
