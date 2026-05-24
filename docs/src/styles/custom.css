@@ -206,7 +206,7 @@ body {
 }
 
 /* --- Sidebar: touch-friendly, clear hover --------------------------------- */
-nav[aria-label="Main"] a {
+nav.sidebar a {
   min-height: 40px;
   display: flex;
   align-items: center;
@@ -217,13 +217,13 @@ nav[aria-label="Main"] a {
    default text colour to a near-invisible warm grey. Force a bright
    warm cream for every sidebar link + the section labels, then keep
    the active item white + bold so it still stands out clearly. */
-nav[aria-label="Main"] a,
-nav[aria-label="Main"] summary,
-nav[aria-label="Main"] .group-label,
-nav[aria-label="Main"] span {
+nav.sidebar a,
+nav.sidebar summary,
+nav.sidebar .group-label,
+nav.sidebar span {
   color: var(--aims-ink);
 }
-nav[aria-label="Main"] a:hover {
+nav.sidebar a:hover {
   color: var(--aims-brand);
 }
 
@@ -234,7 +234,7 @@ nav[aria-label="Main"] a:hover {
    text to ~2.2:1 (FAIL). Force the canonical brand #84341D for the
    active background in BOTH themes — same colour as the welcome
    page logo, instantly recognisable. */
-nav[aria-label="Main"] a[aria-current="page"] {
+nav.sidebar a[aria-current="page"] {
   color: #ffffff !important;
   background-color: #84341D !important;
   font-weight: 600;
