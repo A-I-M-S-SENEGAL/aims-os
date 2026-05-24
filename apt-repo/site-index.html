@@ -446,6 +446,17 @@ EOF
         <code>apt install aims-os-{core,desktop,math,bigdata,security}</code>
       </li>
     </ul>
+    <p class="section-lead" style="margin-top:24px">
+      <strong>Heads up about firmware and RAR.</strong>
+      The Wi-Fi / GPU firmware blobs (firmware-iwlwifi, firmware-realtek,
+      etc.) live in Debian's <code>non-free-firmware</code> component and
+      the RAR codec (<code>p7zip-rar</code>) lives in <code>non-free</code>.
+      They are listed as <em>Recommends</em>, not Depends, so the install
+      succeeds either way. If you want them pulled in, enable both components
+      in your <code>/etc/apt/sources.list</code> first, then re-run
+      <code>apt install</code>. The AIMS OS ISO has these components enabled
+      out of the box.
+    </p>
   </section>
 
   <section id="verify">

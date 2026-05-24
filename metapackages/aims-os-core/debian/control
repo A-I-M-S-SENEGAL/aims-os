@@ -23,16 +23,6 @@ Depends:
  apparmor-profiles,
  apparmor-utils,
  fail2ban,
-# --- Firmware blobs (Wi-Fi, GPU) for typical lab hardware ------------
- firmware-linux,
- firmware-linux-nonfree,
- firmware-misc-nonfree,
- firmware-iwlwifi,
- firmware-realtek,
- firmware-atheros,
- firmware-brcm80211,
- firmware-libertas,
- firmware-zd1211,
 # --- Localization (fr_FR default, Africa/Dakar tz) -------------------
  locales,
  task-french,
@@ -116,6 +106,27 @@ Depends:
  wireless-tools,
  rfkill,
  command-not-found,
+# --- Firmware blobs (Wi-Fi, GPU) for typical lab hardware ------------
+# Pulled as Recommends, not Depends, because these all live in the
+# non-free-firmware Debian component. The AIMS OS ISO has that
+# component enabled in build/auto/config so the firmware lands by
+# default. Standalone apt-install on a vanilla Debian skips them
+# silently if the user has not enabled non-free-firmware in their
+# sources.list — the user can re-add it later with
+#   apt install firmware-linux firmware-iwlwifi ...
+# once they have the component enabled. Making this hard Depends
+# would refuse the install altogether on a main-only setup, which
+# is unfriendly.
+Recommends:
+ firmware-linux,
+ firmware-linux-nonfree,
+ firmware-misc-nonfree,
+ firmware-iwlwifi,
+ firmware-realtek,
+ firmware-atheros,
+ firmware-brcm80211,
+ firmware-libertas,
+ firmware-zd1211,
 Description: AIMS OS — system-level baseline
  This metapackage installs the AIMS OS core system: the host firewall
  (UFW), AppArmor mandatory access control, automatic Debian-Security

@@ -1,3 +1,20 @@
+aims-os-core (2.0+2) trixie; urgency=medium
+
+  * Move the firmware-* packages (firmware-linux, firmware-linux-nonfree,
+    firmware-misc-nonfree, firmware-iwlwifi, firmware-realtek,
+    firmware-atheros, firmware-brcm80211, firmware-libertas,
+    firmware-zd1211) from Depends to Recommends. They live in Debian's
+    non-free-firmware component which is enabled by the AIMS OS ISO
+    build but not by a vanilla Debian Trixie install. As hard Depends,
+    they refused the apt-install on standalone Debian boxes that only
+    had main enabled, breaking the apt-repo install path entirely.
+    Recommends keeps the firmware blobs as the default behaviour on
+    the ISO (apt pulls Recommends by default) and silently skips them
+    on main-only setups, where the user can re-add the component and
+    apt-install them at any time.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sun, 24 May 2026 14:30:00 +0000
+
 aims-os-core (2.0+1) trixie; urgency=medium
 
   * Heritage additions from AIMS Desktop 2020: bc (CLI calculator),

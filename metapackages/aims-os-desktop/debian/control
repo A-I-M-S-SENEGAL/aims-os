@@ -86,7 +86,6 @@ Depends:
  fd-find,
  bat,
  p7zip-full,
- p7zip-rar,
 # --- Document tooling (from AIMS Desktop heritage) -------------------
 # pandoc — universal document converter (MD↔PDF↔DOCX↔HTML↔TeX). The
 #     single most-cited "Why don't you ship X" gap in AIMS Desktop
@@ -175,6 +174,15 @@ Depends:
  gstreamer1.0-plugins-bad,
  gstreamer1.0-plugins-ugly,
  gstreamer1.0-libav,
+# --- Non-free codecs (Recommends, not Depends) -----------------------
+# p7zip-rar lives in the Debian non-free component, so a standalone
+# apt install on a vanilla Debian without non-free enabled would fail.
+# On the AIMS OS ISO, live-build enables non-free in its source list
+# so apt pulls this in automatically via Recommends like a Depends.
+# Users on an apt-repo-only setup get the install regardless and can
+# add p7zip-rar later if they need to open .rar archives.
+Recommends:
+ p7zip-rar,
 Description: AIMS OS — GNOME desktop, installer and user applications
  This metapackage installs the AIMS OS user-facing layer: the GNOME
  desktop (task-gnome-desktop scope — desktop shell, GDM, Files, Web,

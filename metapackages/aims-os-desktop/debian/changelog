@@ -1,3 +1,14 @@
+aims-os-desktop (2.0+3) trixie; urgency=medium
+
+  * Move p7zip-rar from Depends to Recommends. The proprietary RAR
+    codec lives in Debian's non-free component, which is enabled by
+    the AIMS OS ISO build but not by a vanilla Debian Trixie install.
+    Hard Depends on it broke the apt-repo install path on main-only
+    setups; Recommends keeps the codec on the ISO and silently skips
+    it elsewhere.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sun, 24 May 2026 14:30:00 +0000
+
 aims-os-desktop (2.0+2) trixie; urgency=medium
 
   * Modernise the developer toolchain for the 2025-2026 AIMS courses.
