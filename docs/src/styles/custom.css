@@ -229,13 +229,16 @@ nav.sidebar a:hover {
 
 /* Active item. White text on a terracotta pill in both modes —
    contrast needs a DARK terracotta background so white passes AA
-   (#84341D + white = 8.5:1 ✓). In dark mode I'd been using the
-   lightened brand variant (#E8997C ~ salmon), which dropped white
-   text to ~2.2:1 (FAIL). Force the canonical brand #84341D for the
-   active background in BOTH themes — same colour as the welcome
-   page logo, instantly recognisable. */
-nav.sidebar a[aria-current="page"] {
+   (#84341D + white = 8.5:1 ✓). Also target the inner <span>
+   explicitly: my generic `nav.sidebar span { color: var(--aims-ink) }`
+   rule above would otherwise override the inherited white and leave
+   dark text on the brand pill in light mode. */
+nav.sidebar a[aria-current="page"],
+nav.sidebar a[aria-current="page"] span,
+nav.sidebar a[aria-current="page"] * {
   color: #ffffff !important;
+}
+nav.sidebar a[aria-current="page"] {
   background-color: #84341D !important;
   font-weight: 600;
 }
