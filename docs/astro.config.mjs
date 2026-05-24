@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import starlightBasePath from 'starlight-base-path';
+import { starlightBasePath } from 'starlight-base-path';
 
 // AIMS OS docs site.
 //
