@@ -35,6 +35,86 @@ immutable, useful for lab deployments that want to pin an image.
 All releases:
 [github.com/A-I-M-S-SENEGAL/aims-os/releases](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
 
+## Flash to a USB stick (real laptop, physical machine)
+
+The most common case for AIMS students. You'll need a USB stick of
+**16 GB minimum** (the ISO is ~8.5 GB and Calamares uses extra during
+install).
+
+:::caution
+Flashing **erases everything** on the stick. Back up first.
+:::
+
+### Recommended: balenaEtcher (cross-OS, GUI)
+
+Works the same on macOS, Windows and Linux. Verifies the checksum
+on its own.
+
+1. Download [balenaEtcher](https://etcher.balena.io/) → install.
+2. Open Etcher → **Flash from file** → pick the AIMS OS ISO.
+3. **Select target** → pick the USB stick (double-check the disk
+   letter/number).
+4. **Flash!** → wait 5-15 min depending on stick speed.
+5. Once "Flash Complete", unplug.
+
+### macOS — command line (`dd`)
+
+```bash
+# Identify the device for the stick (e.g., /dev/disk4). Plug the
+# stick IN THEN run the command to see what shows up.
+diskutil list
+
+# Unmount (do not eject)
+diskutil unmountDisk /dev/disk4
+
+# Flash. WATCH the disk number — wrong choice OVERWRITES your
+# system disk. /dev/rdiskN (with 'r') is ~5x faster than /dev/diskN.
+sudo dd if=~/Downloads/aims-os-1.0-amd64.iso of=/dev/rdisk4 bs=4m status=progress
+sudo sync
+
+# Eject properly
+diskutil eject /dev/disk4
+```
+
+### Linux — `dd` or GNOME Disks
+
+CLI:
+```bash
+lsblk                                  # spot your stick (e.g., /dev/sdc)
+sudo umount /dev/sdc?                  # unmount every partition
+sudo dd if=aims-os-1.0-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
+```
+
+Or GUI: open **GNOME Disks** → pick the stick → menu (⋮) →
+**Restore Disk Image** → pick the ISO.
+
+### Windows — Rufus or balenaEtcher
+
+[Rufus](https://rufus.ie/) is the Windows standard:
+1. Launch Rufus → **Device** = USB stick.
+2. **Boot selection** → SELECT → pick the ISO.
+3. **Partition scheme**: GPT (modern UEFI). **Target system**: UEFI.
+4. **START** → if Rufus asks "DD Image" vs "ISO Image", pick
+   **DD Image** (the AIMS ISO is isohybrid).
+
+### Boot from the stick
+
+1. Plug the USB stick into the **powered-off** target machine.
+2. Power on while holding the **boot menu** key:
+   - HP / Dell / Lenovo ThinkPad: **F12**
+   - Acer: **F12** or **Esc**
+   - ASUS: **F8** or **Esc**
+   - MSI: **F11**
+   - Intel Mac: **Option/⌥** (then pick EFI Boot)
+   - Mac M-series (Asahi): see Asahi Linux docs, more involved
+3. Pick the USB stick from the boot menu.
+4. The AIMS OS GRUB menu shows → **Démarrer en mode Live**.
+
+On recent laptops with **Secure Boot** enabled: AIMS OS ships
+Debian's signed shim, so it boots without touching the BIOS. If it
+refuses, disable Secure Boot in the UEFI firmware (usually **F2**,
+**F10** or **Del** at power-on).
+
 ## Boot in UTM (Mac M-series)
 
 1. Open UTM, create a new VM, **Virtualize** (not Emulate), pick **Linux**.

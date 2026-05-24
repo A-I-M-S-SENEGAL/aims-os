@@ -38,6 +38,88 @@ veulent figer une image.
 Toutes les releases :
 [github.com/A-I-M-S-SENEGAL/aims-os/releases](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
 
+## Flasher sur une clé USB (PC portable, machine physique)
+
+Le cas le plus courant pour les étudiants AIMS. Il faut une clé USB
+de **16 Go minimum** (l'ISO fait ~8,5 Go, l'install Calamares en
+réclame plus pendant le déroulement).
+
+:::caution
+Le flash **efface tout** ce qui se trouve sur la clé. Sauvegardez
+avant.
+:::
+
+### Option recommandée : balenaEtcher (multi-OS, GUI)
+
+Marche pareil sur macOS, Windows et Linux. Vérifie le checksum
+automatiquement.
+
+1. Télécharger [balenaEtcher](https://etcher.balena.io/) → installer.
+2. Lancer Etcher → **Flash from file** → choisir l'ISO AIMS OS.
+3. **Select target** → choisir la clé USB (vérifier deux fois la
+   lettre/numéro de disque).
+4. **Flash!** → patienter 5-15 min selon la vitesse de la clé.
+5. Une fois "Flash Complete", débrancher.
+
+### macOS — ligne de commande (`dd`)
+
+```bash
+# Identifier le device de la clé (ex: /dev/disk4). Branchez la clé
+# PUIS lancez la commande pour voir ce qui apparaît.
+diskutil list
+
+# Démonter (sans éjecter)
+diskutil unmountDisk /dev/disk4
+
+# Flash. ATTENTION au numéro de disque — un mauvais choix ÉCRASE
+# votre disque système. /dev/rdiskN (avec 'r' devant) est ~5x plus
+# rapide que /dev/diskN.
+sudo dd if=~/Downloads/aims-os-1.0-amd64.iso of=/dev/rdisk4 bs=4m status=progress
+sudo sync
+
+# Éjecter proprement
+diskutil eject /dev/disk4
+```
+
+### Linux — `dd` ou GNOME Disks
+
+CLI :
+```bash
+lsblk                                  # repère ta clé (ex: /dev/sdc)
+sudo umount /dev/sdc?                  # démonte toutes les partitions
+sudo dd if=aims-os-1.0-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
+```
+
+Ou GUI : ouvrir **GNOME Disks** (Disques) → sélectionner la clé →
+menu (⋮) → **Restore Disk Image** → choisir l'ISO.
+
+### Windows — Rufus ou balenaEtcher
+
+[Rufus](https://rufus.ie/) est le standard Windows :
+1. Lancer Rufus → **Device** = clé USB.
+2. **Boot selection** → SELECT → choisir l'ISO.
+3. **Partition scheme** : GPT (UEFI moderne). **Target system** : UEFI.
+4. **START** → si Rufus demande "DD Image" vs "ISO Image", choisir
+   **DD Image** (l'ISO AIMS est isohybrid).
+
+### Booter sur la clé
+
+1. Brancher la clé USB sur la machine cible **éteinte**.
+2. Allumer en tenant la touche du **boot menu** :
+   - HP / Dell / Lenovo ThinkPad : **F12**
+   - Acer : **F12** ou **Esc**
+   - ASUS : **F8** ou **Esc**
+   - MSI : **F11**
+   - Mac Intel : **Option/⌥** (puis choisir EFI Boot)
+   - Mac M-series (Asahi) : voir doc Asahi Linux, plus complexe
+3. Sélectionner la clé USB dans le menu de boot.
+4. Le menu GRUB AIMS OS s'affiche → **Démarrer en mode Live**.
+
+Sur les laptops récents avec **Secure Boot** activé : AIMS OS embarque
+le shim signé Debian, ça boote sans toucher au BIOS. Si ça refuse,
+désactiver Secure Boot dans le firmware UEFI (touche **F2**, **F10**
+ou **Suppr** au démarrage).
+
 ## Booter dans UTM (Mac M-series)
 
 1. Ouvrir UTM, créer une nouvelle machine virtuelle, **Virtualiser**
