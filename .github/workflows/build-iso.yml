@@ -171,15 +171,23 @@ jobs:
               --content-type text/plain \
               --no-progress
 
-          # latest/ alias (overwritten each tag — server-side copy from the
-          # versioned object so we don't re-upload the 8 GB payload).
+          # latest/ alias (overwritten each tag). We'd prefer a server-side
+          # copy from the versioned object, but R2 does not implement the
+          # GetObjectTagging API that aws s3 cp's default cross-bucket copy
+          # path tries to use:
+          #   copy failed: An error occurred (NotImplemented) when calling
+          #   the GetObjectTagging operation: GetObjectTagging not implemented
+          # --copy-props none tells the CLI to copy only the object body,
+          # skipping the tag-fetch step entirely. R2 accepts this.
           aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
                     "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso" \
               --endpoint-url "${R2_ENDPOINT}" \
+              --copy-props none \
               --no-progress
           aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso.sha256" \
                     "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso.sha256" \
               --endpoint-url "${R2_ENDPOINT}" \
+              --copy-props none \
               --no-progress
 
           echo "✓ Uploaded to R2:"
