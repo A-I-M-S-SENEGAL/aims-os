@@ -90,3 +90,9 @@ secrets/
 # ---- apt-repo build output ----
 apt-repo/out/
 apt-repo/site/
+
+# ---- docs/ Astro Starlight build artifacts ----
+docs/node_modules/
+docs/dist/
+docs/.astro/
+docs/package-lock.json

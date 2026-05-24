@@ -1,0 +1,121 @@
+---
+// Custom hero component that overrides Starlight's default Hero.
+// Mirrors the editorial layout used by the apt-repo landing
+// (https://a-i-m-s-senegal.github.io/aims-os/): grid with the AIMS logo
+// on the left, eyebrow + big title + lead on the right, action buttons
+// underneath. Triggers from any docs page with frontmatter.hero set.
+import type { Props } from '@astrojs/starlight/props';
+import { Image } from 'astro:assets';
+import aimsLogo from '../assets/aims-logo.png';
+
+const { data } = Astro.props.entry;
+const hero = data.hero;
+---
+
+<div class="aims-hero not-content">
+  <div class="aims-hero-row">
+    <Image src={aimsLogo} alt="AIMS OS logo" width={96} height={96} class="aims-hero-logo" />
+    <div class="aims-hero-text">
+      <p class="aims-eyebrow">AIMS OS</p>
+      <h1 class="aims-h1">{hero?.title ?? data.title}</h1>
+      {hero?.tagline && <p class="aims-lead" set:html={hero.tagline} />}
+    </div>
+  </div>
+
+  {hero?.actions && hero.actions.length > 0 && (
+    <div class="aims-actions">
+      {hero.actions.map((a) => (
+        <a class={`aims-action aims-action-${a.variant ?? 'primary'}`} href={a.link}>
+          {a.text}
+        </a>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .aims-hero {
+    margin-bottom: clamp(36px, 6vw, 56px);
+    padding-bottom: clamp(28px, 5vw, 48px);
+    border-bottom: 1px solid var(--aims-rule);
+  }
+  .aims-hero-row {
+    display: grid;
+    grid-template-columns: clamp(72px, 12vw, 96px) 1fr;
+    gap: clamp(20px, 3vw, 28px);
+    align-items: start;
+  }
+  .aims-hero-logo {
+    width: clamp(72px, 12vw, 96px);
+    height: clamp(72px, 12vw, 96px);
+    border-radius: 50%;
+    box-shadow: 0 8px 28px -8px rgba(132, 52, 29, 0.40);
+  }
+  .aims-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 12px;
+    color: var(--aims-brand);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .aims-h1 {
+    font-size: clamp(32px, 4.5vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    font-weight: 800;
+    margin: 0 0 18px;
+    color: var(--aims-ink);
+  }
+  .aims-lead {
+    font-size: clamp(16px, 1.5vw, 18px);
+    color: var(--aims-muted);
+    max-width: 60ch;
+    margin: 0;
+  }
+  .aims-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: clamp(20px, 3vw, 28px);
+  }
+  .aims-action {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 15px;
+    text-decoration: none;
+    transition: background-color 120ms, color 120ms, border-color 120ms;
+    border: 1px solid transparent;
+  }
+  .aims-action-primary {
+    background: var(--aims-brand);
+    color: white;
+  }
+  .aims-action-primary:hover {
+    background: var(--aims-brand-2);
+    color: white;
+  }
+  .aims-action-secondary {
+    background: transparent;
+    color: var(--aims-brand);
+    border-color: var(--aims-rule);
+  }
+  .aims-action-secondary:hover {
+    background: var(--aims-brand-soft);
+    border-color: var(--aims-brand);
+  }
+  .aims-action-minimal {
+    background: transparent;
+    color: var(--aims-muted);
+  }
+  .aims-action-minimal:hover {
+    color: var(--aims-ink);
+  }
+  @media (max-width: 540px) {
+    .aims-hero-row { grid-template-columns: 1fr; gap: 16px; }
+    .aims-hero-logo { width: 64px; height: 64px; }
+  }
+</style>

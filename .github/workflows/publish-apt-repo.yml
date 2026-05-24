@@ -1,13 +1,18 @@
 # =============================================================================
-# AIMS OS — publish apt repo to GitHub Pages (official Pages-from-Actions)
+# AIMS OS — publish Pages (apt repo + docs site)
 # =============================================================================
-# Builds the metapackage .deb files, generates a signed apt repository tree
-# under apt-repo/site/, and deploys it as the GitHub Pages site for this
-# repo (served at https://a-i-m-s-senegal.github.io/aims-os/).
+# Builds two artefact trees and deploys them to the single GitHub Pages site
+# at https://a-i-m-s-senegal.github.io/aims-os/:
 #
-# Uses GitHub's official Pages deployment actions (actions/upload-pages-
-# artifact@v3 + actions/deploy-pages@v4) rather than a third-party `gh-pages`
-# branch push — no orphan branch, no commit clutter, cleaner permissions.
+#   1. apt-repo/site/  — signed apt repository (metapackages, dists/, pool/,
+#      Release + InRelease, public key, branded landing index.html)
+#   2. apt-repo/site/docs/  — Astro Starlight documentation site, built from
+#      docs/ with base path /aims-os/docs so internal links resolve under
+#      the same Pages origin
+#
+# Uses GitHub's official Pages-from-Actions flow (configure-pages@v5 +
+# upload-pages-artifact@v3 + deploy-pages@v4), one Pages environment per
+# repo, no gh-pages branch.
 #
 # Triggers:
 #   - workflow_dispatch — manual republish
@@ -18,7 +23,7 @@
 #   - Settings → Pages → Build and deployment → Source: GitHub Actions
 # =============================================================================
 
-name: Publish apt repo
+name: Publish Pages (apt repo + docs)
 
 on:
   workflow_dispatch:
@@ -42,9 +47,9 @@ concurrency:
 
 jobs:
   publish:
-    name: Build .debs, sign, deploy to Pages
+    name: Build apt repo + docs, deploy to Pages
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -78,7 +83,7 @@ jobs:
           GPG_KEY_ID: CEAB168E6D2E30FF
         run: ./apt-repo/publish.sh
 
-      - name: Stage .nojekyll + landing page
+      - name: Stage .nojekyll + apt-repo landing page
         run: |
           # .nojekyll : Pages MUST NOT run Jekyll over an apt repo tree
           # (it strips files / dirs starting with `_` and rewrites things).
@@ -91,6 +96,32 @@ jobs:
           cp apt-repo/site-README.md   apt-repo/site/README.md
           # AIMS logo referenced by the landing page (and used as favicon).
           cp apt-repo/aims-logo-256.png apt-repo/site/aims-logo-256.png
+
+      - name: Setup Node 22 for the docs build
+        if: hashFiles('docs/package.json') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build the Starlight docs site
+        if: hashFiles('docs/package.json') != ''
+        working-directory: docs
+        run: |
+          # npm install (not ci) — we deliberately do not commit
+          # package-lock.json yet, see docs/README.md.
+          npm install --silent
+          npm run build
+          du -sh dist
+
+      - name: Merge docs site into Pages tree at /docs/
+        if: hashFiles('docs/package.json') != ''
+        run: |
+          # astro.config.mjs uses base='/aims-os/docs', so dist/'s HTML
+          # already points at /aims-os/docs/... — we just move it into
+          # place under apt-repo/site/docs/.
+          mkdir -p apt-repo/site/docs
+          cp -r docs/dist/. apt-repo/site/docs/
+          ls -la apt-repo/site/docs/ | head -10
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -1,0 +1,182 @@
+/* =============================================================================
+   AIMS OS docs — custom Starlight theme
+   =============================================================================
+   Pushes Starlight's defaults toward the editorial language we use on the
+   apt-repo landing (https://a-i-m-s-senegal.github.io/aims-os/) and the in-OS
+   welcome page. Tokens are sampled from branding/source/logo-aims.png.
+   Light + dark are both handled here; Starlight switches them via
+   data-theme. */
+
+/* --- Brand palette ------------------------------------------------------ */
+:root {
+  --aims-ink:        #131110;
+  --aims-paper:      #F8F4ED;
+  --aims-paper-2:    #ECE6DC;
+  --aims-rule:       rgba(19, 17, 16, 0.12);
+  --aims-muted:      #6F6862;
+  --aims-brand:      #84341D;
+  --aims-brand-2:    #6B2A15;
+  --aims-brand-soft: rgba(132, 52, 29, 0.06);
+  --aims-code-bg:    #1A1614;
+  --aims-code-fg:    #ECE6DC;
+  --aims-code-key:   #E8B57A;
+  --aims-code-str:   #B8D88A;
+  --aims-code-cmt:   #6B635C;
+}
+
+/* Map AIMS tokens onto the Starlight palette for light mode. */
+:root[data-theme='light'], :root {
+  --sl-color-accent-low:  #f4d6cb;
+  --sl-color-accent:      var(--aims-brand);
+  --sl-color-accent-high: var(--aims-brand-2);
+
+  --sl-color-white:    var(--aims-ink);
+  --sl-color-gray-1:   #2A2520;
+  --sl-color-gray-2:   #4D4641;
+  --sl-color-gray-3:   var(--aims-muted);
+  --sl-color-gray-4:   #9C9087;
+  --sl-color-gray-5:   #C8BDB2;
+  --sl-color-gray-6:   var(--aims-paper-2);
+  --sl-color-gray-7:   var(--aims-paper);
+  --sl-color-black:    var(--aims-paper);
+
+  --sl-color-bg:           var(--aims-paper);
+  --sl-color-bg-nav:       color-mix(in srgb, var(--aims-paper) 92%, transparent);
+  --sl-color-bg-sidebar:   var(--aims-paper);
+  --sl-color-bg-inline-code: var(--aims-brand-soft);
+  --sl-color-text:         var(--aims-ink);
+  --sl-color-text-accent:  var(--aims-brand);
+  --sl-color-hairline:     var(--aims-rule);
+  --sl-color-hairline-light: var(--aims-rule);
+}
+
+:root[data-theme='dark'] {
+  --aims-ink:        #ECE6DC;
+  --aims-paper:      #0E0B09;
+  --aims-paper-2:    #1A1614;
+  --aims-rule:       rgba(245, 239, 231, 0.10);
+  --aims-muted:      #8B847C;
+  --aims-brand:      #C76B4B;
+  --aims-brand-2:    #DD8060;
+  --aims-brand-soft: rgba(199, 107, 75, 0.10);
+
+  --sl-color-accent-low:  rgba(199, 107, 75, 0.20);
+  --sl-color-accent:      var(--aims-brand);
+  --sl-color-accent-high: var(--aims-brand-2);
+
+  --sl-color-white:    var(--aims-ink);
+  --sl-color-gray-1:   #C8BDB2;
+  --sl-color-gray-2:   #9C9087;
+  --sl-color-gray-3:   var(--aims-muted);
+  --sl-color-gray-4:   #4D4641;
+  --sl-color-gray-5:   #2A2520;
+  --sl-color-gray-6:   var(--aims-paper-2);
+  --sl-color-gray-7:   #15110F;
+  --sl-color-black:    var(--aims-paper);
+
+  --sl-color-bg:           var(--aims-paper);
+  --sl-color-bg-nav:       color-mix(in srgb, var(--aims-paper) 92%, transparent);
+  --sl-color-bg-sidebar:   var(--aims-paper-2);
+  --sl-color-bg-inline-code: var(--aims-brand-soft);
+  --sl-color-text:         var(--aims-ink);
+  --sl-color-text-accent:  var(--aims-brand);
+  --sl-color-hairline:     var(--aims-rule);
+  --sl-color-hairline-light: var(--aims-rule);
+}
+
+/* --- Typography --------------------------------------------------------- */
+:root {
+  --sl-font:      "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --sl-font-mono: "Fira Code", "JetBrains Mono", ui-monospace, monospace;
+  --sl-text-base: clamp(15px, 0.94rem + 0.2vw, 17px);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+  letter-spacing: -0.005em;
+}
+
+h1, h2, h3 { letter-spacing: -0.015em; }
+h1 { font-weight: 800; }
+
+/* --- Editorial dot grid background -------------------------------------- */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  background-image: radial-gradient(circle, var(--aims-rule) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  body::before { background-size: 24px 24px; opacity: 0.3; }
+}
+
+/* --- Numbered section headers in prose ---------------------------------- */
+.sl-markdown-content { counter-reset: section; }
+.sl-markdown-content h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sl-markdown-content h2::before {
+  content: counter(section, decimal-leading-zero);
+  counter-increment: section;
+  font-family: var(--sl-font-mono);
+  font-size: 0.55em;
+  color: var(--aims-brand);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--aims-brand-soft);
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: var(--aims-brand-soft);
+  flex-shrink: 0;
+}
+
+/* --- Code blocks: terminal-style dark even in light mode ---------------- */
+.sl-markdown-content :not(pre) > code {
+  background: var(--aims-brand-soft);
+  color: var(--aims-brand);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-size: 0.88em;
+}
+
+.expressive-code, .sl-markdown-content pre {
+  border-radius: 10px !important;
+}
+
+/* --- Sidebar nav: hairline rules instead of boxes ----------------------- */
+sl-sidebar-state-persist, starlight-menu-button + nav {
+  --sl-sidebar-pad-x: 1rem;
+}
+
+/* --- Hairlines everywhere --------------------------------------------- */
+.sl-markdown-content :is(table) {
+  border-color: var(--aims-rule);
+}
+.sl-markdown-content :is(th, td) {
+  border-color: var(--aims-rule);
+}
+
+/* --- Site title: tighter, monospace caption ----------------------------- */
+header.header .site-title {
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+/* --- Splash hero: editorial layout (custom Astro hero handles the rest) - */
+.hero {
+  padding-block: clamp(40px, 7vw, 96px) !important;
+}
+
+/* --- Reduced motion ----------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
