@@ -74,7 +74,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
-    timeout-minutes: 60
+    # Last successful amd64 took 58 min; adding large-packages + docker-images
+    # cleanup (+4 min) tipped it past the previous 60-min limit. 90 leaves
+    # headroom for slow runners without letting truly stuck jobs linger forever.
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
