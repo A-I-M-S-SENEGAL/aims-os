@@ -180,23 +180,26 @@ jobs:
               --content-type text/plain \
               --no-progress
 
-          # latest/ alias (overwritten each tag). We'd prefer a server-side
-          # copy from the versioned object, but R2 does not implement the
-          # GetObjectTagging API that aws s3 cp's default cross-bucket copy
-          # path tries to use:
-          #   copy failed: An error occurred (NotImplemented) when calling
-          #   the GetObjectTagging operation: GetObjectTagging not implemented
-          # --copy-props none tells the CLI to copy only the object body,
-          # skipping the tag-fetch step entirely. R2 accepts this.
+          # latest/ alias (overwritten each tag).
+          #
+          # R2 has two distinct holes in CopyObject compatibility:
+          #   1. GetObjectTagging is not implemented; aws s3 cp's cross-bucket
+          #      copy path tries to fetch tags first. --copy-props none skips it.
+          #   2. The 'x-amz-tagging-directive' header (any value) returns 501
+          #      NotImplemented. aws s3 cp omits this header on MultipartCopy
+          #      (objects ≥ 8 MB) but ALWAYS sends it on small-object CopyObject,
+          #      regardless of --copy-props.
+          # → ISO (~9 GB) goes through MultipartCopy and works fine.
+          # → .sha256 (88 B) hits the small-object path and fails 501.
+          # Workaround: re-upload the local .sha256 instead of server-side copy.
           aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
                     "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso" \
               --endpoint-url "${R2_ENDPOINT}" \
               --copy-props none \
               --no-progress
-          aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso.sha256" \
-                    "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso.sha256" \
+          aws s3 cp "${SHA}" "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso.sha256" \
               --endpoint-url "${R2_ENDPOINT}" \
-              --copy-props none \
+              --content-type text/plain \
               --no-progress
 
           echo "✓ Uploaded to R2:"
