@@ -1,0 +1,118 @@
+# =============================================================================
+# R2 cleanup — abort orphaned multipart uploads
+# =============================================================================
+# Cancelled ISO builds leave incomplete multipart uploads in the bucket. R2
+# bills these as storage (counted against the 10 GB free tier) but never
+# surfaces them as completed objects, so they pile up invisibly.
+#
+# This workflow lists every multipart upload, filters out ones younger than
+# `min_age_hours` (so we never abort an upload from a build still running),
+# and aborts the rest. Defaults to dry-run — you must flip `dry_run` to
+# false to actually delete anything.
+#
+# Manual only (workflow_dispatch). No schedule: the lifecycle rule
+# "Abort incomplete multipart uploads after 1 day" set in the R2 dashboard
+# is the steady-state mechanism; this workflow is for one-off cleanups
+# (e.g., right after a string of cancelled builds) or to verify what the
+# lifecycle rule will eventually catch.
+# =============================================================================
+
+name: R2 cleanup (multipart uploads)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry-run (list only, no abort)"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      min_age_hours:
+        description: "Only abort uploads older than this many hours (protects in-flight builds)"
+        required: true
+        default: "6"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: Abort orphaned multipart uploads
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      AWS_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION:    auto
+      R2_ENDPOINT:           ${{ secrets.R2_ENDPOINT }}
+      R2_BUCKET:             ${{ secrets.R2_BUCKET }}
+      DRY_RUN:               ${{ inputs.dry_run }}
+      MIN_AGE_HOURS:         ${{ inputs.min_age_hours }}
+
+    steps:
+      - name: Show config
+        run: |
+          echo "Bucket:    ${R2_BUCKET}"
+          echo "Endpoint:  ${R2_ENDPOINT}"
+          echo "Dry-run:   ${DRY_RUN}"
+          echo "Min age:   ${MIN_AGE_HOURS} h"
+
+      - name: List multipart uploads
+        id: list
+        run: |
+          # list-multipart-uploads returns every in-flight upload with
+          # UploadId + Key + Initiated timestamp. We feed that through jq
+          # to keep only uploads older than the cutoff.
+          CUTOFF_EPOCH=$(date -u -d "${MIN_AGE_HOURS} hours ago" +%s)
+          echo "Cutoff (epoch): ${CUTOFF_EPOCH}  ($(date -u -d @${CUTOFF_EPOCH}))"
+
+          aws s3api list-multipart-uploads \
+            --bucket "${R2_BUCKET}" \
+            --endpoint-url "${R2_ENDPOINT}" \
+            --output json > all.json || echo '{"Uploads":[]}' > all.json
+
+          TOTAL=$(jq '.Uploads // [] | length' all.json)
+          echo "Total in-flight uploads in bucket: ${TOTAL}"
+
+          jq --argjson cutoff "${CUTOFF_EPOCH}" '
+            .Uploads // []
+            | map(select((.Initiated | sub("\\.[0-9]+"; "") | fromdateiso8601) < $cutoff))
+          ' all.json > to_abort.json
+
+          COUNT=$(jq 'length' to_abort.json)
+          echo "Eligible for abort (older than ${MIN_AGE_HOURS}h): ${COUNT}"
+          echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+
+          if [ "${COUNT}" -gt 0 ]; then
+            echo ""
+            echo "=== Uploads to abort ==="
+            jq -r '.[] | "  \(.Initiated)  \(.Key)  (UploadId: \(.UploadId[0:24])…)"' to_abort.json
+          fi
+
+      - name: Abort uploads
+        if: steps.list.outputs.count != '0' && inputs.dry_run == 'false'
+        run: |
+          echo "Aborting $(jq 'length' to_abort.json) uploads..."
+          jq -r '.[] | "\(.Key)\t\(.UploadId)"' to_abort.json | \
+          while IFS=$'\t' read -r KEY UPLOAD_ID; do
+            echo "  abort: ${KEY}  (${UPLOAD_ID:0:24}…)"
+            aws s3api abort-multipart-upload \
+              --bucket "${R2_BUCKET}" \
+              --key "${KEY}" \
+              --upload-id "${UPLOAD_ID}" \
+              --endpoint-url "${R2_ENDPOINT}"
+          done
+          echo "Done."
+
+      - name: Dry-run summary
+        if: steps.list.outputs.count != '0' && inputs.dry_run == 'true'
+        run: |
+          echo "::notice::Dry-run: ${{ steps.list.outputs.count }} uploads would be aborted. Re-run with dry_run=false to apply."
+
+      - name: Nothing to do
+        if: steps.list.outputs.count == '0'
+        run: echo "No orphaned multipart uploads older than ${MIN_AGE_HOURS}h. Bucket is clean."
