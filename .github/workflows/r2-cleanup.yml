@@ -78,9 +78,18 @@ jobs:
           TOTAL=$(jq '.Uploads // [] | length' all.json)
           echo "Total in-flight uploads in bucket: ${TOTAL}"
 
+          # R2 returns Initiated as "2026-05-25T00:25:30+00:00" but jq's
+          # fromdateiso8601 only accepts the "...Z" form. Strip any fractional
+          # seconds and replace the trailing "+00:00" (or "-00:00") with "Z"
+          # before parsing.
           jq --argjson cutoff "${CUTOFF_EPOCH}" '
             .Uploads // []
-            | map(select((.Initiated | sub("\\.[0-9]+"; "") | fromdateiso8601) < $cutoff))
+            | map(select(
+                (.Initiated
+                  | sub("\\.[0-9]+"; "")
+                  | sub("[+-]00:00$"; "Z")
+                  | fromdateiso8601) < $cutoff
+              ))
           ' all.json > to_abort.json
 
           COUNT=$(jq 'length' to_abort.json)
