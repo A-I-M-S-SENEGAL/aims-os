@@ -1,0 +1,153 @@
+# =============================================================================
+# Publish ISO from existing build artifacts
+# =============================================================================
+# When build-iso.yml succeeds at building the ISO but fails later (R2 upload
+# or Release attach), the ISO is still preserved as a GitHub Actions artifact
+# for 14 days. Rather than re-running the full ~60-min build, this workflow
+# downloads those artifacts and runs only the publish steps.
+#
+# Inputs:
+#   - run_id: the build-iso run whose artifacts should be re-published
+#   - tag:    the release tag (and R2 path prefix) to publish under
+#
+# Output: same as the tail of build-iso.yml — R2 objects under <tag>/ and
+# latest/, plus a GitHub Release with the .sha256 files and download links.
+# =============================================================================
+
+name: Publish ISO (from artifacts)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "build-iso run ID whose artifacts to publish"
+        required: true
+        type: string
+      tag:
+        description: "Release tag (e.g. v2.0.0-rc1). Must already exist as a git tag."
+        required: true
+        type: string
+
+permissions:
+  contents: write   # for action-gh-release
+
+concurrency:
+  group: publish-from-artifacts-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish ${{ inputs.tag }} from run ${{ inputs.run_id }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AWS_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION:    auto
+      R2_ENDPOINT:           ${{ secrets.R2_ENDPOINT }}
+      R2_BUCKET:             ${{ secrets.R2_BUCKET }}
+      TAG:                   ${{ inputs.tag }}
+      GH_TOKEN:              ${{ github.token }}
+
+    steps:
+      - name: Checkout (release body refs the workflow only — no source needed)
+        uses: actions/checkout@v4
+
+      - name: Show config
+        run: |
+          echo "Source run: ${{ inputs.run_id }}"
+          echo "Tag:        ${TAG}"
+          echo "Bucket:     ${R2_BUCKET}"
+
+      - name: Download arm64 + amd64 artifacts
+        run: |
+          mkdir -p artifacts/arm64 artifacts/amd64
+          gh run download "${{ inputs.run_id }}" \
+            --repo "${{ github.repository }}" \
+            --name "aims-os-1.0-arm64" \
+            --dir  artifacts/arm64
+          gh run download "${{ inputs.run_id }}" \
+            --repo "${{ github.repository }}" \
+            --name "aims-os-1.0-amd64" \
+            --dir  artifacts/amd64
+          ls -lh artifacts/arm64 artifacts/amd64
+
+      - name: Verify checksums
+        run: |
+          # The .sha256 files are pinned to the ISO bytes at build time.
+          # Re-verify after the artifact round-trip to catch any corruption
+          # before we publish bad bits to R2.
+          for arch in arm64 amd64; do
+            ( cd "artifacts/${arch}" && shasum -a 256 -c "aims-os-1.0-${arch}.iso.sha256" )
+          done
+
+      - name: Upload to R2 (versioned + latest)
+        run: |
+          for ARCH in arm64 amd64; do
+            ISO="artifacts/${ARCH}/aims-os-1.0-${ARCH}.iso"
+            SHA="${ISO}.sha256"
+            echo "::group::Uploading ${ARCH}"
+            ls -lh "${ISO}" "${SHA}"
+
+            # Versioned copy.
+            aws s3 cp "${ISO}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
+                --endpoint-url "${R2_ENDPOINT}" \
+                --content-type application/x-iso9660-image \
+                --no-progress
+            aws s3 cp "${SHA}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso.sha256" \
+                --endpoint-url "${R2_ENDPOINT}" \
+                --content-type text/plain \
+                --no-progress
+
+            # latest/ alias. Server-side copy works for the ISO (MultipartCopy,
+            # no x-amz-tagging-directive sent), but R2 returns 501 on the
+            # small-object CopyObject path for the .sha256 — see build-iso.yml
+            # for the full explanation. Re-upload the local .sha256 instead.
+            aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
+                      "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso" \
+                --endpoint-url "${R2_ENDPOINT}" \
+                --copy-props none \
+                --no-progress
+            aws s3 cp "${SHA}" "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso.sha256" \
+                --endpoint-url "${R2_ENDPOINT}" \
+                --content-type text/plain \
+                --no-progress
+            echo "::endgroup::"
+          done
+
+      - name: Stage .sha256 files for the Release
+        run: |
+          mkdir -p release-assets
+          cp artifacts/arm64/aims-os-1.0-arm64.iso.sha256 release-assets/
+          cp artifacts/amd64/aims-os-1.0-amd64.iso.sha256 release-assets/
+          ls -lh release-assets/
+
+      - name: Create / update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          files: release-assets/*.sha256
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          body: |
+            ## Download
+
+            ISOs are hosted on Cloudflare R2 (GitHub Releases cap assets at 2 GiB; our images are ~8.5 GB).
+
+            **${{ inputs.tag }} — pinned to this release**
+
+            - arm64: <${{ secrets.R2_PUBLIC_BASE }}/${{ inputs.tag }}/aims-os-1.0-arm64.iso>
+            - amd64: <${{ secrets.R2_PUBLIC_BASE }}/${{ inputs.tag }}/aims-os-1.0-amd64.iso>
+
+            **Always-latest aliases (overwritten by each new release)**
+
+            - arm64: <${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-1.0-arm64.iso>
+            - amd64: <${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-1.0-amd64.iso>
+
+            ## Verify
+
+            ```bash
+            shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
+            ```
+
+            The `.sha256` files attached to this release pin the bytes for ${{ inputs.tag }}; the bytes on R2 must match.
