@@ -109,6 +109,17 @@ export default defineConfig({
             },
           ],
         },
+        {
+          label: 'Maintenance',
+          translations: { en: 'Maintenance' },
+          items: [
+            {
+              label: 'Politique de maintenance',
+              translations: { en: 'Maintenance policy' },
+              slug: 'maintenance/policy',
+            },
+          ],
+        },
         // Dépannage and Contribuer groups are deliberately omitted for v1.
         // Starlight 0.39 renders empty autogenerate groups as empty
         // expandable items in the sidebar (intentional transparency,
