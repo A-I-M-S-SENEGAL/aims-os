@@ -13,6 +13,7 @@ Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
 Package: aims-os-desktop
 Architecture: all
 Multi-Arch: foreign
+Breaks: aims-os-desktop (<< 2.1)
 Depends:
  ${misc:Depends},
  aims-os-core,
@@ -27,43 +28,43 @@ Depends:
  calamares,
  calamares-settings-debian,
 # Calamares 3.3 (Trixie) is a Qt6 build — Qt5 QML modules don't apply.
-# qml6-module-qtquick-controls covers both classic Quick Controls and
-# what Qt5 called "Controls 2" (the "2" suffix was dropped in Qt6).
  qml6-module-qtquick-controls,
 # --- Boot splash (themed by aims-os-branding) ------------------------
  plymouth,
  plymouth-themes,
  plymouth-label,
-# --- Browsers (Firefox ESR + Chromium, French + English locales) -----
+# --- One browser (French) --------------------------------------------
+# Chromium + Chromium-l10n moved to aims-os-desktop-extras. Firefox ESR
+# is sufficient for the live install + first-boot wizard.
  firefox-esr,
  firefox-esr-l10n-fr,
- chromium,
- chromium-l10n,
-# --- Office: LibreOffice + dictionaries ------------------------------
+# --- Office: LibreOffice + French dictionary -------------------------
+# libreoffice-help-fr, libreoffice-l10n-en-gb, English hunspell/hyphen/
+# mythes moved to aims-os-desktop-extras.
  libreoffice,
  libreoffice-l10n-fr,
- libreoffice-help-fr,
- libreoffice-l10n-en-gb,
  hunspell-fr,
- hunspell-en-us,
  hyphen-fr,
- hyphen-en-us,
  mythes-fr,
- mythes-en-us,
 # --- Fonts ------------------------------------------------------------
  fonts-liberation,
  fonts-noto,
  fonts-noto-cjk,
  fonts-noto-color-emoji,
  fonts-firacode,
-# --- Documents, images, media ----------------------------------------
+# --- Documents, image viewing, media playback ------------------------
+# GIMP + Inkscape + Shotwell + Evolution + ghostwriter + flameshot
+# moved to aims-os-desktop-extras (creative / niche tools).
  evince,
- gimp,
- inkscape,
- shotwell,
- vlc,
  gnome-text-editor,
- evolution,
+ gnome-screenshot,
+ vlc,
+# --- Free codecs only (non-free moved to extras) ---------------------
+# Trixie's free codec stack covers MP3, MP4/H.264, AAC, WebM/VP9 and
+# everything else that ships free. Non-free (DTS, some legacy MPEG) is
+# in aims-os-desktop-extras for users who explicitly opt in.
+ gstreamer1.0-plugins-base,
+ gstreamer1.0-plugins-good,
 # --- Flatpak (Flathub remote added by chroot hook 0050) --------------
  flatpak,
  gnome-software-plugin-flatpak,
@@ -72,142 +73,61 @@ Depends:
  network-manager-gnome,
  network-manager-openvpn,
  network-manager-openvpn-gnome,
-# --- Nice-to-have user-facing tools (was 40-extras list) -------------
- ghostwriter,
+# --- Baseline utilities ----------------------------------------------
  keepassxc,
- fish,
  zsh,
-## neofetch was archived upstream in 2024 and dropped from Trixie. fastfetch
-## is the actively-maintained, drop-in-shape replacement (same fast-glance
-## "screenful of system info" output, just rewritten in C for performance).
  fastfetch,
  ripgrep,
  fzf,
  fd-find,
  bat,
  p7zip-full,
-# --- Document tooling (from AIMS Desktop heritage) -------------------
-# pandoc — universal document converter (MD↔PDF↔DOCX↔HTML↔TeX). The
-#     single most-cited "Why don't you ship X" gap in AIMS Desktop
-#     2020's package list; used by every modern academic workflow.
-# pdftk-java — split / merge / rotate PDFs, fill forms. The legacy
-#     `pdftk` is a transitional package in Trixie that depends on
-#     pdftk-java, so we depend on the real one directly.
-# tilix — tabbed, tiling-capable terminal emulator. AIMS Desktop
-#     2020 listed it as the recommended terminal.
-# yt-dlp — youtube-dl's actively-maintained fork (youtube-dl itself
-#     was archived). Used for offline lecture downloads in low-
-#     bandwidth conditions.
+# --- Document tooling -----------------------------------------------
  pandoc,
  pdftk-java,
- tilix,
  yt-dlp,
- gnome-screenshot,
- flameshot,
-# --- Web & Android Development (course requirement) -----------------
-# Covers the 2025-2026 "Web and Android Development" course.
-# NOTE: nodejs is NOT pulled here. Trixie ships Node.js 20.19 which is
-# EOL in April 2026 — already dead by ship time. The chroot hook
-# 0095-nodesource swaps it out for Node 22 LTS from NodeSource (Active
-# until April 2027). We list nodejs in the Description for visibility.
-# default-jdk — Java 21 (Trixie's default JDK); required to run
-#     Android Studio and Gradle. Also covers the JVM half of the
-#     Web course (Spring Boot, Tomcat).
-# gradle — Android's official build tool. The Android Studio bundle
-#     uses its own gradle-wrapper but having a system gradle lets
-#     command-line builds work offline.
-# kotlin — Android's official language since 2019; pulled separately
-#     because Android Studio's embedded Kotlin is bundle-only.
-# php-cli + composer — for the legacy LAMP half of the course
-#     (Laravel, Symfony, vanilla PHP).
-# android-tools-adb / -fastboot — flash and debug Android devices
-#     over USB for the Android Development course's hardware labs.
-# Note: Android Studio itself is install-on-demand via Flatpak
-# (com.google.AndroidStudio on Flathub) — apt-shipping it would
-# pin it to whatever version Debian Trixie froze at release.
-# Cursor (AI editor) and VSCodium (libre VS Code) are installed via
-# chroot hooks 0096/0097 from upstream apt repos / .deb downloads.
-# Bun, Deno and uv come via hook 0099 (binary releases).
- default-jdk,
- gradle,
- kotlin,
- php-cli,
- composer,
- android-tools-adb,
- android-tools-fastboot,
-# --- Containers & orchestration (Web/Android, MLOps, Big Data) -------
-# docker.io — Docker Engine from Debian (Moby). 26.1.5 in Trixie;
-#     stable across the LTS window. Pulls containerd as a dep.
-# docker-compose — note: this Trixie package is COMPOSE V2 (the Go
-#     binary, version 2.26.1), not the deprecated Python v1. Debian
-#     kept the legacy name `docker-compose`. Invoked as
-#     `docker compose ...` (no dash).
-# docker-buildx — multi-arch / multi-stage container builds.
-# podman — daemonless, rootless container runtime; alternative to
-#     docker.io that students may prefer in lab environments.
-# kubectl — Kubernetes CLI (v1.32 in Trixie). Pairs with cloud /
-#     MLOps modules.
-# ansible — automation / Web Dev deployment workflows.
- docker.io,
- docker-compose,
- docker-buildx,
- podman,
- kubectl,
- ansible,
-# --- Modern dev CLI --------------------------------------------------
-# neovim — modern vim alternative (preferred by many TUI workflows).
-# httpie — human-friendly curl replacement for API testing.
-# rustup — Rust toolchain manager (manages stable/nightly toolchains).
-#     Trixie also ships rustc 1.85 directly — we keep rustup for
-#     users who need a newer toolchain on demand.
+# --- Modern dev CLI (lightweight, always useful) --------------------
  neovim,
  httpie,
- rustup,
-# --- Local DB labs (Database course) ---------------------------------
-# redis-server complements redis-tools (client) — labs need a local
-#     instance to push/pull from. Postgres / MariaDB clients are in
-#     aims-os-math; their daemons stay out (labs use remote hosts).
+# --- Local DB lab (Database course) ---------------------------------
+# redis-server is ~10 MB; the daemon stays opt-in via systemd. Postgres
+# / MariaDB clients live in aims-os-math.
  redis-server,
-# --- Multimedia codecs (free + non-free) -----------------------------
- gstreamer1.0-plugins-base,
- gstreamer1.0-plugins-good,
- gstreamer1.0-plugins-bad,
- gstreamer1.0-plugins-ugly,
- gstreamer1.0-libav,
-# --- Non-free codecs (Recommends, not Depends) -----------------------
-# p7zip-rar lives in the Debian non-free component, so a standalone
-# apt install on a vanilla Debian without non-free enabled would fail.
-# On the AIMS OS ISO, live-build enables non-free in its source list
-# so apt pulls this in automatically via Recommends like a Depends.
-# Users on an apt-repo-only setup get the install regardless and can
-# add p7zip-rar later if they need to open .rar archives.
-Recommends:
- p7zip-rar,
-Description: AIMS OS — GNOME desktop, installer and user applications
- This metapackage installs the AIMS OS user-facing layer: the GNOME
- desktop (task-gnome-desktop scope — desktop shell, GDM, Files, Web,
- Terminal — without the gnome metapackage's games and bloat), the
- Calamares graphical installer plus its Debian settings, the Plymouth
- boot splash framework (themed by aims-os-branding), Firefox ESR and
- Chromium with French and English locales, the complete LibreOffice
- suite with French and English dictionaries and thesauri, the standard
- GNOME tools (Evince, GIMP, Inkscape, Shotwell, VLC, GNOME Text
- Editor, Evolution), Flatpak with the GNOME Software plugin (Flathub
- remote registered by an AIMS-specific first-boot service), the
- NetworkManager stack with OpenVPN support, a small set of useful
- utilities (KeepassXC, ghostwriter, fish, zsh, ripgrep, fzf, bat,
- p7zip, screenshots), the web and Android development stack
- (OpenJDK 21, Gradle, Kotlin, PHP, Composer, adb/fastboot — plus
- Node.js 22 LTS, Bun, Deno, Cursor and VSCodium installed via
- chroot hooks since they're not in Trixie main or are EOL there),
- a container / orchestration stack (Docker Engine + Compose v2 +
- Buildx, Podman, kubectl, Ansible) for the 2025-2026 Web/Android
- Development and MLOps workflows, a local Redis server for the
- Database course's labs, modern dev CLI tools (neovim, httpie,
- rustup), DBeaver CE (universal SQL GUI installed via upstream apt
- repo), and the GStreamer codecs for media playback.
+Description: AIMS OS — GNOME desktop, installer and core user applications (slim)
+ The slim AIMS OS user-facing layer. Installs the GNOME desktop
+ (task-gnome-desktop — shell, GDM, Files, Web, Terminal — without the
+ gnome metapackage's games and bloat), the Calamares graphical
+ installer plus its Debian settings, the Plymouth boot splash
+ framework (themed by aims-os-branding), Firefox ESR with the French
+ locale, LibreOffice with the French dictionary and thesaurus, the
+ standard fonts pack, basic document / image / media viewers, the
+ free GStreamer codec stack, Flatpak with the GNOME Software plugin
+ (Flathub remote registered by an AIMS-specific first-boot service),
+ the NetworkManager stack with OpenVPN support, and a baseline set of
+ utilities (KeepassXC, zsh, fastfetch, ripgrep, fzf, bat, p7zip,
+ screenshots, neovim, httpie, pandoc, pdftk-java, yt-dlp, redis-server).
+ .
+ Heavier / optional pieces live in companion metapackages so the live
+ ISO stays small and students can pick what they need on first boot:
+ .
+   * aims-os-desktop-extras  Chromium, GIMP, Inkscape, Shotwell,
+                             Evolution, ghostwriter, fish, tilix,
+                             flameshot, English LibreOffice helpers
+                             and dictionaries, non-free codecs.
+   * aims-os-desktop-dev     OpenJDK 21, Gradle, Kotlin, PHP, Composer,
+                             adb/fastboot, Docker, Podman, kubectl,
+                             Ansible, rustup. The full Web/Android
+                             Development + MLOps + Containers stack
+                             from v2.0; ~2 GB on disk.
+   * aims-os-everything      Pulls every AIMS OS metapackage at once,
+                             for users who want the v2.0 "complete"
+                             experience in one apt install.
+ .
+ Node.js 22 LTS, Bun, Deno, uv, Cursor and VSCodium continue to be
+ installed via chroot hooks (Node from NodeSource, the rest from
+ upstream binary releases) since the Trixie packages are EOL or
+ absent.
  .
  The fr_FR.UTF-8 locale and Africa/Dakar timezone are configured at
- the system level by aims-os-core; this metapackage adds the matching
- French desktop locales for LibreOffice, Firefox, hunspell, hyphen
- and mythes.
+ the system level by aims-os-core; aims-os-centre-senegal layers the
+ Senegal-specific bookmarks, content and intranet wiring on top.

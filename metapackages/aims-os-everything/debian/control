@@ -1,0 +1,45 @@
+Source: aims-os-everything
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-everything
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+# Pulls every AIMS OS layer in one shot. Identical install footprint to
+# the v2.0 "everything in the ISO" experience, just driven by apt.
+# Order from base to leaves.
+ aims-os-core,
+ aims-os-branding,
+ aims-os-desktop,
+ aims-os-desktop-extras,
+ aims-os-desktop-dev,
+ aims-os-math,
+ aims-os-math-extras,
+ aims-os-bigdata,
+ aims-os-security,
+ aims-os-centre-senegal,
+ aims-os-welcome,
+Description: AIMS OS — pull every layer (v2.0 "complete install" alias)
+ Convenience metapackage for users who want the v2.0 "everything in
+ the ISO" experience on top of the slim v2.1 install. Pulls every
+ AIMS OS metapackage: core, branding, desktop, desktop extras, desktop
+ dev stack, math, math extras, Big Data, Security, centre profile,
+ and the first-boot wizard.
+ .
+ Install with:
+ .
+   sudo apt install aims-os-everything
+ .
+ About 9 GB on disk after install. Most students don't need this —
+ the slim v2.1 ISO plus a single filière pick (aims-os-bigdata or
+ aims-os-security via the first-boot wizard) covers the curriculum.

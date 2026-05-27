@@ -1,3 +1,24 @@
+aims-os-desktop (2.1) trixie; urgency=medium
+
+  * Slim split for v2.1. The metapackage now keeps only the essentials
+    that must be on the live ISO: GNOME + Calamares + Plymouth + one
+    browser (Firefox ESR fr) + LibreOffice fr + free codecs + the
+    NetworkManager / Flatpak / KeepassXC / shell-tool baseline. Moves
+    out:
+    + aims-os-desktop-extras  — Chromium, GIMP, Inkscape, Shotwell,
+      Evolution, ghostwriter, fish, tilix, flameshot, English
+      LibreOffice helpers / dictionaries, non-free codecs.
+    + aims-os-desktop-dev     — default-jdk, Gradle, Kotlin, PHP,
+      Composer, adb/fastboot, Docker, Podman, kubectl, Ansible, rustup.
+  * Adds Breaks: aims-os-desktop (<< 2.1) so the v2.0 -> v2.1 upgrade
+    is handled cleanly. Existing v2.0 installs that want the full
+    set back: `apt install aims-os-everything` (or pick the extras /
+    dev metapackage individually).
+  * Drops the explicit Recommends on p7zip-rar — it moves into
+    aims-os-desktop-extras alongside the other non-free codecs.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 27 May 2026 03:00:00 +0000
+
 aims-os-desktop (2.0+3) trixie; urgency=medium
 
   * Move p7zip-rar from Depends to Recommends. The proprietary RAR

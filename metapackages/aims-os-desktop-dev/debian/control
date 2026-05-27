@@ -1,0 +1,72 @@
+Source: aims-os-desktop-dev
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-desktop-dev
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-desktop,
+# --- Web & Android Development ---------------------------------------
+# default-jdk    Java 21 (Trixie default). Required by Android Studio,
+#                Gradle, Spring Boot, Tomcat.
+# gradle         Android's official build tool. The Android Studio
+#                bundle uses its own gradle-wrapper but a system gradle
+#                lets command-line builds work offline.
+# kotlin         Android's first-class language since 2019.
+# php-cli +      LAMP-side of the Web course (Laravel, Symfony,
+# composer       vanilla PHP).
+# android-tools- flash and debug Android devices over USB for the
+#   adb/fastboot Android Development course hardware labs.
+ default-jdk,
+ gradle,
+ kotlin,
+ php-cli,
+ composer,
+ android-tools-adb,
+ android-tools-fastboot,
+# --- Containers & orchestration --------------------------------------
+# docker.io      Docker Engine (Moby) — 26.1.5 in Trixie. Pulls
+#                containerd as a dep.
+# docker-compose Compose V2 (Go binary 2.26.1 in Trixie, kept under the
+#                legacy package name). Invoked as `docker compose ...`.
+# docker-buildx  Multi-arch / multi-stage container builds.
+# podman         Daemonless, rootless container runtime alternative.
+# kubectl        Kubernetes CLI (v1.32 in Trixie). MLOps / cloud labs.
+# ansible        Automation / deployment workflows.
+ docker.io,
+ docker-compose,
+ docker-buildx,
+ podman,
+ kubectl,
+ ansible,
+# --- Rust toolchain manager ------------------------------------------
+# Trixie ships rustc 1.85 directly; rustup is for users who want
+# stable/nightly toolchain switching on demand.
+ rustup,
+Description: AIMS OS — heavy development stack (Java, Android, containers, Rust)
+ The full development layer carved out of the v2.0 aims-os-desktop.
+ Installs the Java / Android / Web / containers / Rust toolchains.
+ About 2 GB on disk after install — kept out of the live ISO so it
+ only lands on machines that actually need it.
+ .
+ Covers:
+   * Web & Android Development course — OpenJDK 21, Gradle, Kotlin,
+     PHP / Composer, adb / fastboot.
+   * Containers & orchestration (Web/Android + MLOps + Big Data labs)
+     — Docker Engine + Compose v2 + Buildx, Podman, kubectl, Ansible.
+   * Rust toolchain manager (rustup) for users who want stable/nightly
+     switching on top of Trixie's rustc 1.85.
+ .
+ Android Studio itself stays install-on-demand via Flatpak
+ (com.google.AndroidStudio on Flathub) — apt-shipping it would pin
+ it to whatever version Debian Trixie froze at release.

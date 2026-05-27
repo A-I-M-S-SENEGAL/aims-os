@@ -1,0 +1,9 @@
+aims-os-desktop-dev (2.1) trixie; urgency=medium
+
+  * Initial release. Carved out of aims-os-desktop. Holds the Java /
+    Android / Web / Rust / Containers stack (default-jdk, Gradle, Kotlin,
+    PHP, Composer, adb/fastboot, Docker, Podman, kubectl, Ansible,
+    rustup) — about 2 GB on disk. Kept out of the live ISO; available
+    on demand via the first-boot wizard or apt.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 27 May 2026 03:00:00 +0000

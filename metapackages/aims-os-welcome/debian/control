@@ -1,0 +1,50 @@
+Source: aims-os-welcome
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-welcome
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+# --- GTK4 + libadwaita runtime ----------------------------------------
+# The wizard is written in Python with PyGObject bindings against
+# libadwaita (so it follows the GNOME visual language). The Trixie
+# stack:
+#   python3-gi               PyGObject 3.50
+#   gir1.2-gtk-4.0           GTK 4 typelib
+#   gir1.2-adw-1             libadwaita 1.5 typelib
+#   libadwaita-1-0           libadwaita runtime
+ python3-gi,
+ gir1.2-gtk-4.0,
+ gir1.2-adw-1,
+ libadwaita-1-0,
+# --- PolicyKit for the elevated `apt install` calls ------------------
+# The wizard runs as the user, then drives apt via pkexec with a custom
+# policy (shipped in files/). polkitd ships the daemon.
+ policykit-1,
+# --- apt itself (for the install call) -------------------------------
+ apt,
+Description: AIMS OS — first-boot wizard (track + extras selection)
+ Installs the first-boot wizard that lets a fresh AIMS OS user pick
+ their track (Regular Maths, Coop Big Data, Coop Computer Security)
+ and any optional desktop extras (Chromium, GIMP, Inkscape, …) or
+ the heavy dev stack (Java, Android, Docker, …).
+ .
+ The wizard auto-starts at the first GNOME session via an XDG
+ autostart entry, checks connectivity, then runs `apt install` via
+ pkexec with a bundled policy. After the first successful run it
+ marks itself done in ~/.config/aims-welcome.done and stays silent
+ unless the user re-launches it from the app grid.
+ .
+ This is the wiring layer; the actual Python source for the wizard
+ lives under files/usr/share/aims-os-welcome/ and ships with this
+ package (added in step 4 of the v2.1 plan).

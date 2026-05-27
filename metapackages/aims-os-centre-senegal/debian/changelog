@@ -1,0 +1,9 @@
+aims-os-centre-senegal (2.1) trixie; urgency=medium
+
+  * Initial release. Empty placeholder for AIMS Senegal (Mbour) centre
+    customisation. Marks the slot for centre-specific bookmarks,
+    wallpapers, intranet wiring and course content so the universal
+    base layers stay free of Senegal-specific hard-coding — keeps the
+    multi-centre door open without committing to it yet.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 27 May 2026 03:00:00 +0000

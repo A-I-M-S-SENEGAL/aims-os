@@ -13,6 +13,7 @@ Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
 Package: aims-os-math
 Architecture: all
 Multi-Arch: foreign
+Breaks: aims-os-math (<< 2.1)
 Depends:
  ${misc:Depends},
  aims-os-core,
@@ -24,6 +25,8 @@ Depends:
  pipx,
  ipython3,
 # --- Python scientific stack (SciPy ecosystem) -----------------------
+# The Regular Maths tronc commun baseline. Everything pulled here is
+# universally useful — any AIMS student touches at least one of these.
  python3-numpy,
  python3-scipy,
  python3-pandas,
@@ -38,41 +41,10 @@ Depends:
  python3-lxml,
  python3-h5py,
  python3-pillow,
-# --- Additions from AIMS Desktop heritage ----------------------------
-# python3-mpi4py — MPI for Python, parallel computing. AIMS curriculum
-#     uses MPI for the HPC modules (Cooperative Numerical Methods,
-#     parallel linear algebra).
-# python3-biopython — bioinformatics (sequence analysis, BLAST APIs);
-#     used in AIMS Biological Modelling.
-# python3-skimage — scikit-image, general image processing for the
-#     numerical-methods side (Coop BD's CV stack is in aims-os-bigdata).
-# python3-igraph — graph theory algorithms (different API from networkx,
-#     faster for large graphs); shipped by AIMS Desktop 2020.
-# python3-rpy2 — call R from Python (and vice-versa). Lets students
-#     prototype models in Python and validate with R libraries.
-# python3-tables — PyTables, HDF5 dataset wrapper with query syntax.
-#     Alternative to plain h5py for tabular scientific data.
-# python3-pygments — syntax highlighting library (used by Jupyter,
-#     mkdocs, sphinx, …).
-# python3-reportlab — programmatic PDF generation; common in statistics
-#     reports and grading rubrics.
-# NOTE: python3-pyfftw is intentionally NOT shipped — the Debian package
-# was dropped from Trixie. Install on demand via `pip install pyfftw`
-# (it picks up the libfftw3-dev headers we ship in aims-os-core).
- python3-mpi4py,
- python3-biopython,
- python3-skimage,
- python3-igraph,
- python3-rpy2,
- python3-tables,
- python3-pygments,
- python3-reportlab,
 # --- Jupyter (classic Notebook from Debian; JupyterLab via pipx/mamba) ---
-# Note: Debian (Bookworm AND Trixie) does not ship python3-jupyterlab —
-# the JupyterLab UI is not packaged upstream. Users install it on demand:
+# Debian does not ship python3-jupyterlab. Users install JupyterLab on
+# demand:
 #     pipx install jupyterlab
-#   or
-#     mamba install -c conda-forge jupyterlab
 # What we ship is the classic Jupyter Notebook + the ecosystem libs.
  jupyter,
  jupyter-notebook,
@@ -81,119 +53,77 @@ Depends:
  python3-jupyterlab-server,
  python3-ipywidgets,
  python3-nbconvert,
-# --- Computer algebra & numerical computing --------------------------
-# NOTE: SageMath is NOT shipped via apt on Trixie. The upstream Debian
-# package was removed from testing/trixie due to RC bugs and a Python
-# 3.12+ incompatibility (sagemath 9.5-6 depends on python3 < 3.12,
-# while Trixie ships python3 3.13). The recommended path on AIMS OS
-# v2.0 is `mamba install -c conda-forge sagemath` — we already ship
-# Miniforge in aims-os-core for exactly this kind of edge case.
-# Track the Debian RC bugs at https://tracker.debian.org/pkg/sagemath.
- maxima,
- maxima-doc,
- wxmaxima,
- octave,
- octave-doc,
- octave-symbolic,
- octave-statistics,
- octave-optim,
- octave-control,
- octave-signal,
-# --- R + data science Tidyverse + rmarkdown --------------------------
+# --- R base (tidyverse + heavy CRAN moved to aims-os-math-extras) ---
  r-base,
  r-base-dev,
- r-recommended,
- r-cran-tidyverse,
- r-cran-ggplot2,
- r-cran-dplyr,
- r-cran-knitr,
- r-cran-rmarkdown,
-# --- LaTeX (the AIMS thesis pipeline, French + English + African) ----
-# texlive-lang-other — TeX Live "other languages" meta. In Trixie this
-#     absorbs the formerly-separate language packs and is the closest
-#     match for AIMS's African-language need (Wolof, Swahili, Amharic,
-#     Hausa, Twi hyphenation). The standalone `texlive-lang-african`
-#     package no longer exists in any Debian suite (verified 2026-05-22).
-# texlive-lang-arabic — Arabic typesetting (regional, used by some
-#     North African students).
-# texlive-publishers — extra article / thesis / book classes (acmart,
-#     IEEEtran, llncs, …) — academic publishing standard.
-# texlive-pictures — TikZ / PGF graphics (already pulled transitively
-#     by texlive-latex-extra, but listing explicitly survives any
-#     upstream split).
-# dvipng — render LaTeX equations to PNG (used by Jupyter for inline
-#     math, Sphinx, mkdocs, …).
- texlive,
- texlive-latex-extra,
- texlive-fonts-extra,
- texlive-lang-french,
- texlive-lang-english,
- texlive-lang-other,
- texlive-lang-arabic,
- texlive-publishers,
- texlive-pictures,
- texlive-science,
- texlive-xetex,
- texlive-luatex,
- texlive-bibtex-extra,
- texstudio,
- biber,
- latexmk,
- dvipng,
-# --- Geometry, plotting, visualisation -------------------------------
- geogebra,
+# --- Plotting --------------------------------------------------------
+# gnuplot-doc moved to aims-os-math-extras (no PDF docs in slim).
  gnuplot-qt,
- gnuplot-doc,
-# --- C / C++ / Fortran debugging & numerical libraries ---------------
+# --- C / C++ / Fortran debugging & numerical libraries --------------
+# libhdf5-dev, libgmp-dev, libmpfr-dev moved to aims-os-math-extras —
+# they're niche enough that build-from-source workflows can pull them
+# on demand.
  gdb,
  valgrind,
  libopenblas-dev,
  liblapack-dev,
  libfftw3-dev,
- libhdf5-dev,
- libgmp-dev,
- libmpfr-dev,
-# --- Python QA (Computing with Python course) ------------------------
-# black — opinionated formatter; pairs with ruff (installed via hook
-#     0100 since not in Trixie main).
-# mypy — gradual static type checker; required by the Computing with
-#     Python course's typed exercise grading rubric.
+# --- Python QA -------------------------------------------------------
  black,
  python3-mypy,
 # --- Data tools ------------------------------------------------------
  sqlite3,
-Description: AIMS OS — Regular track (scientific & mathematical stack)
- Mathematical / scientific computing layer for the AIMS Regular track
- (Mathematical Sciences). This metapackage gives every AIMS student
- the SciPy ecosystem (numpy, scipy, pandas, matplotlib, seaborn,
- sympy, scikit-learn, statsmodels, networkx, scikit-image, igraph,
- mpi4py for HPC, biopython, pytables, pygments, reportlab); the
- classic Jupyter Notebook + ipywidgets + the JupyterLab back-end libs
+# --- LaTeX baseline (French only) ------------------------------------
+# Full multilingual TeX Live (English / other / Arabic / publishers /
+# science / xetex / luatex / bibtex-extra / texstudio / geogebra)
+# moved to aims-os-math-extras. The base + latex-extra + fonts-extra +
+# French + pictures combo covers the typical AIMS Senegal thesis
+# pipeline; ~600 MB instead of ~2 GB.
+ texlive,
+ texlive-latex-extra,
+ texlive-fonts-extra,
+ texlive-lang-french,
+ texlive-pictures,
+ biber,
+ latexmk,
+ dvipng,
+Description: AIMS OS — Regular track baseline (slim scientific stack)
+ The slim mathematical / scientific computing baseline. Every AIMS
+ student gets the SciPy ecosystem (numpy, scipy, pandas, matplotlib,
+ seaborn, sympy, scikit-learn, statsmodels, networkx); the classic
+ Jupyter Notebook + ipywidgets + the JupyterLab back-end libraries
  (the JupyterLab UI itself is install-on-demand via `pipx install
- jupyterlab` since Debian does not yet package it; SageMath also
- install-on-demand on Trixie — see in-package notes);
- Maxima and wxMaxima for symbolic computation;
- GNU Octave with the scientific add-on modules (symbolic, statistics,
- optim, control, signal); R with the tidyverse, ggplot2, knitr and
- rmarkdown packages; the full TeX Live distribution with French,
- English, other-languages (including African hyphenation) and Arabic
- language packs, texlive-science, XeTeX and LuaTeX support, TeXstudio
- and biber for thesis writing; GeoGebra and gnuplot for geometry
- and plotting; gdb and valgrind for debugging C / C++ / Fortran
- code; and the OpenBLAS, LAPACK, FFTW, HDF5, GMP and MPFR development
- headers for compiling numerical software. black + mypy for Python
- code quality.
+ jupyterlab` since Debian does not yet package it); R base for the
+ statistics modules; gnuplot for plotting; gdb / valgrind for
+ debugging; the OpenBLAS / LAPACK / FFTW development headers for
+ compiling numerical software; black + mypy for Python code quality;
+ and a French-only TeX Live stack (texlive base + latex-extra +
+ fonts-extra + lang-french + pictures + biber + latexmk + dvipng)
+ sufficient for the typical AIMS Senegal thesis pipeline.
+ .
+ Heavier / niche scientific tools live in aims-os-math-extras —
+ install it to get the full v2.0 stack:
+ .
+   * Symbolic computing — Maxima + wxMaxima
+   * Numerical computing — Octave + scientific modules (symbolic,
+     statistics, optim, control, signal)
+   * R extras — r-recommended + tidyverse, ggplot2, dplyr, knitr,
+     rmarkdown
+   * LaTeX extras — English / other-languages (African hyphenation) /
+     Arabic / publishers / science / XeTeX / LuaTeX / bibtex-extra,
+     TeXstudio
+   * Geometry — GeoGebra
+   * HPC, bio, image processing — python3-mpi4py, biopython, skimage,
+     igraph, rpy2, tables, pygments, reportlab
+   * Numerical headers — libhdf5-dev, libgmp-dev, libmpfr-dev
  .
  Coop-track students additionally install aims-os-bigdata (Big Data,
  NLP, Computer Vision, Climate, DB clients) or aims-os-security
- (cryptography, ethical hacking, forensics) on top of this metapackage.
- Both depend on aims-os-math, so installing either is enough to get
- the full stack.
+ (cryptography, ethical hacking, forensics) on top.
  .
  PyTorch, TensorFlow, JAX, Keras and other rapidly-evolving ML
- frameworks (and Qiskit for the Quantum Computing course, plus
- PyArrow, Polars, DuckDB, spaCy, gensim and HuggingFace Transformers
- since Trixie does not yet package them) are deliberately NOT
- included — installation via `mamba install`
- (Miniforge3 ships in aims-os-core's chroot) or `pipx install` is
- the recommended path so students get current versions.
+ frameworks (and Qiskit, PyArrow, Polars, DuckDB, spaCy, gensim,
+ HuggingFace Transformers — not yet in Trixie) are deliberately NOT
+ included — installation via `mamba install` (Miniforge3 ships in
+ aims-os-core's chroot) or `pipx install` is the recommended path
+ so students get current versions.

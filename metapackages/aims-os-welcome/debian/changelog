@@ -1,0 +1,8 @@
+aims-os-welcome (2.1) trixie; urgency=medium
+
+  * Initial release. Empty metapackage for now — declares the runtime
+    dependencies (PyGObject + GTK 4 + libadwaita + polkit) for the
+    first-boot wizard. The Python source and policy file land in step 4
+    of the v2.1-slim plan.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 27 May 2026 03:00:00 +0000

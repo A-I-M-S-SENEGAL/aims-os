@@ -1,0 +1,51 @@
+Source: aims-os-centre-senegal
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-centre-senegal
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-core,
+# Locale and timezone packages are pulled by aims-os-core. This package
+# is intentionally empty at v2.1 — it exists as the slot for centre-
+# specific content that we'll layer on as we go:
+#   * Firefox bookmarks pointing at the AIMS Mbour intranet, library,
+#     mail and learning platforms (deployed via /etc/skel and
+#     /usr/lib/firefox-esr/distribution).
+#   * Senegal-themed wallpaper variants (campus shots, Mbour beach,
+#     local cultural patterns).
+#   * Calamares post-install hooks that drop the Senegal-specific
+#     CUPS printer PPDs, AIMS WiFi profile snippet, etc.
+#   * Course content snapshots for AIMS Senegal's 2026-2027 curriculum
+#     (mirrored under /usr/share/aims-os/courses/senegal/).
+#
+# Sibling centre packages (aims-os-centre-southafrica, -cameroon,
+# -ghana, -rwanda, -tanzania) can be added later without touching the
+# universal slim layer. See docs/maintenance/policy/ for the multi-
+# centre roadmap.
+Description: AIMS OS — AIMS Senegal (Mbour) centre profile
+ Centre profile for AIMS Senegal (Mbour campus). Layers the Senegal-
+ specific bookmarks, wallpapers, intranet wiring, printer profiles
+ and course content snapshots on top of the universal aims-os-core
+ baseline.
+ .
+ This package is the dedicated slot for centre customisation. The
+ universal layers (aims-os-core, aims-os-desktop, aims-os-math) stay
+ free of Senegal-specific hard-coding so a future
+ aims-os-centre-{southafrica,cameroon,ghana,rwanda,tanzania} can be
+ added without refactoring the base.
+ .
+ v2.1 ships this metapackage empty (Depends: aims-os-core only) — it
+ marks the architecture without committing to specific Senegal content
+ yet. Content will be added incrementally as the AIMS Mbour deployment
+ grows.
