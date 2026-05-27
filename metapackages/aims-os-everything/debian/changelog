@@ -4,4 +4,4 @@ aims-os-everything (2.1) trixie; urgency=medium
     layer so existing v2.0 users can keep the full install in one apt
     command after upgrading to v2.1's slim base.
 
- -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 27 May 2026 03:00:00 +0000
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 27 May 2026 03:00:00 +0000

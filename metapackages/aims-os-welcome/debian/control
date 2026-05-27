@@ -29,8 +29,11 @@ Depends:
  libadwaita-1-0,
 # --- PolicyKit for the elevated `apt install` calls ------------------
 # The wizard runs as the user, then drives apt via pkexec with a custom
-# policy (shipped in files/). polkitd ships the daemon.
- policykit-1,
+# policy (shipped in files/). On Trixie the legacy policykit-1 transition
+# package has been retired — depend on the actual daemon + pkexec
+# directly.
+ polkitd,
+ pkexec,
 # --- apt itself (for the install call) -------------------------------
  apt,
 Description: AIMS OS — first-boot wizard (track + extras selection)

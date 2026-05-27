@@ -13,7 +13,6 @@ Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
 Package: aims-os-desktop
 Architecture: all
 Multi-Arch: foreign
-Breaks: aims-os-desktop (<< 2.1)
 Depends:
  ${misc:Depends},
  aims-os-core,

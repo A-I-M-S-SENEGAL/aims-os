@@ -23,7 +23,7 @@ aims-os-math (2.1) trixie; urgency=medium
     is handled cleanly. To restore the full stack:
     `apt install aims-os-math-extras` (or `aims-os-everything`).
 
- -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 27 May 2026 03:00:00 +0000
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 27 May 2026 03:00:00 +0000
 
 aims-os-math (2.0+4) trixie; urgency=medium
 

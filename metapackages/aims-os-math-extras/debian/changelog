@@ -7,4 +7,4 @@ aims-os-math-extras (2.1) trixie; urgency=medium
     biopython, skimage, igraph, rpy2, tables, pygments, reportlab),
     and the HDF5 / GMP / MPFR development headers.
 
- -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 27 May 2026 03:00:00 +0000
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 27 May 2026 03:00:00 +0000

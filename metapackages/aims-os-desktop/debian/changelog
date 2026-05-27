@@ -17,7 +17,7 @@ aims-os-desktop (2.1) trixie; urgency=medium
   * Drops the explicit Recommends on p7zip-rar — it moves into
     aims-os-desktop-extras alongside the other non-free codecs.
 
- -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 27 May 2026 03:00:00 +0000
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 27 May 2026 03:00:00 +0000
 
 aims-os-desktop (2.0+3) trixie; urgency=medium
 
