@@ -1,0 +1,75 @@
+# =============================================================================
+# Test-build .deb metapackages (no publish)
+# =============================================================================
+# Sanity check for metapackage changes on any branch — runs the same
+# build-debs.sh that publish-apt-repo.yml uses, but stops there. No
+# signing, no GitHub Pages deploy, no apt repo write. Just:
+#
+#   1. Build every metapackages/aims-os-*/ → .deb
+#   2. Lint each .deb
+#   3. Print sizes + Depends so we can sanity-check what each one pulls
+#
+# Use this whenever you're touching debian/control or adding a new
+# metapackage and want CI to validate before pushing to publish.
+#
+# Trigger: workflow_dispatch only.
+# =============================================================================
+
+name: Test build .deb metapackages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-lint:
+    name: Build + lint metapackages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tooling
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+              build-essential debhelper dpkg-dev lintian
+
+      - name: Build metapackages
+        run: ./apt-repo/build-debs.sh
+
+      - name: List produced .deb files
+        run: |
+          echo "=== Produced .deb files ==="
+          ls -lh apt-repo/out/ | sort -k 9
+          echo ""
+          echo "Count: $(ls apt-repo/out/*.deb | wc -l)"
+
+      - name: Inspect each .deb (size + Depends)
+        run: |
+          for deb in apt-repo/out/*.deb; do
+            echo "::group::$(basename "${deb}")"
+            dpkg-deb --field "${deb}" Package Version Architecture Installed-Size Depends Recommends Breaks
+            echo ""
+            echo "Total size: $(du -h "${deb}" | cut -f1)"
+            echo "::endgroup::"
+          done
+
+      - name: Lint with lintian
+        run: |
+          cd apt-repo/out
+          findings=$(lintian *.deb 2>&1 | grep -vE '^$|running with root' || true)
+          if [ -n "${findings}" ]; then
+            echo "::warning::Lintian findings:"
+            echo "${findings}"
+          else
+            echo "Lintian: 0 findings ✓"
+          fi
+
+      - name: Summary
+        run: |
+          echo "::notice::Built $(ls apt-repo/out/*.deb | wc -l) metapackages. Total: $(du -ch apt-repo/out/*.deb | tail -1 | cut -f1)"
