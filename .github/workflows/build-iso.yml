@@ -152,6 +152,24 @@ jobs:
       # The "latest/" alias is what the docs link to so users always pull
       # the most recent release without us editing URLs.
       # ----------------------------------------------------------------------
+      # Pre-release detection: any tag containing a hyphen
+      # (e.g. v2.1.0-alpha1, v2.0.0-rc1) is a pre-release and must NOT
+      # update the latest/ alias — only stable tags (v2.0.0, v2.1.0) do.
+      # This protects the "what users download by default" path while
+      # we work on slim/v2.1 in parallel on a feature branch.
+      - name: Detect pre-release
+        id: prerel
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG="${{ github.ref_name }}"
+          if [[ "${TAG}" == *-* ]]; then
+            echo "is_prerelease=true"  >> "$GITHUB_OUTPUT"
+            echo "Tag ${TAG} → pre-release (latest/ will NOT be updated)"
+          else
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "Tag ${TAG} → stable (latest/ will be updated)"
+          fi
+
       - name: Upload ISO + sha256 to Cloudflare R2
         if: success() && startsWith(github.ref, 'refs/tags/v')
         env:
@@ -162,6 +180,7 @@ jobs:
           R2_BUCKET:             ${{ secrets.R2_BUCKET }}
           TAG:                   ${{ github.ref_name }}
           ARCH:                  ${{ matrix.arch }}
+          IS_PRERELEASE:         ${{ steps.prerel.outputs.is_prerelease }}
         run: |
           # aws CLI v2 is pre-installed on ubuntu-latest runners.
           aws --version
@@ -170,7 +189,7 @@ jobs:
           SHA="${ISO}.sha256"
           ls -lh "${ISO}" "${SHA}"
 
-          # Versioned copy (immutable, kept indefinitely).
+          # Versioned copy — always, even for pre-releases. Immutable.
           aws s3 cp "${ISO}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
               --endpoint-url "${R2_ENDPOINT}" \
               --content-type application/x-iso9660-image \
@@ -180,7 +199,14 @@ jobs:
               --content-type text/plain \
               --no-progress
 
-          # latest/ alias (overwritten each tag).
+          if [ "${IS_PRERELEASE}" = "true" ]; then
+            echo "::notice::Pre-release ${TAG} — skipping latest/ alias update"
+            echo "✓ Uploaded to R2:"
+            echo "    ${{ secrets.R2_PUBLIC_BASE }}/${TAG}/aims-os-1.0-${ARCH}.iso"
+            exit 0
+          fi
+
+          # latest/ alias — only for stable releases.
           #
           # R2 has two distinct holes in CopyObject compatibility:
           #   1. GetObjectTagging is not implemented; aws s3 cp's cross-bucket
@@ -212,6 +238,43 @@ jobs:
       # release body. The .sha256 is what users need anyway to verify the
       # download they grabbed from R2.
       # ----------------------------------------------------------------------
+      # Build the release body in a file so we can keep latest/ links out
+      # of pre-release notes (where the URLs would lie — latest/ still
+      # points at the previous stable build).
+      - name: Compose release body
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        env:
+          TAG:           ${{ github.ref_name }}
+          IS_PRERELEASE: ${{ steps.prerel.outputs.is_prerelease }}
+          R2_PUBLIC_BASE: ${{ secrets.R2_PUBLIC_BASE }}
+        run: |
+          {
+            echo "## Download"
+            echo ""
+            echo "ISOs are hosted on Cloudflare R2 (GitHub Releases cap assets at 2 GiB; our images are ~8.5 GB)."
+            echo ""
+            echo "**${TAG} — pinned to this release**"
+            echo ""
+            echo "- arm64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-1.0-arm64.iso>"
+            echo "- amd64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-1.0-amd64.iso>"
+            if [ "${IS_PRERELEASE}" != "true" ]; then
+              echo ""
+              echo "**Always-latest aliases (overwritten by each new release)**"
+              echo ""
+              echo "- arm64: <${R2_PUBLIC_BASE}/latest/aims-os-1.0-arm64.iso>"
+              echo "- amd64: <${R2_PUBLIC_BASE}/latest/aims-os-1.0-amd64.iso>"
+            fi
+            echo ""
+            echo "## Verify"
+            echo ""
+            echo '```bash'
+            echo "shasum -a 256 -c aims-os-1.0-arm64.iso.sha256"
+            echo '```'
+            echo ""
+            echo "The .sha256 files attached to this release pin the bytes for ${TAG}; the bytes on R2 must match."
+          } > release-body.md
+          cat release-body.md
+
       - name: Attach SHA-256 + download links to GitHub Release (on tag push)
         if: success() && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
@@ -219,25 +282,5 @@ jobs:
           files: build/out/aims-os-*.iso.sha256
           fail_on_unmatched_files: true
           generate_release_notes: true
-          body: |
-            ## Download
-
-            ISOs are hosted on Cloudflare R2 (GitHub Releases cap assets at 2 GiB; our images are ~8.5 GB).
-
-            **${{ github.ref_name }} — pinned to this release**
-
-            - arm64: <${{ secrets.R2_PUBLIC_BASE }}/${{ github.ref_name }}/aims-os-1.0-arm64.iso>
-            - amd64: <${{ secrets.R2_PUBLIC_BASE }}/${{ github.ref_name }}/aims-os-1.0-amd64.iso>
-
-            **Always-latest aliases (overwritten by each new release)**
-
-            - arm64: <${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-1.0-arm64.iso>
-            - amd64: <${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-1.0-amd64.iso>
-
-            ## Verify
-
-            ```bash
-            shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
-            ```
-
-            The `.sha256` files attached to this release pin the bytes for ${{ github.ref_name }}; the bytes on R2 must match.
+          prerelease: ${{ steps.prerel.outputs.is_prerelease == 'true' }}
+          body_path: release-body.md
