@@ -48,6 +48,12 @@ concurrency:
 jobs:
   publish:
     name: Build apt repo + docs, deploy to Pages
+    # Skip on pre-release tag pushes (any tag containing a hyphen, e.g.
+    # v2.1.0-alpha1, v2.0.0-rc1). Pre-release tags are for ISO build
+    # tests; the production apt repo (which v2.0 users pull from on
+    # `apt update`) must only receive stable metapackages.
+    # workflow_dispatch always runs — that's the manual republish path.
+    if: github.event_name != 'push' || !contains(github.ref, '-')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
