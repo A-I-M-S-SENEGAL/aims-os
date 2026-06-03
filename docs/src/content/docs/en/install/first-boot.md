@@ -72,6 +72,47 @@ sudo apt update && sudo apt upgrade
 Pulls Debian Security patches and new AIMS OS stack versions if you
 added the [apt repo](/en/install/apt/).
 
+## Install third-party tools (Cursor, RStudio, etc.)
+
+Starting with AIMS OS v2.1, the ISO no longer ships Cursor, RStudio,
+DBeaver, VSCodium, Node 22, Bun, Deno or uv by default — we cut those
+~1.5 GB to slim the download. The `aims-os-welcome` metapackage
+(already installed) provides install scripts:
+
+```bash
+ls /usr/share/aims-os/install/
+# cursor.sh  dbeaver.sh  nodejs.sh  rstudio.sh  runtimes.sh  vscodium.sh
+
+# Install one at a time (sudo prompted)
+sudo /usr/share/aims-os/install/cursor.sh
+sudo /usr/share/aims-os/install/rstudio.sh
+sudo /usr/share/aims-os/install/nodejs.sh
+# ...
+
+# Or all at once
+for s in /usr/share/aims-os/install/*.sh; do
+    sudo "$s" || echo "FAILED: $s"
+done
+```
+
+Each script fetches the tool from its official upstream (cursor.com,
+posit.co, dbeaver.io, NodeSource, GitHub releases). Plan for ~30-45 min
+on a typical connection to install everything.
+
+For the full tracks:
+
+```bash
+sudo apt install aims-os-bigdata          # Coop Big Data
+sudo apt install aims-os-security         # Coop Computer Security
+sudo apt install aims-os-math-extras      # Full maths stack (Maxima, full Octave, R tidyverse, multilingual LaTeX, GeoGebra)
+sudo apt install aims-os-desktop-extras   # Chromium, GIMP, Inkscape, non-free codecs
+sudo apt install aims-os-desktop-dev      # Java, Docker, Rust
+```
+
+A future AIMS OS release will ship a **first-boot wizard** that asks
+your track and tools, then runs these commands for you. Until then,
+it's manual.
+
 ## What next
 
 - [Pick your track](/en/filieres/regular/)

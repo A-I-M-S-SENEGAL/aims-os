@@ -42,18 +42,64 @@ gpg --show-keys /usr/share/keyrings/aims-os-archive-keyring.gpg
 
 ## Choisir et installer
 
+À partir de v2.1, les anciens métapaquets monolithiques ont été
+découpés en variantes **slim** (ce qui sert à tout le monde) et
+**extras** (le reste, à installer si besoin). La version v2.0
+restait monolithique.
+
+### Cas simple — vous voulez tout
+
+```bash
+sudo apt install aims-os-everything
+```
+
+Reproduit le contenu complet de l'ISO v2.0 (~9 GB après install).
+Tire les 11 métapaquets en cascade.
+
+### Filière
+
 | Filière | Commande |
 |---|---|
 | Regular (Sciences Mathématiques) | `sudo apt install aims-os-math` |
 | Coop Big Data | `sudo apt install aims-os-bigdata` |
 | Coop Computer Security | `sudo apt install aims-os-security` |
-| Bureau GNOME | `sudo apt install aims-os-desktop` |
-| Baseline système | `sudo apt install aims-os-core` |
-| Tout (équivalent ISO) | `sudo apt install aims-os-{core,desktop,math,bigdata,security}` |
 
-Les paquets `aims-os-bigdata` et `aims-os-security` dépendent de
-`aims-os-math`, donc en installer un tire automatiquement la base
-SciPy / R / LaTeX / Jupyter.
+`aims-os-bigdata` et `aims-os-security` dépendent de `aims-os-math`,
+donc en installer un tire automatiquement la base SciPy / R / LaTeX
+slim / Jupyter.
+
+### Couches optionnelles (v2.1)
+
+| Couche | Commande | Contenu |
+|---|---|---|
+| Bureau slim | `sudo apt install aims-os-desktop` | GNOME + Firefox + LibreOffice fr + codecs libres + utilitaires |
+| Bureau extras | `sudo apt install aims-os-desktop-extras` | Chromium + GIMP + Inkscape + Evolution + codecs non-free + dictionnaire EN |
+| Stack dev complète | `sudo apt install aims-os-desktop-dev` | OpenJDK 21 + Gradle + Kotlin + PHP + Docker + Podman + kubectl + rustup |
+| Stack maths extras | `sudo apt install aims-os-math-extras` | Maxima + Octave complet + R tidyverse + LaTeX multilingue + GeoGebra |
+| Centre Sénégal | `sudo apt install aims-os-centre-senegal` | Locale fr_FR + Africa/Dakar + bookmarks AIMS-Mbour |
+| Wizard + scripts | `sudo apt install aims-os-welcome` | Scripts d'install `/usr/share/aims-os/install/*.sh` |
+| Baseline système | `sudo apt install aims-os-core` | Sécurité + firmware + locales + CLI + Miniforge |
+
+### Outils tiers (Cursor, RStudio, Node 22, Bun, Deno, uv, DBeaver, VSCodium)
+
+Pas dans Debian, fournis comme **scripts d'install** par
+`aims-os-welcome` :
+
+```bash
+sudo apt install aims-os-welcome
+
+# Puis, à la carte :
+sudo /usr/share/aims-os/install/cursor.sh       # IDE IA proprio
+sudo /usr/share/aims-os/install/rstudio.sh      # RStudio Desktop
+sudo /usr/share/aims-os/install/dbeaver.sh      # SQL GUI universel
+sudo /usr/share/aims-os/install/vscodium.sh     # VS Code libre
+sudo /usr/share/aims-os/install/nodejs.sh       # Node 22 LTS (NodeSource)
+sudo /usr/share/aims-os/install/runtimes.sh     # Bun + Deno + uv
+```
+
+Chaque script télécharge l'outil depuis sa source officielle (cursor.com,
+posit.co, dbeaver.io, NodeSource, GitHub releases) et l'installe.
+Idempotent : relancer met à jour.
 
 ## À propos des composants non-free
 
