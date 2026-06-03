@@ -5,7 +5,102 @@ description: How AIMS OS tracks Debian, the release cadence per academic cycle, 
 
 AIMS OS is a Debian-stable-based distribution aligned with the AIMS
 Senegal academic calendar. This page documents the release cadence,
-support duration, and how to receive updates.
+package architecture, support duration, and how to receive updates.
+
+## Package architecture — three layers
+
+Starting with v2.1, the metapackages are organised in three stacked
+layers. This structure exists to allow multi-centre distribution
+without duplicating the technical baseline.
+
+```
+┌─ Universal subjects (generic tech stack)
+│  aims-os-core / -desktop / -math / -bigdata / -security…
+│
+├─ Centre profiles (one per AIMS centre)
+│  aims-os-centre-senegal      ← Mbour bookmarks, wallpapers, Wi-Fi
+│  aims-os-centre-southafrica  ← future, by AIMS SA
+│
+└─ Centre × subject × year (curriculum)
+   aims-os-centre-senegal-bigdata-2026   ← course PDFs, datasets, syllabus
+   aims-os-centre-senegal-security-2026
+   aims-os-centre-southafrica-bigdata-2026
+```
+
+### Universal subjects
+
+Generic technical tooling useful to any AIMS centre teaching the
+subject. No country, campus or syllabus references.
+
+Update cadence: tied to the Debian stable release (~2 years). The
+Python / R / CLI tooling does not move at AIMS cycle pace.
+
+Examples: `aims-os-bigdata` (Spark, Dask, OpenCV, Cartopy,
+postgresql-client); `aims-os-security` (nmap, wireshark, hashcat).
+
+### Centre profiles
+
+Visual identity, intranet wiring and local config of a given AIMS
+centre. Stable over time: the AIMS Mbour intranet bookmarks do not
+change every year.
+
+Update cadence: tied to the campus (~rare). When AIMS Mbour switches
+mail platforms, we bump `aims-os-centre-senegal`.
+
+Expected contents:
+
+- Firefox bookmarks pointing at the campus intranet, library, mail,
+  learning platforms
+- Campus wallpapers (local photos)
+- NetworkManager Wi-Fi profile
+- CUPS PPDs for campus printers
+- Logo and other brand assets
+
+### Centre × subject × year (curriculum)
+
+Pedagogical content specific to one centre, one subject, one cohort.
+Course PDFs, datasets used in class, syllabus, exercises, past exams.
+
+Update cadence: **yearly**. Each academic-year start ships a new
+package. Students on the previous cohort keep their package; they are
+not affected.
+
+Naming convention:
+`aims-os-centre-<country>-<subject>-<intake-year>`
+
+Examples:
+- `aims-os-centre-senegal-bigdata-2026` (Mbour 2026-2027 Big Data cohort)
+- `aims-os-centre-senegal-security-2026`
+- `aims-os-centre-southafrica-bigdata-2026`
+
+### Installing in practice
+
+A Mbour 2026-2027 Coop Big Data student installs everything in one
+command:
+
+```bash
+sudo apt install aims-os-centre-senegal-bigdata-2026
+```
+
+This package depends on:
+
+```
+Depends: aims-os-bigdata,           ← technical stack
+         aims-os-centre-senegal,    ← campus identity
+         aims-os-math               ← shared baseline
+```
+
+→ Apt resolves the cascade, the student gets it all in one go: Spark
++ AIMS-Mbour bookmarks + 2026 course PDFs.
+
+### Current state of the layers
+
+| Layer | Implemented in v2.1 | Status |
+|---|---|---|
+| Universal subjects | ✅ | 11 metapackages published |
+| Senegal centre profile | ⚠️ empty stub | Architecture in place, content to add (bookmarks, wallpapers, etc.) |
+| Other centre profiles | ❌ | To be created by each centre |
+| Centre × subject × year | ❌ | To create when a cohort's pedagogical content is ready |
 
 ## Base: Debian stable
 

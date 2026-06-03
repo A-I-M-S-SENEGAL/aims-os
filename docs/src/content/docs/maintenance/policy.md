@@ -5,8 +5,103 @@ description: Comment AIMS OS suit Debian, le rythme de releases par cycle acadé
 
 AIMS OS est une distribution dérivée de **Debian stable**, alignée sur
 le calendrier académique d'AIMS Sénégal. Cette page documente le
-rythme des releases, la durée de support, et comment recevoir les
-mises à jour.
+rythme des releases, l'architecture des paquets, la durée de support,
+et comment recevoir les mises à jour.
+
+## Architecture des paquets — trois couches
+
+À partir de v2.1, les métapaquets sont organisés en trois couches
+empilées. Cette structure existe pour permettre une distribution
+multi-centre sans dupliquer le tronc technique.
+
+```
+┌─ Universal subjects (technique générique)
+│  aims-os-core / -desktop / -math / -bigdata / -security…
+│
+├─ Centre profiles (1 par centre AIMS)
+│  aims-os-centre-senegal      ← bookmarks Mbour, wallpapers, WiFi
+│  aims-os-centre-southafrica  ← futur, par AIMS SA
+│
+└─ Centre × subject × year (curriculum)
+   aims-os-centre-senegal-bigdata-2026   ← PDFs cours, datasets, syllabus
+   aims-os-centre-senegal-security-2026
+   aims-os-centre-southafrica-bigdata-2026
+```
+
+### Universal subjects
+
+Outils techniques génériques, utiles à n'importe quel centre AIMS qui
+enseigne la matière. Pas de référence au pays, au campus, à un
+syllabus.
+
+Update : lié à la sortie de Debian stable (~2 ans). Les libs Python /
+R / outils CLI ne changent pas au gré des cycles AIMS.
+
+Exemples : `aims-os-bigdata` (Spark, Dask, OpenCV, Cartopy,
+postgresql-client) ; `aims-os-security` (nmap, wireshark, hashcat).
+
+### Centre profiles
+
+Identité visuelle, intranet, configuration locale d'un centre AIMS
+donné. Stable dans le temps : les bookmarks de l'intranet AIMS Mbour
+ne changent pas chaque année.
+
+Update : lié au campus (~rare). Quand AIMS Mbour change de plateforme
+mail, on bump `aims-os-centre-senegal`.
+
+Contenu attendu :
+
+- Bookmarks Firefox pointant sur l'intranet, la library, le mail, les
+  plateformes de cours du campus
+- Wallpapers du campus (photos locales)
+- Profil WiFi NetworkManager
+- PPDs des imprimantes du campus
+- Logo et autres assets de marque
+
+### Centre × subject × year (curriculum)
+
+Contenu pédagogique spécifique à un centre, une matière et une promo.
+PDFs des cours, datasets utilisés, syllabus, exercices, examens passés.
+
+Update : **annuel**. Chaque rentrée, nouvelle promo = nouveau paquet.
+Les étudiants de l'ancienne promo gardent leur paquet, ils ne sont
+pas affectés.
+
+Convention de nommage :
+`aims-os-centre-<pays>-<domaine>-<année-rentrée>`
+
+Exemples :
+- `aims-os-centre-senegal-bigdata-2026` (promo Big Data Mbour 2026-2027)
+- `aims-os-centre-senegal-security-2026`
+- `aims-os-centre-southafrica-bigdata-2026`
+
+### Comment ça s'installe en pratique
+
+Un étudiant Mbour 2026-2027 en Coop Big Data installe en une commande :
+
+```bash
+sudo apt install aims-os-centre-senegal-bigdata-2026
+```
+
+Ce paquet a comme `Depends` :
+
+```
+Depends: aims-os-bigdata,           ← outillage technique
+         aims-os-centre-senegal,    ← identité campus
+         aims-os-math               ← tronc commun
+```
+
+→ Apt résout en cascade, l'étudiant obtient tout d'un coup : Spark +
+bookmarks AIMS-Mbour + PDFs des cours 2026.
+
+### État actuel des couches
+
+| Couche | Implémentée v2.1 | Statut |
+|---|---|---|
+| Universal subjects | ✅ | 11 métapaquets publiés |
+| Centre profile Sénégal | ⚠️ stub vide | Architecture posée, contenu à ajouter (bookmarks, wallpapers, etc.) |
+| Centre profiles autres | ❌ | À créer par chaque centre |
+| Centre × subject × year | ❌ | À créer quand le contenu pédagogique d'une promo est prêt |
 
 ## Base : Debian stable
 
