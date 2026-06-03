@@ -1,3 +1,21 @@
+aims-os-welcome (2.1+1) trixie; urgency=medium
+
+  * Ship the six post-install scripts under /usr/share/aims-os/install/.
+    Each one mirrors one of the v2.0 chroot hooks that we disabled to
+    slim the ISO; they're now idempotent and safe to run on an
+    installed system:
+      nodejs.sh     NodeSource Node 22 LTS
+      vscodium.sh   VSCodium via paulcarroty apt repo
+      cursor.sh     Cursor .deb from cursor.com
+      dbeaver.sh    DBeaver CE via upstream apt repo
+      runtimes.sh   Bun + Deno + uv from GitHub releases
+      rstudio.sh    RStudio Desktop .deb from Posit
+  * Add Depends: curl, gnupg, ca-certificates, unzip — the runtime
+    deps these scripts need. The wizard (step 4) will drive them via
+    pkexec; users can run them by hand in the meantime.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 03 Jun 2026 11:30:00 +0000
+
 aims-os-welcome (2.1) trixie; urgency=medium
 
   * Initial release. Empty metapackage for now — declares the runtime
