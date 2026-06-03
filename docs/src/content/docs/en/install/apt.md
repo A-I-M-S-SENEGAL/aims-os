@@ -55,17 +55,24 @@ sudo apt install aims-os-everything
 Reproduces the full v2.0 ISO content (~9 GB after install). Pulls
 all 11 metapackages in cascade.
 
-### Track
+### Subject stack
 
-| Track | Command |
+The names below are **generic** ; each AIMS centre maps them onto
+its own track structure (AIMS Senegal speaks of "Regular" and "Coop",
+AIMS South Africa has its own layout, etc.).
+
+| Domain | Command |
 |---|---|
-| Regular (Mathematical Sciences) | `sudo apt install aims-os-math` |
-| Coop Big Data | `sudo apt install aims-os-bigdata` |
-| Coop Computer Security | `sudo apt install aims-os-security` |
+| Mathematical Sciences (baseline) | `sudo apt install aims-os-math` |
+| Big Data, NLP, Computer Vision, Climate, DB | `sudo apt install aims-os-bigdata` |
+| Computer Security, cryptography, forensics | `sudo apt install aims-os-security` |
 
 `aims-os-bigdata` and `aims-os-security` depend on `aims-os-math`,
 so installing either pulls the SciPy / R / slim LaTeX / Jupyter
 baseline.
+
+For the mapping onto AIMS Senegal's filière names (Regular, Coop Big
+Data, Coop Computer Security), see [Get started → Tracks](/en/filieres/regular/).
 
 ### Optional layers (v2.1)
 

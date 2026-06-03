@@ -56,17 +56,25 @@ sudo apt install aims-os-everything
 Reproduit le contenu complet de l'ISO v2.0 (~9 GB après install).
 Tire les 11 métapaquets en cascade.
 
-### Filière
+### Stack par sujet
 
-| Filière | Commande |
+Les noms ci-dessous sont **génériques** ; chaque centre AIMS y rattache
+sa propre nomenclature de filière (AIMS Sénégal parle de "Regular" et
+"Coop", AIMS South Africa a sa propre structure, etc.).
+
+| Domaine | Commande |
 |---|---|
-| Regular (Sciences Mathématiques) | `sudo apt install aims-os-math` |
-| Coop Big Data | `sudo apt install aims-os-bigdata` |
-| Coop Computer Security | `sudo apt install aims-os-security` |
+| Sciences Mathématiques (tronc commun) | `sudo apt install aims-os-math` |
+| Big Data, NLP, Computer Vision, Climat, DB | `sudo apt install aims-os-bigdata` |
+| Computer Security, cryptographie, forensique | `sudo apt install aims-os-security` |
 
 `aims-os-bigdata` et `aims-os-security` dépendent de `aims-os-math`,
 donc en installer un tire automatiquement la base SciPy / R / LaTeX
 slim / Jupyter.
+
+Pour la correspondance avec les filières AIMS Sénégal (Regular,
+Coop Big Data, Coop Computer Security), voir
+[Démarrer → Filières](/filieres/regular/).
 
 ### Couches optionnelles (v2.1)
 
