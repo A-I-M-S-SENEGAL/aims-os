@@ -1,41 +1,59 @@
 # =============================================================================
-# AIMS OS — package list (single entry point)
+# AIMS OS — slim live-build package list (v2.1)
 # =============================================================================
-# This is the only package list live-build sees. The names below are the
-# AIMS OS metapackages, all built in advance by
-# build/build-metapackages.sh and dropped into
-# build/config/packages.chroot/ so apt finds them as local sources
-# during the chroot stage.
+# The metapackages below are built by build/build-metapackages.sh and
+# dropped into build/config/packages.chroot/, where live-build's apt
+# finds them as local sources during the chroot stage.
 #
-# Each metapackage's Depends drive what actually lands in the system:
+# Slim ISO design (v2.1):
+#   ISO live = strict minimum to boot, run Calamares, and reach a
+#              usable French desktop with internet so the first-boot
+#              wizard can fetch the rest from the AIMS apt repo.
 #
-#   aims-os-core      base security, firmware, locales, CLI, build tools
-#   aims-os-desktop   GNOME, Calamares, browsers, LibreOffice, Flatpak,
-#                     user-facing apps and codecs
-#   aims-os-math      Regular track — Python SciPy stack, Jupyter, Octave,
-#                     Maxima, R + tidyverse, TeX Live, GeoGebra, numerical
-#                     libs, mpi4py / biopython / skimage, black + mypy
-#   aims-os-bigdata   Coop Big Data — Dask, NLTK, OpenCV, xarray, netCDF,
-#                     Cartopy, Postgres/MariaDB/Redis clients, psycopg2,
-#                     pymongo (Depends on aims-os-math)
-#   aims-os-security  Coop Computer Security — cryptography, pycryptodome,
-#                     nmap, Wireshark, tcpdump, john, hashcat, aircrack-ng,
-#                     scapy, sleuthkit, foremost, binwalk (Depends on
-#                     aims-os-math)
-#   aims-os-branding  Plymouth + GRUB + wallpapers + identity
+# What's in the ISO (this file):
 #
-# The ISO ships ALL filière metapackages so any AIMS student can use
-# the same install regardless of track. Standalone apt-install on a
-# vanilla Debian Trixie picks just what's needed (aims-os-bigdata and
-# aims-os-security both pull aims-os-math transitively).
+#   aims-os-core            base security, firmware, locales, CLI,
+#                           Miniforge3, build tools, AIMS apt repo
+#                           source list, GPG keyring
+#   aims-os-branding        Plymouth + GRUB themes + wallpapers + logos
+#   aims-os-desktop         slim GNOME + Calamares + Firefox + LibreOffice
+#                           fr + free codecs + NetworkManager + baseline
+#                           CLI utilities. ~1.5 GB.
+#   aims-os-math            slim SciPy + Jupyter + R base + gnuplot +
+#                           gdb/valgrind + numerical headers + TeX Live
+#                           French. The tronc commun for every AIMS
+#                           student. ~1.2 GB.
+#   aims-os-centre-senegal  AIMS Mbour bookmarks / wallpapers / intranet
+#                           wiring. Empty stub today; grows incrementally.
+#                           Sibling slot for future centre packages.
+#   aims-os-welcome         GTK4 / libadwaita / polkit runtime for the
+#                           first-boot wizard. The Python source lands
+#                           in step 4 of the v2.1 plan.
 #
-# To see the resolved package set: `apt-cache depends aims-os-desktop`
-# from a chroot, or inspect each metapackage's debian/control file.
+# What's NOT in the ISO any more (installable via apt post-install or
+# via the wizard):
+#
+#   aims-os-desktop-extras  Chromium, GIMP, Inkscape, Shotwell,
+#                           Evolution, ghostwriter, fish, tilix,
+#                           flameshot, English LibreOffice helpers,
+#                           non-free codecs.
+#   aims-os-desktop-dev     OpenJDK 21, Gradle, Kotlin, PHP/Composer,
+#                           adb/fastboot, Docker/Podman/kubectl/Ansible,
+#                           rustup. ~2 GB.
+#   aims-os-math-extras     Maxima, full Octave, R tidyverse, full
+#                           multilingual TeX Live, TeXstudio, GeoGebra,
+#                           niche Python. ~1.5 GB.
+#   aims-os-bigdata         Big Data / NLP / Computer Vision / Climate /
+#                           DB clients track.
+#   aims-os-security        Computer Security track.
+#
+# v2.0 users who want the full install back: `apt install
+# aims-os-everything`.
 # =============================================================================
 
 aims-os-core
+aims-os-branding
 aims-os-desktop
 aims-os-math
-aims-os-bigdata
-aims-os-security
-aims-os-branding
+aims-os-centre-senegal
+aims-os-welcome

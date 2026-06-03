@@ -1,0 +1,57 @@
+Source: aims-os-desktop-extras
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-desktop-extras
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-desktop,
+# --- Second browser ---------------------------------------------------
+ chromium,
+ chromium-l10n,
+# --- LibreOffice English helpers + offline help (French) -------------
+ libreoffice-help-fr,
+ libreoffice-l10n-en-gb,
+ hunspell-en-us,
+ hyphen-en-us,
+ mythes-en-us,
+# --- Creative / image / mail ----------------------------------------
+ gimp,
+ inkscape,
+ shotwell,
+ evolution,
+# --- Alternative terminals / shells / editors -----------------------
+ ghostwriter,
+ fish,
+ tilix,
+ flameshot,
+# --- Non-free codecs (Recommends, not Depends) -----------------------
+# These pull from Debian's non-free component; live-build enables it
+# so the ISO can include them via Recommends.
+Recommends:
+ gstreamer1.0-plugins-bad,
+ gstreamer1.0-plugins-ugly,
+ gstreamer1.0-libav,
+ p7zip-rar,
+Description: AIMS OS — desktop extras (second browser, creative, non-free codecs)
+ The optional desktop layer on top of the slim aims-os-desktop. Adds
+ Chromium with the French locale, full English LibreOffice support
+ (help-fr, en-gb locale, English hunspell / hyphen / mythes), creative
+ tools (GIMP, Inkscape, Shotwell), the Evolution mail client,
+ alternative terminals and shells (fish, tilix), the flameshot
+ screenshot tool, and the non-free GStreamer codecs (bad / ugly /
+ libav) plus p7zip-rar for the full multimedia and archive coverage
+ that v2.0 of AIMS OS shipped by default.
+ .
+ Install this if you want the v2.0 "everything in the ISO" experience
+ without re-flashing.

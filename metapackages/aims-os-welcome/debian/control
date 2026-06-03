@@ -1,0 +1,76 @@
+Source: aims-os-welcome
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-welcome
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+# --- GTK4 + libadwaita runtime ----------------------------------------
+# The wizard is written in Python with PyGObject bindings against
+# libadwaita (so it follows the GNOME visual language). The Trixie
+# stack:
+#   python3-gi               PyGObject 3.50
+#   gir1.2-gtk-4.0           GTK 4 typelib
+#   gir1.2-adw-1             libadwaita 1.5 typelib
+#   libadwaita-1-0           libadwaita runtime
+ python3-gi,
+ gir1.2-gtk-4.0,
+ gir1.2-adw-1,
+ libadwaita-1-0,
+# --- PolicyKit for the elevated `apt install` calls ------------------
+# The wizard runs as the user, then drives apt via pkexec with a custom
+# policy (shipped in files/). On Trixie the legacy policykit-1 transition
+# package has been retired — depend on the actual daemon + pkexec
+# directly.
+ polkitd,
+ pkexec,
+# --- apt itself (for the install call) -------------------------------
+ apt,
+# --- Runtime deps of the post-install scripts ------------------------
+# The install scripts under /usr/share/aims-os/install/ fetch upstream
+# .deb files and APT repo GPG keys; they need curl, gnupg (for
+# --dearmor) and ca-certificates. unzip is pulled lazily by
+# runtimes.sh if missing; we Depend on it here too so the
+# offline / standalone-apt path doesn't trip.
+ curl,
+ gnupg,
+ ca-certificates,
+ unzip,
+Description: AIMS OS — first-boot wizard + post-install scripts
+ Ships the first-boot wizard that lets a fresh AIMS OS user pick
+ their track (Regular Maths, Coop Big Data, Coop Computer Security)
+ plus any optional desktop extras (Chromium, GIMP, Inkscape, …) or
+ the heavy dev stack (Java, Android, Docker, …).
+ .
+ The wizard auto-starts at the first GNOME session via an XDG
+ autostart entry, checks connectivity, then runs `apt install` via
+ pkexec with a bundled policy. After the first successful run it
+ marks itself done in ~/.config/aims-welcome.done and stays silent
+ unless the user re-launches it from the app grid.
+ .
+ Also ships the standalone post-install scripts at
+ /usr/share/aims-os/install/ that handle the tools without a Debian
+ package or a third-party apt repo we can rely on:
+ .
+   nodejs.sh    NodeSource Node 22 LTS apt repo + install nodejs
+   vscodium.sh  Paulcarroty apt repo + install codium
+   cursor.sh    Cursor .deb fetched from cursor.com (proprietary)
+   dbeaver.sh   dbeaver.io apt repo + install dbeaver-ce
+   runtimes.sh  Bun + Deno + uv from upstream GitHub releases
+   rstudio.sh   RStudio Desktop .deb fetched from Posit's S3 bucket
+ .
+ The wizard calls these via pkexec; advanced users can run them by
+ hand: `sudo /usr/share/aims-os/install/cursor.sh`.
+ .
+ The Python source for the wizard ships in step 4 of the v2.1 plan;
+ this release contains only the install-scripts layer.

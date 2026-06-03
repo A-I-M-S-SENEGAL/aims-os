@@ -1,0 +1,89 @@
+Source: aims-os-math-extras
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-math-extras
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-math,
+# --- Python — niche scientific extras --------------------------------
+# python3-mpi4py — MPI for Python. AIMS HPC modules (parallel linear
+#     algebra, Cooperative Numerical Methods).
+# python3-biopython — bioinformatics; AIMS Biological Modelling.
+# python3-skimage — scikit-image; general image processing.
+# python3-igraph — graph theory (faster than networkx for big graphs).
+# python3-rpy2 — call R from Python.
+# python3-tables — PyTables, HDF5 dataset wrapper with query syntax.
+# python3-pygments — syntax highlighting library.
+# python3-reportlab — programmatic PDF generation.
+ python3-mpi4py,
+ python3-biopython,
+ python3-skimage,
+ python3-igraph,
+ python3-rpy2,
+ python3-tables,
+ python3-pygments,
+ python3-reportlab,
+# --- Symbolic + numerical computing -----------------------------------
+ maxima,
+ maxima-doc,
+ wxmaxima,
+ octave,
+ octave-doc,
+ octave-symbolic,
+ octave-statistics,
+ octave-optim,
+ octave-control,
+ octave-signal,
+# --- R full data-science stack ----------------------------------------
+ r-recommended,
+ r-cran-tidyverse,
+ r-cran-ggplot2,
+ r-cran-dplyr,
+ r-cran-knitr,
+ r-cran-rmarkdown,
+# --- TeX Live full multilingual ---------------------------------------
+# texlive-lang-other absorbs the formerly separate language packs in
+# Trixie and is the closest match for African-language need (Wolof,
+# Swahili, Amharic, Hausa, Twi hyphenation).
+ texlive-lang-english,
+ texlive-lang-other,
+ texlive-lang-arabic,
+ texlive-publishers,
+ texlive-science,
+ texlive-xetex,
+ texlive-luatex,
+ texlive-bibtex-extra,
+ texstudio,
+# --- Geometry, full plotting ------------------------------------------
+ geogebra,
+ gnuplot-doc,
+# --- Extra numerical libraries (build-from-source helpers) -----------
+ libhdf5-dev,
+ libgmp-dev,
+ libmpfr-dev,
+Description: AIMS OS — Regular track extras (full LaTeX, symbolic, full R)
+ The full v2.0 scientific stack carved out of aims-os-math. Installs
+ the niche Python extras (mpi4py for HPC, biopython, scikit-image,
+ igraph, rpy2, pytables, pygments, reportlab), the symbolic computing
+ stack (Maxima + wxMaxima), GNU Octave with the scientific add-on
+ modules (symbolic, statistics, optim, control, signal), the full
+ R data-science tidyverse (r-recommended, tidyverse, ggplot2, dplyr,
+ knitr, rmarkdown), the full multilingual TeX Live (English, other
+ languages including African hyphenation, Arabic, publishers, science,
+ XeTeX, LuaTeX, bibtex-extra, TeXstudio), GeoGebra for geometry, and
+ the extra numerical library headers (HDF5, GMP, MPFR) for compiling
+ scientific software from source.
+ .
+ Install this on top of aims-os-math if you want the v2.0 complete
+ baseline. About 1.5 GB on disk.
