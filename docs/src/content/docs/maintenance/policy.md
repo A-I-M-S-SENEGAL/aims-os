@@ -8,7 +8,7 @@ le calendrier académique d'AIMS Sénégal. Cette page documente le
 rythme des releases, l'architecture des paquets, la durée de support,
 et comment recevoir les mises à jour.
 
-## Architecture des paquets — trois couches
+## Architecture des paquets en trois couches
 
 À partir de v2.1, les métapaquets sont organisés en trois couches
 empilées. Cette structure existe pour permettre une distribution
@@ -130,7 +130,7 @@ releases par cycle, calées sur les jalons pédagogiques.
 | **vX.Y.3** | Juillet  | Cleanup, prep cycle suivant |
 
 Entre deux releases, les **patchs sécurité sont continus** via le
-[repo APT](/install/apt/) — pas besoin de reflasher.
+[repo APT](/install/apt/), sans avoir à reflasher.
 
 ## Hotfix d'urgence
 
@@ -153,7 +153,7 @@ Chaque major reçoit deux niveaux de support :
   les CVE sont rétro-portées.
 
 En pratique, un major AIMS OS reste utilisable et patché pendant
-environ **3 ans** — la durée de support de la Debian stable
+environ **3 ans**, soit la durée de support de la Debian stable
 sous-jacente.
 
 | Major | Support complet | Sécurité seule | EOL |

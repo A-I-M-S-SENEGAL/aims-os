@@ -1,5 +1,5 @@
 ---
-title: Coop track — Computer Security
+title: Coop Computer Security track
 description: Cryptography, network audit, forensics for the Coop Security track.
 ---
 
@@ -19,8 +19,8 @@ sudo apt install aims-os-security
 ## What's added
 
 ### Cryptography
-- `python3-cryptography` — modern primitives (AEAD, X.509, KDF)
-- `python3-pycryptodome` — drop-in PyCrypto, cited by lecture notes
+- `python3-cryptography` (modern primitives: AEAD, X.509, KDF)
+- `python3-pycryptodome`, the drop-in PyCrypto cited in the lecture notes
 
 Qiskit (Quantum Computing course) is **not** packaged in a current
 version. Install on demand:
@@ -32,20 +32,20 @@ mamba install -c conda-forge qiskit
 ```
 
 ### Network audit
-- `nmap` — port / service scan
-- `wireshark` — packet capture + analysis (dumpcap setuid: see below)
-- `tcpdump` — CLI capture
-- `python3-scapy` — packet crafting
+- `nmap` (port / service scan)
+- `wireshark` for packet capture and analysis; dumpcap setuid, see below
+- `tcpdump` (CLI capture)
+- `python3-scapy` for packet crafting
 
 ### Cracking
-- `john` (John the Ripper) — password cracking
-- `hashcat` — GPU-accelerated hash cracking
-- `aircrack-ng` — Wi-Fi audit
+- `john` (John the Ripper): password cracking
+- `hashcat`: GPU-accelerated hash cracking
+- `aircrack-ng`: Wi-Fi audit
 
 ### Forensics
-- `sleuthkit` — filesystem + disk analysis
-- `foremost` — file carving
-- `binwalk` — firmware analysis / extraction
+- `sleuthkit`: filesystem and disk analysis
+- `foremost`: file carving
+- `binwalk`: firmware analysis and extraction
 
 ## Wireshark without sudo
 

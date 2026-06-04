@@ -1,5 +1,5 @@
 ---
-title: Coop track — Big Data Analytics
+title: Coop Big Data Analytics track
 description: Big Data / NLP / Computer Vision / Climate / Databases layer for the Coop Data Analytics track.
 ---
 
@@ -20,7 +20,7 @@ sudo apt install aims-os-bigdata
 ## What's added
 
 ### Big Data
-`python3-dask` + `python3-distributed` — parallel pandas / numpy.
+`python3-dask` and `python3-distributed` for parallel pandas / numpy.
 
 PyArrow, Polars and DuckDB are not in Trixie main. Install on demand:
 
@@ -45,8 +45,8 @@ mamba install -c conda-forge spacy gensim transformers
 scientific side.
 
 ### Climate sciences
-`python3-xarray`, `python3-netcdf4`, `python3-cartopy` — labelled
-arrays, NetCDF reading, cartographic projections on matplotlib.
+`python3-xarray`, `python3-netcdf4`, `python3-cartopy` for labelled
+arrays, NetCDF reading, and cartographic projections on matplotlib.
 
 ### Database clients
 - `postgresql-client` + `python3-psycopg2`

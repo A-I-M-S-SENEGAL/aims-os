@@ -1,5 +1,5 @@
 ---
-title: Filière Coop — Big Data Analytics
+title: Filière Coop Big Data Analytics
 description: Couche Big Data / NLP / Computer Vision / Climate / Databases pour la filière Coop Data Analytics.
 ---
 
@@ -20,7 +20,7 @@ sudo apt install aims-os-bigdata
 ## Ce qui est ajouté
 
 ### Big Data
-`python3-dask` + `python3-distributed` — pandas/numpy parallèle.
+`python3-dask` et `python3-distributed` pour du pandas/numpy parallèle.
 
 PyArrow, Polars et DuckDB ne sont pas dans Trixie main. Installation
 à la demande :
@@ -46,8 +46,8 @@ mamba install -c conda-forge spacy gensim transformers
 la partie scientifique.
 
 ### Sciences climat
-`python3-xarray`, `python3-netcdf4`, `python3-cartopy` — arrays
-labellisés, lecture NetCDF, projections cartographiques sur
+`python3-xarray`, `python3-netcdf4`, `python3-cartopy` pour les arrays
+labellisés, la lecture NetCDF et les projections cartographiques sur
 matplotlib.
 
 ### Clients bases de données

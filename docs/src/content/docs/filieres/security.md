@@ -1,5 +1,5 @@
 ---
-title: Filière Coop — Computer Security
+title: Filière Coop Computer Security
 description: Cryptographie, audit réseau, forensics pour la filière Coop Security.
 ---
 
@@ -20,8 +20,8 @@ sudo apt install aims-os-security
 ## Ce qui est ajouté
 
 ### Cryptographie
-- `python3-cryptography` — primitives modernes (AEAD, X.509, KDF)
-- `python3-pycryptodome` — drop-in PyCrypto, cité par les énoncés
+- `python3-cryptography` (primitives modernes : AEAD, X.509, KDF)
+- `python3-pycryptodome`, le drop-in PyCrypto cité dans les énoncés
 
 Qiskit (cours Quantum Computing) n'est **pas** packagé en version
 courante. Installation à la demande :
@@ -33,20 +33,20 @@ mamba install -c conda-forge qiskit
 ```
 
 ### Audit réseau
-- `nmap` — scan ports / services
-- `wireshark` — capture + analyse paquets (dumpcap setuid : voir plus bas)
-- `tcpdump` — capture CLI
-- `python3-scapy` — packet crafting
+- `nmap` (scan ports / services)
+- `wireshark` pour la capture et l'analyse de paquets ; dumpcap setuid, cf. plus bas
+- `tcpdump` (capture CLI)
+- `python3-scapy` pour le packet crafting
 
 ### Cracking
-- `john` (John the Ripper) — cassage mots de passe
-- `hashcat` — accélération GPU pour hash cracking
-- `aircrack-ng` — audit Wi-Fi
+- `john` (John the Ripper) : cassage de mots de passe
+- `hashcat` : accélération GPU pour le hash cracking
+- `aircrack-ng` : audit Wi-Fi
 
 ### Forensics
-- `sleuthkit` — analyse système de fichiers + disques
-- `foremost` — file carving
-- `binwalk` — analyse / extraction de firmware
+- `sleuthkit` : analyse système de fichiers et disques
+- `foremost` : file carving
+- `binwalk` : analyse et extraction de firmware
 
 ## Wireshark sans sudo
 

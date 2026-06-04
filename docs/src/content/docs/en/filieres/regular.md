@@ -1,5 +1,5 @@
 ---
-title: Regular track — Mathematical Sciences
+title: Regular Mathematical Sciences track
 description: The scientific baseline of AIMS OS, shipped to the whole cohort (Regular + Coop).
 ---
 
@@ -55,7 +55,7 @@ toolchain.
 GeoGebra, gnuplot.
 
 ### C / C++ / Fortran
-gdb, valgrind, OpenBLAS, LAPACK, FFTW, HDF5, GMP, MPFR — the whole
+gdb, valgrind, OpenBLAS, LAPACK, FFTW, HDF5, GMP, MPFR. The whole
 chain for compiling numerical code.
 
 ### Python code quality

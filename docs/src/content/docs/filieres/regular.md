@@ -1,5 +1,5 @@
 ---
-title: Filière Regular — Sciences Mathématiques
+title: Filière Regular Sciences Mathématiques
 description: La couche scientifique de base d'AIMS OS, livrée à toute la promotion (Regular + Coop).
 ---
 
@@ -56,7 +56,7 @@ mémoire.
 GeoGebra, gnuplot.
 
 ### C / C++ / Fortran
-gdb, valgrind, OpenBLAS, LAPACK, FFTW, HDF5, GMP, MPFR — toute la
+gdb, valgrind, OpenBLAS, LAPACK, FFTW, HDF5, GMP, MPFR. Toute la
 chaîne pour compiler du code numérique.
 
 ### Qualité de code Python

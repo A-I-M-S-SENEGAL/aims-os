@@ -55,7 +55,7 @@ order.
 | Topology Data Analysis | `aims-os-math` + on-demand | scikit-tda / gudhi via pipx |
 | Web and Android Development | `aims-os-desktop` | Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin, adb |
 
-## "install-on-demand" — why?
+## "install-on-demand": why?
 
 Some tools move faster than the Debian release cycle (PyTorch,
 TensorFlow, JAX, Qiskit, spaCy, gensim, Transformers). AIMS OS

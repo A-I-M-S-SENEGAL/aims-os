@@ -54,7 +54,7 @@ qui le couvre et les outils-clés à connaître. Ordre alphabétique.
 | Topology Data Analysis | `aims-os-math` + on-demand | scikit-tda / gudhi via pipx |
 | Web and Android Development | `aims-os-desktop` | Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin, adb |
 
-## "install-on-demand" — pourquoi ?
+## "install-on-demand" : pourquoi ?
 
 Certains outils évoluent trop vite pour le cycle de release Debian
 (PyTorch, TensorFlow, JAX, Qiskit, spaCy, gensim, Transformers).

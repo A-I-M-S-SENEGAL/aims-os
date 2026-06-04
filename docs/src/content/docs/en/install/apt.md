@@ -46,7 +46,7 @@ Starting with v2.1, the former monolithic metapackages have been
 split into **slim** variants (the bits everyone uses) and **extras**
 (everything else, install if you need it). v2.0 was monolithic.
 
-### Easy mode — give me everything
+### Easy mode, give me everything
 
 ```bash
 sudo apt install aims-os-everything
@@ -104,7 +104,7 @@ sudo /usr/share/aims-os/install/runtimes.sh     # Bun + Deno + uv
 
 Each script fetches the tool from its official upstream (cursor.com,
 posit.co, dbeaver.io, NodeSource, GitHub releases) and installs it.
-Idempotent — re-running upgrades to the latest build.
+Idempotent. Re-running upgrades to the latest build.
 
 ## About non-free components
 

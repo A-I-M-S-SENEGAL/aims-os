@@ -24,9 +24,9 @@ aims-version
 Affiche le nom du système, la version Debian de base, le kernel et
 l'environnement de bureau. Variantes :
 
-- `aims-version --json` — sortie machine-readable
-- `aims-version --verbose` — ajoute python3 / R / node / docker / Cursor / RStudio
-- `aims-version --plain` — sans couleur ANSI
+- `aims-version --json` (sortie machine-readable)
+- `aims-version --verbose` ajoute python3 / R / node / docker / Cursor / RStudio
+- `aims-version --plain` (sans couleur ANSI)
 
 ## Re-afficher la page de bienvenue
 
@@ -77,7 +77,7 @@ stack AIMS OS si vous avez ajouté le [repo apt](/install/apt/).
 ## Installer les outils tiers (Cursor, RStudio, etc.)
 
 À partir d'AIMS OS v2.1, l'ISO ne contient plus par défaut Cursor,
-RStudio, DBeaver, VSCodium, Node 22, Bun, Deno ni uv — on a sorti
+RStudio, DBeaver, VSCodium, Node 22, Bun, Deno ni uv. On a sorti
 ces ~1,5 GB pour alléger le téléchargement. Le métapaquet
 `aims-os-welcome` (déjà installé) fournit les scripts d'install :
 

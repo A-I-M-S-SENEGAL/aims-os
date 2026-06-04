@@ -47,7 +47,7 @@ découpés en variantes **slim** (ce qui sert à tout le monde) et
 **extras** (le reste, à installer si besoin). La version v2.0
 restait monolithique.
 
-### Cas simple — vous voulez tout
+### Cas simple, vous voulez tout
 
 ```bash
 sudo apt install aims-os-everything

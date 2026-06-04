@@ -28,11 +28,11 @@ shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
 ```
 
 For a specific version instead of "latest", swap `latest` for the
-tag in the URL — for example
-`.r2.dev/v2.1.0/aims-os-1.0-arm64.iso`. Tagged versions are
+tag in the URL (for example
+`.r2.dev/v2.1.0/aims-os-1.0-arm64.iso`). Tagged versions are
 immutable, useful for lab deployments that want to pin an image.
 
-For **pre-releases** (`-alpha`, `-beta`, `-rc`) — they deliberately
+For **pre-releases** (`-alpha`, `-beta`, `-rc`): they deliberately
 don't update `latest/` (safety for stable deployments). Use the
 explicit versioned URL, e.g.
 `.r2.dev/v2.2.0-alpha1/aims-os-1.0-arm64.iso`.
@@ -72,7 +72,7 @@ Bonus: multiple ISOs fit on the same stick (AIMS OS + Debian rescue
 
 1. Download [Ventoy](https://www.ventoy.net/) (Windows / macOS /
    Linux, GUI or CLI).
-2. Plug the USB stick in. **Everything on it will be wiped** — back
+2. Plug the USB stick in. **Everything on it will be wiped**. Back
    up first.
 3. Launch Ventoy → pick the stick → **Install**. Takes ~30 s.
 
@@ -105,7 +105,7 @@ on its own.
 4. **Flash!** → wait depending on stick speed.
 5. Once "Flash Complete", unplug.
 
-#### macOS — command line (`dd`)
+#### macOS, command line (`dd`)
 
 ```bash
 # Identify the device for the stick (e.g., /dev/disk4). Plug the
@@ -115,7 +115,7 @@ diskutil list
 # Unmount (do not eject)
 diskutil unmountDisk /dev/disk4
 
-# Flash. WATCH the disk number — wrong choice OVERWRITES your
+# Flash. WATCH the disk number. A wrong choice OVERWRITES your
 # system disk. /dev/rdiskN (with 'r') is ~5x faster than /dev/diskN.
 sudo dd if=~/Downloads/aims-os-1.0-amd64.iso of=/dev/rdisk4 bs=4m status=progress
 sudo sync
@@ -124,7 +124,7 @@ sudo sync
 diskutil eject /dev/disk4
 ```
 
-#### Linux — `dd` or GNOME Disks
+#### Linux, `dd` or GNOME Disks
 
 CLI:
 ```bash
@@ -136,7 +136,7 @@ sudo dd if=aims-os-1.0-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
 Or GUI: open **GNOME Disks** → pick the stick → menu (⋮) →
 **Restore Disk Image** → pick the ISO.
 
-#### Windows — Rufus
+#### Windows (Rufus)
 
 [Rufus](https://rufus.ie/) remains the Windows standard for a
 single-ISO flash:
@@ -218,14 +218,14 @@ desktop and in the app grid. Double-click to start.
 
 The flow follows the standard Calamares pattern:
 
-1. **Welcome** — checks network and disk space
-2. **Location** — Africa / Dakar by default
-3. **Keyboard** — fr (France) by default, fr (Senegal) or us available
-4. **Partitions** — Erase disk (VM is dedicated) or manual partitioning
-5. **Users** — your name, username, password
-6. **Summary** — final review
-7. **Install** — runs ~20-30 minutes on a modern VM
-8. **Finish** — reboot into the installed system
+1. **Welcome**: checks network and disk space.
+2. **Location**: Africa / Dakar by default.
+3. **Keyboard**: fr (France) by default, fr (Senegal) or us available.
+4. **Partitions**: Erase disk (VM is dedicated), or manual partitioning.
+5. **Users**: your name, username, password.
+6. **Summary**: final review.
+7. **Install**: runs ~20-30 minutes on a modern VM.
+8. **Finish**: reboot into the installed system.
 
 If the install hangs at Finish with a "package manager" error. That’s
 a known bug fixed in v9.1 and later. The system is actually installed,

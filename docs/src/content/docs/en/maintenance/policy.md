@@ -7,7 +7,7 @@ AIMS OS is a Debian-stable-based distribution aligned with the AIMS
 Senegal academic calendar. This page documents the release cadence,
 package architecture, support duration, and how to receive updates.
 
-## Package architecture — three layers
+## Package architecture in three layers
 
 Starting with v2.1, the metapackages are organised in three stacked
 layers. This structure exists to allow multi-centre distribution
@@ -128,7 +128,7 @@ releases per cycle, anchored to the teaching milestones.
 | **vX.Y.3** | July      | Cleanup, prep for the next cycle |
 
 Between releases, **security patches flow continuously** via the
-[APT repo](/en/install/apt/) — no reflash needed.
+[APT repo](/en/install/apt/), no reflash needed.
 
 ## Emergency hotfixes
 
@@ -151,7 +151,7 @@ Each major gets two support tiers:
   backports.
 
 In practice, an AIMS OS major stays usable and patched for roughly
-**3 years** — matching Debian stable's support window for the
+**3 years**, matching Debian stable's support window for the
 underlying base.
 
 | Major | Full support | Security-only | EOL |

@@ -30,8 +30,8 @@ shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
 ```
 
 Pour une version précise au lieu de "latest", remplacez `latest` par
-le tag dans l'URL — par exemple
-`.r2.dev/v2.1.0/aims-os-1.0-arm64.iso`. Les versions taggées
+le tag dans l'URL (par exemple
+`.r2.dev/v2.1.0/aims-os-1.0-arm64.iso`). Les versions taggées
 sont immuables, idéales pour les déploiements de laboratoire qui
 veulent figer une image.
 
@@ -109,7 +109,7 @@ automatiquement.
 4. **Flash!** → patienter selon la vitesse de la clé.
 5. Une fois "Flash Complete", débrancher.
 
-#### macOS — ligne de commande (`dd`)
+#### macOS, ligne de commande (`dd`)
 
 ```bash
 # Identifier le device de la clé (ex: /dev/disk4). Branchez la clé
@@ -119,7 +119,7 @@ diskutil list
 # Démonter (sans éjecter)
 diskutil unmountDisk /dev/disk4
 
-# Flash. ATTENTION au numéro de disque — un mauvais choix ÉCRASE
+# Flash. ATTENTION au numéro de disque. Un mauvais choix ÉCRASE
 # votre disque système. /dev/rdiskN (avec 'r' devant) est ~5x plus
 # rapide que /dev/diskN.
 sudo dd if=~/Downloads/aims-os-1.0-amd64.iso of=/dev/rdisk4 bs=4m status=progress
@@ -129,7 +129,7 @@ sudo sync
 diskutil eject /dev/disk4
 ```
 
-#### Linux — `dd` ou GNOME Disks
+#### Linux, `dd` ou GNOME Disks
 
 CLI :
 ```bash
@@ -141,7 +141,7 @@ sudo dd if=aims-os-1.0-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
 Ou GUI : ouvrir **GNOME Disks** (Disques) → sélectionner la clé →
 menu (⋮) → **Restore Disk Image** → choisir l'ISO.
 
-#### Windows — Rufus
+#### Windows (Rufus)
 
 [Rufus](https://rufus.ie/) reste le standard Windows pour un flash
 mono-ISO :
@@ -226,15 +226,15 @@ bureau et dans la grille d'applications. Double-cliquer pour démarrer.
 
 Le déroulé suit le pattern Calamares standard :
 
-1. **Bienvenue** — vérifie la connexion réseau et l'espace disque
-2. **Emplacement** — Afrique / Dakar par défaut
-3. **Clavier** — fr (France) par défaut, fr (Sénégal) ou us disponibles
-4. **Partitions** — Effacer le disque (la VM est dédiée) ou partitionnement
-   manuel
-5. **Utilisateurs** — votre nom, username, mot de passe
-6. **Résumé** — récapitulatif avant install
-7. **Installer** — boucle ~20-30 minutes sur une VM moderne
-8. **Terminer** — redémarrer dans le système installé
+1. **Bienvenue** : vérifie la connexion réseau et l'espace disque.
+2. **Emplacement** : Afrique / Dakar par défaut.
+3. **Clavier** : fr (France) par défaut, fr (Sénégal) ou us disponibles.
+4. **Partitions** : Effacer le disque (la VM est dédiée), ou partitionnement
+   manuel.
+5. **Utilisateurs** : votre nom, username, mot de passe.
+6. **Résumé** : récapitulatif avant install.
+7. **Installer** : boucle ~20-30 minutes sur une VM moderne.
+8. **Terminer** : redémarrer dans le système installé.
 
 Si l'installation se bloque sur l'étape Terminer avec une erreur
 "gestionnaire de paquets". C’est un bug connu corrigé dans la v9.1
