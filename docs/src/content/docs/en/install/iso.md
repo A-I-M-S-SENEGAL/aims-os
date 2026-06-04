@@ -10,7 +10,7 @@ in a VM (UTM on Mac M-series, QEMU/KVM on Linux, VirtualBox, VMware).
 ## Download
 
 ISOs live on Cloudflare R2 (GitHub Releases cap assets at 2 GiB and
-our images are ~8.5 GB). Stable links, updated on every release:
+our images are ~7.7 GB). Stable links, updated on every release:
 
 - **arm64** (Mac M-series under UTM, ARM servers):
   [aims-os-1.0-arm64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso)
@@ -29,8 +29,13 @@ shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
 
 For a specific version instead of "latest", swap `latest` for the
 tag in the URL — for example
-`.r2.dev/v2.0.0-rc1/aims-os-1.0-arm64.iso`. Tagged versions are
+`.r2.dev/v2.1.0/aims-os-1.0-arm64.iso`. Tagged versions are
 immutable, useful for lab deployments that want to pin an image.
+
+For **pre-releases** (`-alpha`, `-beta`, `-rc`) — they deliberately
+don't update `latest/` (safety for stable deployments). Use the
+explicit versioned URL, e.g.
+`.r2.dev/v2.2.0-alpha1/aims-os-1.0-arm64.iso`.
 
 All releases:
 [github.com/A-I-M-S-SENEGAL/aims-os/releases](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
@@ -38,14 +43,57 @@ All releases:
 ## Flash to a USB stick (real laptop, physical machine)
 
 The most common case for AIMS students. You'll need a USB stick of
-**16 GB minimum** (the ISO is ~8.5 GB and Calamares uses extra during
+**16 GB minimum** (the ISO is ~7.7 GB and Calamares uses extra during
 install).
 
 :::caution
 Flashing **erases everything** on the stick. Back up first.
 :::
 
-### Recommended: balenaEtcher (cross-OS, GUI)
+### Recommended: Ventoy (all platforms)
+
+**Why not Rufus / Etcher**: these tools write the ISO byte by byte
+onto the stick (DD mode). That's slow by nature, especially on
+mid-range USB sticks: 30-60 min for 7.7 GB on a decent USB 3.0
+stick, over an hour on a cheap one that actually tops out at
+5-10 MB/s sustained write. And every new AIMS OS release means a
+full re-flash.
+
+**Ventoy changes the model**. You install Ventoy on the stick
+**once** (~30 seconds, formats into two partitions). After that,
+you copy the ISO onto the stick **like a normal file**: no more
+Rufus, no more wait on every update, no more "wrong disk" risk. On
+boot, a Ventoy menu lets you pick the image.
+
+Bonus: multiple ISOs fit on the same stick (AIMS OS + Debian rescue
++ Windows installer, all together).
+
+**Install Ventoy**:
+
+1. Download [Ventoy](https://www.ventoy.net/) (Windows / macOS /
+   Linux, GUI or CLI).
+2. Plug the USB stick in. **Everything on it will be wiped** — back
+   up first.
+3. Launch Ventoy → pick the stick → **Install**. Takes ~30 s.
+
+**Add / update AIMS OS**:
+
+1. Open the stick in your file manager (macOS Finder, Windows
+   Explorer, Linux Files).
+2. Drag `aims-os-1.0-<arch>.iso` into the root of the stick. Time =
+   regular file-copy speed (often 1-3 min for 7.7 GB on USB 3.0).
+3. Eject the stick cleanly.
+4. Boot the PC from the stick → Ventoy menu → pick AIMS OS → GRUB.
+
+**Updating to a new release**: delete the old `.iso`, copy the new
+one in. No reformatting, no Rufus.
+
+### Alternatives
+
+If Ventoy isn't an option (IT policy, stick already flashed), here
+are the classic single-ISO flows.
+
+#### balenaEtcher (cross-OS, GUI)
 
 Works the same on macOS, Windows and Linux. Verifies the checksum
 on its own.
@@ -54,10 +102,10 @@ on its own.
 2. Open Etcher → **Flash from file** → pick the AIMS OS ISO.
 3. **Select target** → pick the USB stick (double-check the disk
    letter/number).
-4. **Flash!** → wait 5-15 min depending on stick speed.
+4. **Flash!** → wait depending on stick speed.
 5. Once "Flash Complete", unplug.
 
-### macOS — command line (`dd`)
+#### macOS — command line (`dd`)
 
 ```bash
 # Identify the device for the stick (e.g., /dev/disk4). Plug the
@@ -76,7 +124,7 @@ sudo sync
 diskutil eject /dev/disk4
 ```
 
-### Linux — `dd` or GNOME Disks
+#### Linux — `dd` or GNOME Disks
 
 CLI:
 ```bash
@@ -88,14 +136,25 @@ sudo dd if=aims-os-1.0-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
 Or GUI: open **GNOME Disks** → pick the stick → menu (⋮) →
 **Restore Disk Image** → pick the ISO.
 
-### Windows — Rufus or balenaEtcher
+#### Windows — Rufus
 
-[Rufus](https://rufus.ie/) is the Windows standard:
+[Rufus](https://rufus.ie/) remains the Windows standard for a
+single-ISO flash:
 1. Launch Rufus → **Device** = USB stick.
 2. **Boot selection** → SELECT → pick the ISO.
 3. **Partition scheme**: GPT (modern UEFI). **Target system**: UEFI.
 4. **START** → if Rufus asks "DD Image" vs "ISO Image", pick
    **DD Image** (the AIMS ISO is isohybrid).
+
+:::tip
+Rufus DD mode writes byte by byte → time = the stick's actual
+sustained write speed. A "USB 3.0 latest generation" cheap stick
+often tops out at 10-30 MB/s = 4-13 min for 7.7 GB. A genuine
+Sandisk Extreme Pro / Samsung BAR Plus runs at 150 MB/s = ~1 min.
+Quick test: run `CrystalDiskMark` on Windows to measure your stick.
+If you're flashing multiple times or doing regular updates, switch
+to Ventoy (above).
+:::
 
 ### Boot from the stick
 
