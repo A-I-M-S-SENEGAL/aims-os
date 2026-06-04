@@ -23,7 +23,7 @@ export default defineConfig({
         replacesTitle: false,
       },
       favicon: '/favicon.png',
-      // Bilingual setup. French is the root locale (no URL prefix —
+      // Bilingual setup. French is the root locale (no URL prefix,
       // pages live at /docs/install/iso/ etc.), English is under /en/
       // (so /docs/en/install/iso/). Starlight shows a language picker
       // in the top bar automatically. Per-page translation lives at
@@ -53,7 +53,7 @@ export default defineConfig({
       plugins: [starlightBasePath()],
       sidebar: [
         // Site root (index.mdx) is reachable via the title / logo, not
-        // via the sidebar — Starlight rejects `slug: "index"`.
+        // via the sidebar; Starlight rejects `slug: "index"`.
         // Labels default to French (root locale); `translations.en` gives
         // the English version of each label on /en/ pages.
         {
@@ -82,18 +82,18 @@ export default defineConfig({
           translations: { en: 'Tracks' },
           items: [
             {
-              label: 'Regular — Sciences Math',
-              translations: { en: 'Regular — Mathematical Sciences' },
+              label: 'Regular, Sciences Math',
+              translations: { en: 'Regular, Mathematical Sciences' },
               slug: 'filieres/regular',
             },
             {
-              label: 'Coop — Big Data',
-              translations: { en: 'Coop — Big Data' },
+              label: 'Coop Big Data',
+              translations: { en: 'Coop Big Data' },
               slug: 'filieres/bigdata',
             },
             {
-              label: 'Coop — Security',
-              translations: { en: 'Coop — Computer Security' },
+              label: 'Coop Security',
+              translations: { en: 'Coop Computer Security' },
               slug: 'filieres/security',
             },
           ],
