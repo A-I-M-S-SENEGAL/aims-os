@@ -1,3 +1,17 @@
+aims-os-welcome (2.1+2) trixie; urgency=medium
+
+  * runtimes.sh: verify every Bun / Deno / uv download against the
+    sha256 each project publishes in the same release (SHASUMS256.txt,
+    .sha256sum, .sha256). Catches corrupted or truncated downloads
+    before the binaries land in /usr/local/bin.
+  * rstudio.sh: amd64 now pulls the stable channel
+    (download1.rstudio.org, 2026.07.1-147) with the sha256 from
+    Posit's downloads manifest. arm64 stays on the pinned dailies
+    build (the only arm64 .deb source) with its bytes pinned by
+    sha256. Both installs refuse to proceed on a hash mismatch.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 29 Jul 2026 15:40:00 +0000
+
 aims-os-welcome (2.1+1) trixie; urgency=medium
 
   * Ship the six post-install scripts under /usr/share/aims-os/install/.

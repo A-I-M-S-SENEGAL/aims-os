@@ -23,16 +23,29 @@ set -e
 INSTALL_DIR="/opt/miniforge3"
 ARCH="$(dpkg --print-architecture)"
 
+# Pinned release + upstream sha256 (from the .sha256 assets published
+# alongside each installer on the conda-forge/miniforge release page).
+# Bump the version AND both hashes together on each AIMS OS release —
+# a `latest` download with no checksum would put whatever GitHub serves
+# that day straight into the ISO as root.
+MF_VERSION="26.3.2-3"
+
 case "${ARCH}" in
-    amd64) MF_ARCH="Linux-x86_64"  ;;
-    arm64) MF_ARCH="Linux-aarch64" ;;
+    amd64)
+        MF_ARCH="Linux-x86_64"
+        MF_SHA256="848194851a98903134187fbb4ab50efe87b003e0c0f808f97644b7524a62bf2c"
+        ;;
+    arm64)
+        MF_ARCH="Linux-aarch64"
+        MF_SHA256="2c113a69297e612b01ca0f320c22a3107a11f2ab9b573d79ac868a175945ce29"
+        ;;
     *)
         echo "[aims-os/hook] miniforge: unsupported arch ${ARCH}; skipping" >&2
         exit 0
         ;;
 esac
 
-URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-${MF_ARCH}.sh"
+URL="https://github.com/conda-forge/miniforge/releases/download/${MF_VERSION}/Miniforge3-${MF_VERSION}-${MF_ARCH}.sh"
 # Miniforge's installer header refuses to run unless its argv0 ends in
 # ".sh" (literal grep '\.sh$' on $0). mktemp without a suffix produces
 # /tmp/tmp.XXXXX, which fails that check with:
@@ -40,12 +53,18 @@ URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge
 # Force the .sh suffix so the installer accepts us.
 TMP="$(mktemp --suffix=.sh)"
 
-echo "[aims-os/hook] downloading Miniforge3 for ${MF_ARCH} ..."
+echo "[aims-os/hook] downloading Miniforge3 ${MF_VERSION} for ${MF_ARCH} ..."
 if ! curl -fsSL -o "${TMP}" "${URL}"; then
     echo "[aims-os/hook] miniforge download failed; continuing without it" >&2
     rm -f "${TMP}"
     exit 0
 fi
+
+echo "${MF_SHA256}  ${TMP}" | sha256sum -c - >/dev/null || {
+    echo "[aims-os/hook] miniforge sha256 MISMATCH — refusing to install" >&2
+    rm -f "${TMP}"
+    exit 1
+}
 
 echo "[aims-os/hook] installing Miniforge3 to ${INSTALL_DIR} (silent) ..."
 bash "${TMP}" -b -p "${INSTALL_DIR}"
