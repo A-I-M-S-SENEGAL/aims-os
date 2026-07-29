@@ -19,7 +19,6 @@ Depends:
 # the v2.0 "everything in the ISO" experience, just driven by apt.
 # Order from base to leaves.
  aims-os-core,
- aims-os-branding,
  aims-os-desktop,
  aims-os-desktop-extras,
  aims-os-desktop-dev,
@@ -29,6 +28,14 @@ Depends:
  aims-os-security,
  aims-os-centre-senegal,
  aims-os-welcome,
+# aims-os-branding is a Recommends, not a Depends: the apt repo does not
+# carry it (its payload needs the ISO render pipeline — see
+# apt-repo/build-debs.sh), so a hard dependency would make this
+# metapackage uninstallable on a vanilla Debian. ISO installs already
+# have branding; vanilla-Debian installs get everything else and apt
+# just warns about the unavailable recommend.
+Recommends:
+ aims-os-branding,
 Description: AIMS OS — pull every layer (v2.0 "complete install" alias)
  Convenience metapackage for users who want the v2.0 "everything in
  the ISO" experience on top of the slim v2.1 install. Pulls every
@@ -43,3 +50,7 @@ Description: AIMS OS — pull every layer (v2.0 "complete install" alias)
  About 9 GB on disk after install. Most students don't need this —
  the slim v2.1 ISO plus a single filière pick (aims-os-bigdata or
  aims-os-security via the first-boot wizard) covers the curriculum.
+ .
+ aims-os-branding is pulled as a Recommends: it only exists on AIMS OS
+ ISO installs (the apt repo does not carry it), so on a vanilla Debian
+ this metapackage installs everything else and skips the branding.

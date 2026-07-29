@@ -1,3 +1,14 @@
+aims-os-desktop-dev (2.1+1) trixie; urgency=medium
+
+  * Drop gradle and kotlin. Trixie froze them at 4.4.1 (2017) and
+    1.3.31 (2019); no modern Android project builds with either.
+    Android Studio (Flatpak) bundles current versions of both, and
+    command-line builds go through each project's gradle-wrapper.
+  * Depend on adb and fastboot, the real Trixie package names, instead
+    of the android-tools-adb / android-tools-fastboot virtual aliases.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 29 Jul 2026 15:10:00 +0000
+
 aims-os-desktop-dev (2.1) trixie; urgency=medium
 
   * Initial release. Carved out of aims-os-desktop. Holds the Java /

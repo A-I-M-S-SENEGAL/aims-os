@@ -65,8 +65,11 @@ Depends:
  texlive-luatex,
  texlive-bibtex-extra,
  texstudio,
-# --- Geometry, full plotting ------------------------------------------
- geogebra,
+# --- Full plotting docs -----------------------------------------------
+# NOTE: GeoGebra is intentionally NOT shipped. Trixie's geogebra package
+# is 4.0.34 — a 2011 release, useless next to today's GeoGebra Classic 6.
+# Install the current one via Flatpak instead:
+#   flatpak install flathub org.geogebra.GeoGebra
  gnuplot-doc,
 # --- Extra numerical libraries (build-from-source helpers) -----------
  libhdf5-dev,
@@ -81,9 +84,14 @@ Description: AIMS OS — Regular track extras (full LaTeX, symbolic, full R)
  R data-science tidyverse (r-recommended, tidyverse, ggplot2, dplyr,
  knitr, rmarkdown), the full multilingual TeX Live (English, other
  languages including African hyphenation, Arabic, publishers, science,
- XeTeX, LuaTeX, bibtex-extra, TeXstudio), GeoGebra for geometry, and
- the extra numerical library headers (HDF5, GMP, MPFR) for compiling
- scientific software from source.
+ XeTeX, LuaTeX, bibtex-extra, TeXstudio), and the extra numerical
+ library headers (HDF5, GMP, MPFR) for compiling scientific software
+ from source.
+ .
+ GeoGebra is deliberately NOT included: Debian Trixie packages
+ GeoGebra 4.0 (a 2011 release). Install the current GeoGebra Classic
+ via Flatpak instead: `flatpak install flathub org.geogebra.GeoGebra`
+ (Flatpak + Flathub ship in aims-os-desktop).
  .
  Install this on top of aims-os-math if you want the v2.0 complete
  baseline. About 1.5 GB on disk.

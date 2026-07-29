@@ -1,3 +1,14 @@
+aims-os-everything (2.1+1) trixie; urgency=medium
+
+  * Demote aims-os-branding from Depends to Recommends. The apt repo
+    does not carry aims-os-branding (its payload needs the ISO render
+    pipeline; apt-repo/build-debs.sh skips it), so the hard dependency
+    made this metapackage uninstallable on a vanilla Debian Trixie.
+    ISO installs already have branding in place; vanilla installs now
+    get every other layer and apt merely warns about the recommend.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 29 Jul 2026 15:10:00 +0000
+
 aims-os-everything (2.1) trixie; urgency=medium
 
   * Initial release. Convenience metapackage that pulls every AIMS OS

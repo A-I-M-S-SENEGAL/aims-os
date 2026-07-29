@@ -47,12 +47,12 @@
 #                           Evolution, ghostwriter, fish, tilix,
 #                           flameshot, English LibreOffice helpers,
 #                           non-free codecs.
-#   aims-os-desktop-dev     OpenJDK 21, Gradle, Kotlin, PHP/Composer,
-#                           adb/fastboot, Docker/Podman/kubectl/Ansible,
-#                           rustup. ~2 GB.
+#   aims-os-desktop-dev     OpenJDK 21, PHP/Composer, adb/fastboot,
+#                           Docker/Podman/kubectl/Ansible, rustup.
+#                           ~2 GB.
 #   aims-os-math-extras     Maxima, full Octave, R tidyverse, full
-#                           multilingual TeX Live, TeXstudio, GeoGebra,
-#                           niche Python. ~1.5 GB.
+#                           multilingual TeX Live, TeXstudio, niche
+#                           Python. ~1.5 GB.
 #   aims-os-bigdata         Big Data / NLP / Computer Vision / Climate /
 #                           DB clients track.
 #   aims-os-security        Computer Security track.

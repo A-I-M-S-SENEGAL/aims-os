@@ -1,3 +1,13 @@
+aims-os-math-extras (2.1+1) trixie; urgency=medium
+
+  * Drop geogebra. Trixie packages GeoGebra 4.0.34, a 2011 release
+    that no longer matches what the geometry courses use. The current
+    GeoGebra Classic is install-on-demand via Flatpak
+    (org.geogebra.GeoGebra on Flathub); Flatpak + the Flathub remote
+    already ship in aims-os-desktop.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 29 Jul 2026 15:10:00 +0000
+
 aims-os-math-extras (2.1) trixie; urgency=medium
 
   * Initial release. Carved out of aims-os-math. Holds the full v2.0

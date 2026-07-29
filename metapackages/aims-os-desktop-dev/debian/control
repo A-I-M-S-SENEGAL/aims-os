@@ -19,21 +19,22 @@ Depends:
 # --- Web & Android Development ---------------------------------------
 # default-jdk    Java 21 (Trixie default). Required by Android Studio,
 #                Gradle, Spring Boot, Tomcat.
-# gradle         Android's official build tool. The Android Studio
-#                bundle uses its own gradle-wrapper but a system gradle
-#                lets command-line builds work offline.
-# kotlin         Android's first-class language since 2019.
+# NOTE: gradle and kotlin are intentionally NOT shipped. Trixie froze
+# gradle at 4.4.1 (2017) and kotlin at 1.3.31 (2019) — no modern
+# Android project builds with either. Android Studio (Flatpak, see
+# below) bundles its own current Gradle + Kotlin; command-line builds
+# use the project's gradle-wrapper (gradlew).
 # php-cli +      LAMP-side of the Web course (Laravel, Symfony,
 # composer       vanilla PHP).
-# android-tools- flash and debug Android devices over USB for the
-#   adb/fastboot Android Development course hardware labs.
+# adb/fastboot   flash and debug Android devices over USB for the
+#                Android Development course hardware labs. (These are
+#                the real Trixie package names; android-tools-adb and
+#                android-tools-fastboot are only virtual aliases.)
  default-jdk,
- gradle,
- kotlin,
  php-cli,
  composer,
- android-tools-adb,
- android-tools-fastboot,
+ adb,
+ fastboot,
 # --- Containers & orchestration --------------------------------------
 # docker.io      Docker Engine (Moby) — 26.1.5 in Trixie. Pulls
 #                containerd as a dep.
@@ -60,8 +61,8 @@ Description: AIMS OS — heavy development stack (Java, Android, containers, Rus
  only lands on machines that actually need it.
  .
  Covers:
-   * Web & Android Development course — OpenJDK 21, Gradle, Kotlin,
-     PHP / Composer, adb / fastboot.
+   * Web & Android Development course — OpenJDK 21, PHP / Composer,
+     adb / fastboot.
    * Containers & orchestration (Web/Android + MLOps + Big Data labs)
      — Docker Engine + Compose v2 + Buildx, Podman, kubectl, Ansible.
    * Rust toolchain manager (rustup) for users who want stable/nightly
@@ -70,3 +71,8 @@ Description: AIMS OS — heavy development stack (Java, Android, containers, Rus
  Android Studio itself stays install-on-demand via Flatpak
  (com.google.AndroidStudio on Flathub) — apt-shipping it would pin
  it to whatever version Debian Trixie froze at release.
+ .
+ Gradle and Kotlin are deliberately NOT included: Trixie's packages
+ (gradle 4.4.1 from 2017, kotlin 1.3.31 from 2019) predate every
+ modern Android project. Android Studio bundles current versions of
+ both, and command-line builds use each project's gradle-wrapper.
