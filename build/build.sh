@@ -18,9 +18,9 @@
 #   ./build/build.sh help            Show this help
 #
 # Output:
-#   build/out/aims-os-1.0-<arch>.iso         the bootable ISO
-#   build/out/aims-os-1.0-<arch>.iso.sha256  checksum
-#   build/out/aims-os-1.0-<arch>.log         full build log
+#   build/out/aims-os-2.1-<arch>.iso         the bootable ISO
+#   build/out/aims-os-2.1-<arch>.iso.sha256  checksum
+#   build/out/aims-os-2.1-<arch>.log         full build log
 # =============================================================================
 
 set -euo pipefail
@@ -33,7 +33,10 @@ BUILD_DIR="${REPO_ROOT}/build"
 OUT_DIR="${BUILD_DIR}/out"
 CACHE_DIR="${BUILD_DIR}/cache"
 
-VERSION="1.0"
+# Stamped into the ISO / checksum / log filenames. Keep in sync with
+# ISO_VERSION in .github/workflows/{build-iso,publish-from-artifacts,
+# test-iso-boot}.yml.
+VERSION="2.1"
 IMAGE_NAME="aims-os-builder"
 
 # -----------------------------------------------------------------------------

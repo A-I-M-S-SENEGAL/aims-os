@@ -57,6 +57,11 @@ concurrency:
   group: test-iso-boot-${{ github.event.workflow_run.id || github.event.inputs.run_id || github.run_id }}
   cancel-in-progress: false
 
+# Version stamp in the artifact names produced by build-iso.yml. Keep in
+# sync with VERSION in build/build.sh and with the other two workflows.
+env:
+  ISO_VERSION: "2.1"
+
 jobs:
   amd64-boot:
     name: amd64 — QEMU boot test (KVM)
@@ -115,17 +120,17 @@ jobs:
       - name: Download ISO artifact
         uses: actions/download-artifact@v4
         with:
-          name: aims-os-1.0-amd64
+          name: aims-os-${{ env.ISO_VERSION }}-amd64
           run-id: ${{ steps.pick.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify SHA + extract kernel + initrd
         run: |
           ls -lh *.iso *.sha256
-          sha256sum -c aims-os-1.0-amd64.iso.sha256
+          sha256sum -c aims-os-${ISO_VERSION}-amd64.iso.sha256
 
           mkdir -p iso-mount
-          sudo mount -o loop,ro aims-os-1.0-amd64.iso iso-mount
+          sudo mount -o loop,ro aims-os-${ISO_VERSION}-amd64.iso iso-mount
           ls -l iso-mount/live/
 
           # Live-build names files with the kernel version (vmlinuz-6.12...).
@@ -158,7 +163,7 @@ jobs:
             -kernel boot-vmlinuz \
             -initrd boot-initrd \
             -append "boot=live console=ttyS0,115200 console=tty0 noeject systemd.show_status=true systemd.unit=multi-user.target" \
-            -drive file=aims-os-1.0-amd64.iso,media=cdrom,if=virtio,readonly=on \
+            -drive file=aims-os-${ISO_VERSION}-amd64.iso,media=cdrom,if=virtio,readonly=on \
             -nographic \
             -serial mon:stdio \
             -no-reboot \
@@ -271,7 +276,7 @@ jobs:
       - name: Download ISO artifact
         uses: actions/download-artifact@v4
         with:
-          name: aims-os-1.0-arm64
+          name: aims-os-${{ env.ISO_VERSION }}-arm64
           run-id: ${{ steps.pick.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -281,11 +286,11 @@ jobs:
           ls -lh *.iso *.sha256
 
           echo "=== SHA-256 check ==="
-          sha256sum -c aims-os-1.0-arm64.iso.sha256
+          sha256sum -c aims-os-${ISO_VERSION}-arm64.iso.sha256
 
           echo "=== Mount + structural files present ==="
           mkdir -p iso-mount
-          sudo mount -o loop,ro aims-os-1.0-arm64.iso iso-mount
+          sudo mount -o loop,ro aims-os-${ISO_VERSION}-arm64.iso iso-mount
 
           for f in live/vmlinuz live/initrd.img live/filesystem.squashfs; do
               found=$(ls iso-mount/${f}* 2>/dev/null | head -1)
@@ -330,8 +335,8 @@ jobs:
               echo "# arm64 ISO validation"
               echo
               echo "Run-id: ${{ steps.pick.outputs.run_id }}"
-              echo "ISO size: $(stat -c '%s' aims-os-1.0-arm64.iso 2>/dev/null) bytes"
-              echo "SHA: $(cat aims-os-1.0-arm64.iso.sha256 2>/dev/null)"
+              echo "ISO size: $(stat -c '%s' aims-os-${ISO_VERSION}-arm64.iso 2>/dev/null) bytes"
+              echo "SHA: $(cat aims-os-${ISO_VERSION}-arm64.iso.sha256 2>/dev/null)"
           } > arm64-validation.txt
           cat arm64-validation.txt
         # Always run — even on validation failure we want the report

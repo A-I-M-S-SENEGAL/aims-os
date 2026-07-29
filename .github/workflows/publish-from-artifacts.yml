@@ -35,6 +35,11 @@ concurrency:
   group: publish-from-artifacts-${{ inputs.tag }}
   cancel-in-progress: false
 
+# Version stamp in every ISO / artifact / R2 object name. Keep in sync
+# with VERSION in build/build.sh and with the other two workflows.
+env:
+  ISO_VERSION: "2.1"
+
 jobs:
   publish:
     name: Publish ${{ inputs.tag }} from run ${{ inputs.run_id }}
@@ -64,11 +69,11 @@ jobs:
           mkdir -p artifacts/arm64 artifacts/amd64
           gh run download "${{ inputs.run_id }}" \
             --repo "${{ github.repository }}" \
-            --name "aims-os-1.0-arm64" \
+            --name "aims-os-${ISO_VERSION}-arm64" \
             --dir  artifacts/arm64
           gh run download "${{ inputs.run_id }}" \
             --repo "${{ github.repository }}" \
-            --name "aims-os-1.0-amd64" \
+            --name "aims-os-${ISO_VERSION}-amd64" \
             --dir  artifacts/amd64
           ls -lh artifacts/arm64 artifacts/amd64
 
@@ -78,7 +83,7 @@ jobs:
           # Re-verify after the artifact round-trip to catch any corruption
           # before we publish bad bits to R2.
           for arch in arm64 amd64; do
-            ( cd "artifacts/${arch}" && shasum -a 256 -c "aims-os-1.0-${arch}.iso.sha256" )
+            ( cd "artifacts/${arch}" && shasum -a 256 -c "aims-os-${ISO_VERSION}-${arch}.iso.sha256" )
           done
 
       # Pre-release detection: any tag with a hyphen (rc, alpha, beta) is
@@ -99,17 +104,17 @@ jobs:
           IS_PRERELEASE: ${{ steps.prerel.outputs.is_prerelease }}
         run: |
           for ARCH in arm64 amd64; do
-            ISO="artifacts/${ARCH}/aims-os-1.0-${ARCH}.iso"
+            ISO="artifacts/${ARCH}/aims-os-${ISO_VERSION}-${ARCH}.iso"
             SHA="${ISO}.sha256"
             echo "::group::Uploading ${ARCH}"
             ls -lh "${ISO}" "${SHA}"
 
             # Versioned copy — always.
-            aws s3 cp "${ISO}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
+            aws s3 cp "${ISO}" "s3://${R2_BUCKET}/${TAG}/aims-os-${ISO_VERSION}-${ARCH}.iso" \
                 --endpoint-url "${R2_ENDPOINT}" \
                 --content-type application/x-iso9660-image \
                 --no-progress
-            aws s3 cp "${SHA}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso.sha256" \
+            aws s3 cp "${SHA}" "s3://${R2_BUCKET}/${TAG}/aims-os-${ISO_VERSION}-${ARCH}.iso.sha256" \
                 --endpoint-url "${R2_ENDPOINT}" \
                 --content-type text/plain \
                 --no-progress
@@ -122,12 +127,12 @@ jobs:
 
             # latest/ alias — stable only. See build-iso.yml for the
             # x-amz-tagging-directive R2 limitation explanation.
-            aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
-                      "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso" \
+            aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-${ISO_VERSION}-${ARCH}.iso" \
+                      "s3://${R2_BUCKET}/latest/aims-os-${ISO_VERSION}-${ARCH}.iso" \
                 --endpoint-url "${R2_ENDPOINT}" \
                 --copy-props none \
                 --no-progress
-            aws s3 cp "${SHA}" "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso.sha256" \
+            aws s3 cp "${SHA}" "s3://${R2_BUCKET}/latest/aims-os-${ISO_VERSION}-${ARCH}.iso.sha256" \
                 --endpoint-url "${R2_ENDPOINT}" \
                 --content-type text/plain \
                 --no-progress
@@ -137,8 +142,8 @@ jobs:
       - name: Stage .sha256 files for the Release
         run: |
           mkdir -p release-assets
-          cp artifacts/arm64/aims-os-1.0-arm64.iso.sha256 release-assets/
-          cp artifacts/amd64/aims-os-1.0-amd64.iso.sha256 release-assets/
+          cp artifacts/arm64/aims-os-${ISO_VERSION}-arm64.iso.sha256 release-assets/
+          cp artifacts/amd64/aims-os-${ISO_VERSION}-amd64.iso.sha256 release-assets/
           ls -lh release-assets/
 
       - name: Compose release body
@@ -153,20 +158,20 @@ jobs:
             echo ""
             echo "**${TAG} — pinned to this release**"
             echo ""
-            echo "- arm64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-1.0-arm64.iso>"
-            echo "- amd64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-1.0-amd64.iso>"
+            echo "- arm64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-${ISO_VERSION}-arm64.iso>"
+            echo "- amd64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-${ISO_VERSION}-amd64.iso>"
             if [ "${IS_PRERELEASE}" != "true" ]; then
               echo ""
               echo "**Always-latest aliases (overwritten by each new release)**"
               echo ""
-              echo "- arm64: <${R2_PUBLIC_BASE}/latest/aims-os-1.0-arm64.iso>"
-              echo "- amd64: <${R2_PUBLIC_BASE}/latest/aims-os-1.0-amd64.iso>"
+              echo "- arm64: <${R2_PUBLIC_BASE}/latest/aims-os-${ISO_VERSION}-arm64.iso>"
+              echo "- amd64: <${R2_PUBLIC_BASE}/latest/aims-os-${ISO_VERSION}-amd64.iso>"
             fi
             echo ""
             echo "## Verify"
             echo ""
             echo '```bash'
-            echo "shasum -a 256 -c aims-os-1.0-arm64.iso.sha256"
+            echo "shasum -a 256 -c aims-os-${ISO_VERSION}-arm64.iso.sha256"
             echo '```'
             echo ""
             echo "The .sha256 files attached to this release pin the bytes for ${TAG}; the bytes on R2 must match."

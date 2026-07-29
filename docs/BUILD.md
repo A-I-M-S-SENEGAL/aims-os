@@ -76,8 +76,8 @@ selection, and live-build orchestration.
 ISOs land in:
 
 ```
-build/out/aims-os-1.0-arm64.iso
-build/out/aims-os-1.0-amd64.iso
+build/out/aims-os-2.1-arm64.iso
+build/out/aims-os-2.1-amd64.iso
 ```
 
 A SHA-256 sum file is generated alongside each ISO.
@@ -107,7 +107,7 @@ diskutil list
 diskutil unmountDisk /dev/diskN
 
 # write the ISO (use the raw device "rdiskN" for speed)
-sudo dd if=build/out/aims-os-1.0-amd64.iso of=/dev/rdiskN bs=4m status=progress
+sudo dd if=build/out/aims-os-2.1-amd64.iso of=/dev/rdiskN bs=4m status=progress
 sync
 diskutil eject /dev/diskN
 ```

@@ -15,30 +15,30 @@ Les ISO vivent sur Cloudflare R2 (GitHub Releases cape les assets à
 release :
 
 - **arm64** (Mac M-series sous UTM, serveurs ARM) :
-  [aims-os-1.0-arm64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso)
-  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso.sha256)
+  [aims-os-2.1-arm64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-2.1-arm64.iso)
+  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-2.1-arm64.iso.sha256)
 - **amd64** (PC portables x86_64) :
-  [aims-os-1.0-amd64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-amd64.iso)
-  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-amd64.iso.sha256)
+  [aims-os-2.1-amd64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-2.1-amd64.iso)
+  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-2.1-amd64.iso.sha256)
 
 Vérifiez la somme avant de booter (le `.sha256` est aussi attaché à
 la [release GitHub correspondante](https://github.com/A-I-M-S-SENEGAL/aims-os/releases),
 ça permet de pinner la version) :
 
 ```bash
-shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
+shasum -a 256 -c aims-os-2.1-arm64.iso.sha256
 ```
 
 Pour une version précise au lieu de "latest", remplacez `latest` par
 le tag dans l'URL (par exemple
-`.r2.dev/v2.1.0/aims-os-1.0-arm64.iso`). Les versions taggées
+`.r2.dev/v2.1.1/aims-os-2.1-arm64.iso`). Les versions taggées
 sont immuables, idéales pour les déploiements de laboratoire qui
 veulent figer une image.
 
 Pour les **pré-releases** (`-alpha`, `-beta`, `-rc`) : elles ne
 mettent volontairement pas à jour `latest/` (c'est une sécurité pour
 les déploiements stables). Téléchargez-les par URL versionnée
-explicite, par exemple `.r2.dev/v2.2.0-alpha1/aims-os-1.0-arm64.iso`.
+explicite, par exemple `.r2.dev/v2.2.0-alpha1/aims-os-2.1-arm64.iso`.
 
 Toutes les releases :
 [github.com/A-I-M-S-SENEGAL/aims-os/releases](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
@@ -84,7 +84,7 @@ Debian rescue + Windows installer si besoin).
 
 1. Ouvrir la clé dans l'Explorateur de fichiers (macOS Finder, Windows
    Explorer, Linux Files).
-2. Glisser-déposer `aims-os-1.0-<arch>.iso` à la racine. Temps =
+2. Glisser-déposer `aims-os-2.1-<arch>.iso` à la racine. Temps =
    vitesse de copie de fichier (souvent 1-3 min pour 7,7 GB sur USB 3.0).
 3. Éjecter proprement la clé.
 4. Booter le PC sur la clé → menu Ventoy → choisir AIMS OS → GRUB.
@@ -122,7 +122,7 @@ diskutil unmountDisk /dev/disk4
 # Flash. ATTENTION au numéro de disque. Un mauvais choix ÉCRASE
 # votre disque système. /dev/rdiskN (avec 'r' devant) est ~5x plus
 # rapide que /dev/diskN.
-sudo dd if=~/Downloads/aims-os-1.0-amd64.iso of=/dev/rdisk4 bs=4m status=progress
+sudo dd if=~/Downloads/aims-os-2.1-amd64.iso of=/dev/rdisk4 bs=4m status=progress
 sudo sync
 
 # Éjecter proprement
@@ -135,7 +135,7 @@ CLI :
 ```bash
 lsblk                                  # repère ta clé (ex: /dev/sdc)
 sudo umount /dev/sdc?                  # démonte toutes les partitions
-sudo dd if=aims-os-1.0-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
+sudo dd if=aims-os-2.1-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
 ```
 
 Ou GUI : ouvrir **GNOME Disks** (Disques) → sélectionner la clé →
@@ -184,7 +184,7 @@ ou **Suppr** au démarrage).
 1. Ouvrir UTM, créer une nouvelle machine virtuelle, **Virtualiser**
    (pas Émuler), choisir **Linux**.
 2. Pointer le champ **Boot ISO Image** vers le fichier
-   `aims-os-1.0-arm64.iso`.
+   `aims-os-2.1-arm64.iso`.
 3. Mémoire : 4 GiB minimum, 8 GiB recommandé pour GNOME + LibreOffice.
 4. Stockage : 50 GiB minimum (la stack scientifique + LaTeX + Cursor
    prennent ~12 GiB après install).
@@ -199,7 +199,7 @@ qemu-system-x86_64 \
   -enable-kvm \
   -m 4G -smp 4 \
   -drive file=aims-os-disk.qcow2,format=qcow2,if=virtio \
-  -cdrom aims-os-1.0-amd64.iso \
+  -cdrom aims-os-2.1-amd64.iso \
   -boot d \
   -vga virtio -display gtk
 ```

@@ -13,29 +13,29 @@ ISOs live on Cloudflare R2 (GitHub Releases cap assets at 2 GiB and
 our images are ~7.7 GB). Stable links, updated on every release:
 
 - **arm64** (Mac M-series under UTM, ARM servers):
-  [aims-os-1.0-arm64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso)
-  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-arm64.iso.sha256)
+  [aims-os-2.1-arm64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-2.1-arm64.iso)
+  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-2.1-arm64.iso.sha256)
 - **amd64** (x86_64 laptops):
-  [aims-os-1.0-amd64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-amd64.iso)
-  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-1.0-amd64.iso.sha256)
+  [aims-os-2.1-amd64.iso](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-2.1-amd64.iso)
+  · [SHA-256](https://pub-5d3e0470a4ad4b4484092f7263fc8e17.r2.dev/latest/aims-os-2.1-amd64.iso.sha256)
 
 Check the checksum before booting. The `.sha256` is also attached
 to the matching [GitHub Release](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
 so you can pin a version:
 
 ```bash
-shasum -a 256 -c aims-os-1.0-arm64.iso.sha256
+shasum -a 256 -c aims-os-2.1-arm64.iso.sha256
 ```
 
 For a specific version instead of "latest", swap `latest` for the
 tag in the URL (for example
-`.r2.dev/v2.1.0/aims-os-1.0-arm64.iso`). Tagged versions are
+`.r2.dev/v2.1.1/aims-os-2.1-arm64.iso`). Tagged versions are
 immutable, useful for lab deployments that want to pin an image.
 
 For **pre-releases** (`-alpha`, `-beta`, `-rc`): they deliberately
 don't update `latest/` (safety for stable deployments). Use the
 explicit versioned URL, e.g.
-`.r2.dev/v2.2.0-alpha1/aims-os-1.0-arm64.iso`.
+`.r2.dev/v2.2.0-alpha1/aims-os-2.1-arm64.iso`.
 
 All releases:
 [github.com/A-I-M-S-SENEGAL/aims-os/releases](https://github.com/A-I-M-S-SENEGAL/aims-os/releases)
@@ -80,7 +80,7 @@ Bonus: multiple ISOs fit on the same stick (AIMS OS + Debian rescue
 
 1. Open the stick in your file manager (macOS Finder, Windows
    Explorer, Linux Files).
-2. Drag `aims-os-1.0-<arch>.iso` into the root of the stick. Time =
+2. Drag `aims-os-2.1-<arch>.iso` into the root of the stick. Time =
    regular file-copy speed (often 1-3 min for 7.7 GB on USB 3.0).
 3. Eject the stick cleanly.
 4. Boot the PC from the stick → Ventoy menu → pick AIMS OS → GRUB.
@@ -117,7 +117,7 @@ diskutil unmountDisk /dev/disk4
 
 # Flash. WATCH the disk number. A wrong choice OVERWRITES your
 # system disk. /dev/rdiskN (with 'r') is ~5x faster than /dev/diskN.
-sudo dd if=~/Downloads/aims-os-1.0-amd64.iso of=/dev/rdisk4 bs=4m status=progress
+sudo dd if=~/Downloads/aims-os-2.1-amd64.iso of=/dev/rdisk4 bs=4m status=progress
 sudo sync
 
 # Eject properly
@@ -130,7 +130,7 @@ CLI:
 ```bash
 lsblk                                  # spot your stick (e.g., /dev/sdc)
 sudo umount /dev/sdc?                  # unmount every partition
-sudo dd if=aims-os-1.0-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
+sudo dd if=aims-os-2.1-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync
 ```
 
 Or GUI: open **GNOME Disks** → pick the stick → menu (⋮) →
@@ -177,7 +177,7 @@ refuses, disable Secure Boot in the UEFI firmware (usually **F2**,
 ## Boot in UTM (Mac M-series)
 
 1. Open UTM, create a new VM, **Virtualize** (not Emulate), pick **Linux**.
-2. Point the **Boot ISO Image** field at `aims-os-1.0-arm64.iso`.
+2. Point the **Boot ISO Image** field at `aims-os-2.1-arm64.iso`.
 3. Memory: 4 GiB minimum, 8 GiB recommended for GNOME + LibreOffice.
 4. Storage: 50 GiB minimum (the scientific stack + LaTeX + Cursor
    take ~12 GiB after install).
@@ -192,7 +192,7 @@ qemu-system-x86_64 \
   -enable-kvm \
   -m 4G -smp 4 \
   -drive file=aims-os-disk.qcow2,format=qcow2,if=virtio \
-  -cdrom aims-os-1.0-amd64.iso \
+  -cdrom aims-os-2.1-amd64.iso \
   -boot d \
   -vga virtio -display gtk
 ```

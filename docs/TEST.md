@@ -9,8 +9,8 @@ on the [Actions page](https://github.com/A-I-M-S-SENEGAL/aims-os/actions):
 
 | File | Size | For |
 |---|---|---|
-| `aims-os-1.0-amd64.iso` | ~6.6 GB | Intel/AMD PCs (Mbour labs, generic laptops) |
-| `aims-os-1.0-arm64.iso` | ~6.1 GB | Raspberry Pi 4/5, ARM laptops, **fast UTM on M1–M4** |
+| `aims-os-2.1-amd64.iso` | ~6.6 GB | Intel/AMD PCs (Mbour labs, generic laptops) |
+| `aims-os-2.1-arm64.iso` | ~6.1 GB | Raspberry Pi 4/5, ARM laptops, **fast UTM on M1–M4** |
 
 Test the **arm64** ISO first on a Mac — it virtualises natively
 (near-bare-metal speed) and exercises the same hooks, the same metapackage
@@ -39,7 +39,7 @@ Requires **macOS 13 (Ventura) or newer**.
 
 1. Open UTM → **Create a New Virtual Machine** → **Virtualize**.
 2. Operating System: **Linux**.
-3. Boot ISO Image: click *Browse* and pick `aims-os-1.0-arm64.iso`.
+3. Boot ISO Image: click *Browse* and pick `aims-os-2.1-arm64.iso`.
    Leave "Boot from kernel image" unchecked, "Use Apple Virtualization"
    unchecked (QEMU backend is more stable for our purposes), and
    "Enable Rosetta" unchecked (we don't need x86 binary translation in

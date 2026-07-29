@@ -45,6 +45,11 @@ concurrency:
   group: build-iso-${{ github.ref }}-${{ github.event.inputs.arch || 'all' }}
   cancel-in-progress: false   # ISO builds are slow; let them finish
 
+# Version stamp in every ISO / artifact / R2 object name. Keep in sync
+# with VERSION in build/build.sh and with the other two workflows.
+env:
+  ISO_VERSION: "2.1"
+
 jobs:
   # ---------------------------------------------------------------------------
   # Compute the matrix from the workflow_dispatch arch input. For tag pushes
@@ -125,7 +130,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: aims-os-1.0-${{ matrix.arch }}
+          name: aims-os-${{ env.ISO_VERSION }}-${{ matrix.arch }}
           path: |
             build/out/aims-os-*.iso
             build/out/aims-os-*.iso.sha256
@@ -150,8 +155,8 @@ jobs:
       # GitHub Releases reject assets > 2 GiB; our ISOs are ~8.5 GB. R2 has
       # no per-object limit (10 GB free tier, free egress for public reads)
       # so we upload the .iso + .sha256 there twice:
-      #   - aims-os-iso/<tag>/aims-os-1.0-<arch>.iso  (immutable, versioned)
-      #   - aims-os-iso/latest/aims-os-1.0-<arch>.iso (overwritten each tag)
+      #   - aims-os-iso/<tag>/aims-os-${ISO_VERSION}-<arch>.iso  (immutable, versioned)
+      #   - aims-os-iso/latest/aims-os-${ISO_VERSION}-<arch>.iso (overwritten each tag)
       # The "latest/" alias is what the docs link to so users always pull
       # the most recent release without us editing URLs.
       # ----------------------------------------------------------------------
@@ -188,16 +193,16 @@ jobs:
           # aws CLI v2 is pre-installed on ubuntu-latest runners.
           aws --version
 
-          ISO="build/out/aims-os-1.0-${ARCH}.iso"
+          ISO="build/out/aims-os-${ISO_VERSION}-${ARCH}.iso"
           SHA="${ISO}.sha256"
           ls -lh "${ISO}" "${SHA}"
 
           # Versioned copy — always, even for pre-releases. Immutable.
-          aws s3 cp "${ISO}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
+          aws s3 cp "${ISO}" "s3://${R2_BUCKET}/${TAG}/aims-os-${ISO_VERSION}-${ARCH}.iso" \
               --endpoint-url "${R2_ENDPOINT}" \
               --content-type application/x-iso9660-image \
               --no-progress
-          aws s3 cp "${SHA}" "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso.sha256" \
+          aws s3 cp "${SHA}" "s3://${R2_BUCKET}/${TAG}/aims-os-${ISO_VERSION}-${ARCH}.iso.sha256" \
               --endpoint-url "${R2_ENDPOINT}" \
               --content-type text/plain \
               --no-progress
@@ -205,7 +210,7 @@ jobs:
           if [ "${IS_PRERELEASE}" = "true" ]; then
             echo "::notice::Pre-release ${TAG} — skipping latest/ alias update"
             echo "✓ Uploaded to R2:"
-            echo "    ${{ secrets.R2_PUBLIC_BASE }}/${TAG}/aims-os-1.0-${ARCH}.iso"
+            echo "    ${{ secrets.R2_PUBLIC_BASE }}/${TAG}/aims-os-${ISO_VERSION}-${ARCH}.iso"
             exit 0
           fi
 
@@ -221,19 +226,19 @@ jobs:
           # → ISO (~9 GB) goes through MultipartCopy and works fine.
           # → .sha256 (88 B) hits the small-object path and fails 501.
           # Workaround: re-upload the local .sha256 instead of server-side copy.
-          aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-1.0-${ARCH}.iso" \
-                    "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso" \
+          aws s3 cp "s3://${R2_BUCKET}/${TAG}/aims-os-${ISO_VERSION}-${ARCH}.iso" \
+                    "s3://${R2_BUCKET}/latest/aims-os-${ISO_VERSION}-${ARCH}.iso" \
               --endpoint-url "${R2_ENDPOINT}" \
               --copy-props none \
               --no-progress
-          aws s3 cp "${SHA}" "s3://${R2_BUCKET}/latest/aims-os-1.0-${ARCH}.iso.sha256" \
+          aws s3 cp "${SHA}" "s3://${R2_BUCKET}/latest/aims-os-${ISO_VERSION}-${ARCH}.iso.sha256" \
               --endpoint-url "${R2_ENDPOINT}" \
               --content-type text/plain \
               --no-progress
 
           echo "✓ Uploaded to R2:"
-          echo "    ${{ secrets.R2_PUBLIC_BASE }}/${TAG}/aims-os-1.0-${ARCH}.iso"
-          echo "    ${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-1.0-${ARCH}.iso"
+          echo "    ${{ secrets.R2_PUBLIC_BASE }}/${TAG}/aims-os-${ISO_VERSION}-${ARCH}.iso"
+          echo "    ${{ secrets.R2_PUBLIC_BASE }}/latest/aims-os-${ISO_VERSION}-${ARCH}.iso"
 
       # ----------------------------------------------------------------------
       # GitHub Release. .iso is too big for releases (2 GiB limit), so we
@@ -258,20 +263,20 @@ jobs:
             echo ""
             echo "**${TAG} — pinned to this release**"
             echo ""
-            echo "- arm64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-1.0-arm64.iso>"
-            echo "- amd64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-1.0-amd64.iso>"
+            echo "- arm64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-${ISO_VERSION}-arm64.iso>"
+            echo "- amd64: <${R2_PUBLIC_BASE}/${TAG}/aims-os-${ISO_VERSION}-amd64.iso>"
             if [ "${IS_PRERELEASE}" != "true" ]; then
               echo ""
               echo "**Always-latest aliases (overwritten by each new release)**"
               echo ""
-              echo "- arm64: <${R2_PUBLIC_BASE}/latest/aims-os-1.0-arm64.iso>"
-              echo "- amd64: <${R2_PUBLIC_BASE}/latest/aims-os-1.0-amd64.iso>"
+              echo "- arm64: <${R2_PUBLIC_BASE}/latest/aims-os-${ISO_VERSION}-arm64.iso>"
+              echo "- amd64: <${R2_PUBLIC_BASE}/latest/aims-os-${ISO_VERSION}-amd64.iso>"
             fi
             echo ""
             echo "## Verify"
             echo ""
             echo '```bash'
-            echo "shasum -a 256 -c aims-os-1.0-arm64.iso.sha256"
+            echo "shasum -a 256 -c aims-os-${ISO_VERSION}-arm64.iso.sha256"
             echo '```'
             echo ""
             echo "The .sha256 files attached to this release pin the bytes for ${TAG}; the bytes on R2 must match."
