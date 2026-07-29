@@ -139,6 +139,13 @@ jobs:
           if-no-files-found: error
           compression-level: 0   # ISO is already squashfs-compressed
 
+      # The docker build writes chroot files as root; upload-artifact runs
+      # as the runner user and dies with EACCES scanning them. Open up
+      # read permissions on the log tree before uploading.
+      - name: Make chroot logs readable for artifact upload
+        if: failure()
+        run: sudo chmod -R a+rX build/chroot/var/log 2>/dev/null || true
+
       - name: Upload build log on failure
         if: failure()
         uses: actions/upload-artifact@v4

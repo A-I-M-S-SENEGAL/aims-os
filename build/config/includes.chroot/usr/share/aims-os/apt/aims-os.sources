@@ -1,0 +1,28 @@
+# =============================================================================
+# AIMS OS apt repository (metapackages), served from GitHub Pages.
+# =============================================================================
+# Shipped INERT at /usr/share/aims-os/apt/ and copied into
+# /etc/apt/sources.list.d/ by aims-firstboot.sh on the first boot of
+# the live session and of the installed system.
+#
+# Do NOT place this file under /etc/apt/sources.list.d/ in the ISO
+# build tree: live-build's binary stage runs `apt upgrade` inside the
+# chroot, and an active online repo there fights the locally built
+# metapackages (development trees are ahead of the published repo, and
+# the Pages CDN can serve a stale snapshot on top). The 2026-07-29
+# arm64/amd64 build failures ("Packages were downgraded") came from
+# exactly that.
+#
+# The matching keyring ships at
+# /usr/share/keyrings/aims-os-archive-keyring.gpg (same ISO include —
+# inert for apt, so it can live at its final path directly).
+#
+# Same stanza as the manual setup documented at
+# https://a-i-m-s-senegal.github.io/aims-os/ — keep the two in sync.
+# =============================================================================
+Types: deb
+URIs: https://a-i-m-s-senegal.github.io/aims-os
+Suites: trixie
+Components: main
+Architectures: amd64 arm64
+Signed-By: /usr/share/keyrings/aims-os-archive-keyring.gpg

@@ -31,11 +31,16 @@
 #
 # Also baked into the ISO outside these metapackages:
 #
-#   AIMS apt repo           includes.chroot ships
-#                           /etc/apt/sources.list.d/aims-os.sources +
-#                           /usr/share/keyrings/aims-os-archive-keyring.gpg
-#                           so post-install `apt install aims-os-*` works
-#                           without manual repo setup.
+#   AIMS apt repo           includes.chroot ships the keyring at
+#                           /usr/share/keyrings/ and an INERT
+#                           aims-os.sources under /usr/share/aims-os/apt/;
+#                           aims-firstboot.sh copies it into
+#                           /etc/apt/sources.list.d/ on first boot, so
+#                           `apt install aims-os-*` works without manual
+#                           setup. It must stay out of /etc/apt/ in the
+#                           build tree — live-build's binary-stage
+#                           `apt upgrade` breaks against the online repo
+#                           (versions behind the tree, CDN staleness).
 #   Miniforge3              installed to /opt/miniforge3 by chroot hook
 #                           0060 (ISO builds only — NOT pulled by any
 #                           metapackage on a vanilla Debian).

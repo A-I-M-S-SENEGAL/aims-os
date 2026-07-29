@@ -2,14 +2,21 @@
 # =============================================================================
 # AIMS OS — first-boot user setup
 # =============================================================================
-# Runs once on the FIRST boot of an installed system. Looks up the
-# Calamares-created user (the only non-system account, UID >= 1000)
-# and adds it to:
+# Runs once on the FIRST boot of an installed system. Two jobs:
 #
-#   - docker     so `docker run` / `docker compose` work without sudo
-#                (Web/Android Dev course's first lab).
-#   - wireshark  so the user can capture packets via the setuid dumpcap
-#                shipped by our preseed (Ethical Hacking course).
+#   1. Activate the AIMS apt repository: copy the inert .sources file
+#      shipped under /usr/share/aims-os/apt/ into
+#      /etc/apt/sources.list.d/. It cannot ship active in the ISO tree
+#      because live-build's binary-stage `apt upgrade` would fight the
+#      locally built metapackages (see the .sources file header).
+#
+#   2. Look up the Calamares-created user (the only non-system
+#      account, UID >= 1000) and add it to:
+#
+#      - docker     so `docker run` / `docker compose` work without
+#                   sudo (Web/Android Dev course's first lab).
+#      - wireshark  so the user can capture packets via the setuid
+#                   dumpcap shipped by our preseed (Ethical Hacking).
 #
 # Then drops a sentinel file so we never run again on subsequent boots.
 #
@@ -30,6 +37,16 @@ echo "==== aims-firstboot $(date -Is) ===="
 if [ -f "${SENTINEL}" ]; then
     echo "Sentinel ${SENTINEL} present — first-boot already ran."
     exit 0
+fi
+
+# Activate the AIMS apt repository. Runs before the user lookup so the
+# repo lands even when Calamares hasn't created the account yet
+# (the postponing path below exits without the sentinel).
+APT_SRC=/usr/share/aims-os/apt/aims-os.sources
+APT_DST=/etc/apt/sources.list.d/aims-os.sources
+if [ -f "${APT_SRC}" ] && [ ! -f "${APT_DST}" ]; then
+    cp "${APT_SRC}" "${APT_DST}"
+    echo "AIMS apt repo activated at ${APT_DST}."
 fi
 
 # Find every regular user (UID >= 1000, real shell, real home).
