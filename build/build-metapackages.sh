@@ -246,10 +246,28 @@ fi
 # -----------------------------------------------------------------------------
 # Stage the debs where live-build expects them, and drop the noise.
 # -----------------------------------------------------------------------------
-log "staging debs into ${PKG_DEST} ..."
-mv "${METAPKG_DIR}"/aims-os-*_*.deb "${PKG_DEST}/"
-( cd "${METAPKG_DIR}" && rm -f -- *.buildinfo *.changes )
+# live-build auto-installs EVERY .deb found in config/packages.chroot/
+# into the chroot — it is an install list, not a package pool. Staging
+# all 12 metapackages there is what silently turned the v2.1 "slim"
+# ISO into a 7.7 GB full install (aims-os-everything then pulled every
+# layer in as hard Depends). The authoritative list of what belongs on
+# the ISO is the live-build package list; everything else is built and
+# linted above but ships through the apt repo only.
+ISO_LIST="${REPO_ROOT}/build/config/package-lists/30-aims-os.list.chroot"
+iso_pkgs="$(grep -vE '^[[:space:]]*(#|$)' "${ISO_LIST}")"
+
+log "staging ISO debs into ${PKG_DEST} (list: $(basename "${ISO_LIST}")) ..."
+for pkg in ${iso_pkgs}; do
+    mv "${METAPKG_DIR}/${pkg}"_*_all.deb "${PKG_DEST}/"
+done
+
+excluded="$(cd "${METAPKG_DIR}" && ls -1 aims-os-*_*.deb 2>/dev/null || true)"
+if [[ -n "${excluded}" ]]; then
+    log "apt-repo-only, NOT staged into the ISO:"
+    printf '%s\n' "${excluded}" | sed 's/^/    /'
+fi
+( cd "${METAPKG_DIR}" && rm -f -- *.deb *.buildinfo *.changes )
 
 deb_count="$(find "${PKG_DEST}" -maxdepth 1 -name 'aims-os-*.deb' | wc -l | tr -d ' ')"
-log "done — ${deb_count} debs ready in build/config/packages.chroot/"
+log "done — ${deb_count} ISO debs ready in build/config/packages.chroot/"
 ls -1 "${PKG_DEST}"
