@@ -14,9 +14,13 @@
 #                  course's lab 1.
 #
 # Both groups are created during package install (docker.io postinst
-# creates `docker`; wireshark-common postinst creates `wireshark`). They
-# exist by the time this hook runs (normal hooks run after package
-# install).
+# creates `docker`; wireshark-common postinst creates `wireshark`).
+#
+# On the v2.1 slim ISO neither package is present any more (docker.io
+# moved to aims-os-desktop-dev, wireshark to aims-os-security — both
+# post-install layers), so both branches below normally no-op via the
+# getent guard. The hook stays for full / custom builds that put those
+# packages back on the ISO.
 #
 # For users created LATER by Calamares (the installed system), the
 # matching group membership has to be set up by a Calamares "users"

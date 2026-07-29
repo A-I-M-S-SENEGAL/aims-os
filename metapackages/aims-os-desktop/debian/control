@@ -113,19 +113,21 @@ Description: AIMS OS — GNOME desktop, installer and core user applications (sl
                              Evolution, ghostwriter, fish, tilix,
                              flameshot, English LibreOffice helpers
                              and dictionaries, non-free codecs.
-   * aims-os-desktop-dev     OpenJDK 21, Gradle, Kotlin, PHP, Composer,
-                             adb/fastboot, Docker, Podman, kubectl,
-                             Ansible, rustup. The full Web/Android
-                             Development + MLOps + Containers stack
-                             from v2.0; ~2 GB on disk.
+   * aims-os-desktop-dev     OpenJDK 21, PHP, Composer, adb/fastboot,
+                             Docker, Podman, kubectl, Ansible, rustup.
+                             The full Web/Android Development + MLOps
+                             + Containers stack from v2.0; ~2 GB on
+                             disk.
    * aims-os-everything      Pulls every AIMS OS metapackage at once,
                              for users who want the v2.0 "complete"
                              experience in one apt install.
  .
- Node.js 22 LTS, Bun, Deno, uv, Cursor and VSCodium continue to be
- installed via chroot hooks (Node from NodeSource, the rest from
- upstream binary releases) since the Trixie packages are EOL or
- absent.
+ Node.js 22 LTS, Bun, Deno, uv, Cursor, VSCodium, DBeaver and RStudio
+ are install-on-demand via the post-install scripts that aims-os-welcome
+ ships under /usr/share/aims-os/install/ (Node from NodeSource, the
+ rest from upstream releases) since the Trixie packages are EOL or
+ absent. The former chroot hooks that baked them into the ISO are
+ retired (v2.1 slim).
  .
  The fr_FR.UTF-8 locale and Africa/Dakar timezone are configured at
  the system level by aims-os-core; aims-os-centre-senegal layers the

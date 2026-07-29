@@ -2,16 +2,17 @@
 # =============================================================================
 # AIMS OS — metapackage builder (runs INSIDE the aims-os-builder container)
 # =============================================================================
-# This script compiles each Debian source package under metapackages/
-# (aims-os-core, aims-os-desktop, aims-os-math, aims-os-branding) into a
-# binary .deb and moves the result into build/config/packages.chroot/,
-# the directory live-build watches for local packages to install during
-# its chroot stage.
+# This script compiles every Debian source package under metapackages/
+# (the whole aims-os-* set: core, desktop, math, branding, welcome, the
+# extras / dev / track layers) into binary .debs and moves the results
+# into build/config/packages.chroot/, the directory live-build watches
+# for local packages to install during its chroot stage.
 #
 # It is invoked by build/build.sh (via `docker_run "${arch}" bash
 # /build/build/build-metapackages.sh`) right before `lb config && lb
-# build`, so the four AIMS OS metapackages are present when live-build
-# runs apt inside the chroot.
+# build`, so the AIMS OS metapackages are present when live-build
+# runs apt inside the chroot. Which of them actually land on the ISO
+# is decided by build/config/package-lists/30-aims-os.list.chroot.
 #
 # Paths assume the repo root is bind-mounted at /build inside the
 # container (the layout that build/build.sh sets up).

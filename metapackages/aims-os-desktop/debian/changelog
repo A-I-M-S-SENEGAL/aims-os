@@ -1,3 +1,13 @@
+aims-os-desktop (2.1+1) trixie; urgency=medium
+
+  * Description resync, no dependency change. Node.js, Bun, Deno, uv,
+    Cursor, VSCodium, DBeaver and RStudio are installed by the
+    aims-os-welcome post-install scripts now, not by chroot hooks
+    (those are retired in the v2.1 slim ISO). The aims-os-desktop-dev
+    blurb no longer lists Gradle / Kotlin, which that package dropped.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 29 Jul 2026 15:10:00 +0000
+
 aims-os-desktop (2.1) trixie; urgency=medium
 
   * Slim split for v2.1. The metapackage now keeps only the essentials

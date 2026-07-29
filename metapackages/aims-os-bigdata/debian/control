@@ -69,8 +69,9 @@ Description: AIMS OS — Coop Big Data track
  are deliberately NOT shipped here — none are packaged in Trixie main
  and all evolve faster than the Debian release cadence. Install on
  demand via `pipx install <name>` or
- `mamba install -c conda-forge <name>` (Miniforge3 ships in
- aims-os-core).
+ `mamba install -c conda-forge <name>` (Miniforge3 comes preinstalled
+ on the AIMS OS ISO; on a vanilla Debian install it from
+ https://conda-forge.org/download/ first).
  .
  This metapackage Depends on aims-os-math, so installing it on a
  vanilla Debian Trixie pulls the full SciPy / R / LaTeX scientific

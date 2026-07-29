@@ -14,7 +14,7 @@
 #   ./build/build.sh purge           lb clean --purge — wipes cache too
 #   ./build/build.sh image <arch>    Just (re)build the docker image, no ISO
 #   ./build/build.sh shell <arch>    Drop into a privileged shell in the builder
-#   ./build/build.sh metapackages <arch>  Compile the 4 AIMS OS metapackages only
+#   ./build/build.sh metapackages <arch>  Compile the AIMS OS metapackages only
 #   ./build/build.sh help            Show this help
 #
 # Output:
@@ -162,7 +162,7 @@ cmd_build() {
 }
 
 # -----------------------------------------------------------------------------
-# Compile only the four AIMS OS metapackages and drop them in
+# Compile only the AIMS OS metapackages and drop them in
 # build/config/packages.chroot/. Useful when iterating on a metapackage
 # control file without paying the cost of a full ISO build.
 # -----------------------------------------------------------------------------

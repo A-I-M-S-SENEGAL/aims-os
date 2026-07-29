@@ -123,6 +123,7 @@ Description: AIMS OS — Regular track baseline (slim scientific stack)
  PyTorch, TensorFlow, JAX, Keras and other rapidly-evolving ML
  frameworks (and Qiskit, PyArrow, Polars, DuckDB, spaCy, gensim,
  HuggingFace Transformers — not yet in Trixie) are deliberately NOT
- included — installation via `mamba install` (Miniforge3 ships in
- aims-os-core's chroot) or `pipx install` is the recommended path
- so students get current versions.
+ included — installation via `mamba install` or `pipx install` is the
+ recommended path so students get current versions. (Miniforge3 comes
+ preinstalled on the AIMS OS ISO; on a vanilla Debian install it from
+ https://conda-forge.org/download/ first.)

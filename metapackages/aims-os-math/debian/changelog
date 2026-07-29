@@ -1,3 +1,12 @@
+aims-os-math (2.1+1) trixie; urgency=medium
+
+  * Description resync, no dependency change. Miniforge3 is installed
+    by an ISO chroot hook, not by aims-os-core, so standalone apt
+    installs on a vanilla Debian do not get it — say so and point at
+    the conda-forge installer instead.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 29 Jul 2026 15:10:00 +0000
+
 aims-os-math (2.1) trixie; urgency=medium
 
   * Slim split for v2.1. The Regular-track baseline now keeps only
