@@ -1,0 +1,17 @@
+# =============================================================================
+# AIMS OS apt repository (metapackages), served from GitHub Pages.
+# =============================================================================
+# This file ships on the ISO (live session AND the Calamares-installed
+# system) so that the first-boot wizard and plain `apt install
+# aims-os-<track>` work out of the box. The matching keyring is at
+# /usr/share/keyrings/aims-os-archive-keyring.gpg (same ISO include).
+#
+# Same stanza as the manual setup documented at
+# https://a-i-m-s-senegal.github.io/aims-os/ — keep the two in sync.
+# =============================================================================
+Types: deb
+URIs: https://a-i-m-s-senegal.github.io/aims-os
+Suites: trixie
+Components: main
+Architectures: amd64 arm64
+Signed-By: /usr/share/keyrings/aims-os-archive-keyring.gpg

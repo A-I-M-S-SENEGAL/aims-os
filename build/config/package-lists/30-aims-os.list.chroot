@@ -13,8 +13,7 @@
 # What's in the ISO (this file):
 #
 #   aims-os-core            base security, firmware, locales, CLI,
-#                           Miniforge3, build tools, AIMS apt repo
-#                           source list, GPG keyring
+#                           build tools
 #   aims-os-branding        Plymouth + GRUB themes + wallpapers + logos
 #   aims-os-desktop         slim GNOME + Calamares + Firefox + LibreOffice
 #                           fr + free codecs + NetworkManager + baseline
@@ -29,6 +28,17 @@
 #   aims-os-welcome         GTK4 / libadwaita / polkit runtime for the
 #                           first-boot wizard. The Python source lands
 #                           in step 4 of the v2.1 plan.
+#
+# Also baked into the ISO outside these metapackages:
+#
+#   AIMS apt repo           includes.chroot ships
+#                           /etc/apt/sources.list.d/aims-os.sources +
+#                           /usr/share/keyrings/aims-os-archive-keyring.gpg
+#                           so post-install `apt install aims-os-*` works
+#                           without manual repo setup.
+#   Miniforge3              installed to /opt/miniforge3 by chroot hook
+#                           0060 (ISO builds only — NOT pulled by any
+#                           metapackage on a vanilla Debian).
 #
 # What's NOT in the ISO any more (installable via apt post-install or
 # via the wizard):
