@@ -1,0 +1,93 @@
+# =============================================================================
+# R2 delete — remove objects or prefixes from the ISO bucket
+# =============================================================================
+# Companion to r2-cleanup.yml (which only aborts multipart uploads). This
+# one deletes real objects: orphaned latest/ aliases after a rename, old
+# release prefixes we no longer want to pay for, and similar.
+#
+# Input `paths` is a space-separated list. Entries ending in "/" are
+# deleted recursively (a whole release prefix); anything else is treated
+# as one exact object key. Defaults to dry-run: flip `dry_run` to false
+# to actually delete.
+#
+# Manual only (workflow_dispatch). Deleting a versioned release prefix
+# breaks the download links in that GitHub Release's body — check before
+# pulling the trigger.
+# =============================================================================
+
+name: R2 delete (objects / prefixes)
+
+on:
+  workflow_dispatch:
+    inputs:
+      paths:
+        description: "Space-separated keys; entries ending in / are recursive prefixes"
+        required: true
+        type: string
+      dry_run:
+        description: "Dry-run (list only, no delete)"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+permissions:
+  contents: read
+
+jobs:
+  delete:
+    name: Delete R2 objects
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      AWS_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION:    auto
+      R2_ENDPOINT:           ${{ secrets.R2_ENDPOINT }}
+      R2_BUCKET:             ${{ secrets.R2_BUCKET }}
+      PATHS:                 ${{ inputs.paths }}
+      DRY_RUN:               ${{ inputs.dry_run }}
+
+    steps:
+      - name: Show config
+        run: |
+          echo "Bucket:  ${R2_BUCKET}"
+          echo "Dry-run: ${DRY_RUN}"
+          echo "Paths:   ${PATHS}"
+
+      - name: List what would be deleted
+        run: |
+          total=0
+          for p in ${PATHS}; do
+            echo "::group::${p}"
+            if [[ "${p}" == */ ]]; then
+              aws s3 ls "s3://${R2_BUCKET}/${p}" --recursive \
+                  --endpoint-url "${R2_ENDPOINT}" || echo "  (empty / not found)"
+            else
+              aws s3 ls "s3://${R2_BUCKET}/${p}" \
+                  --endpoint-url "${R2_ENDPOINT}" || echo "  (not found)"
+            fi
+            echo "::endgroup::"
+          done
+
+      - name: Delete
+        if: inputs.dry_run == 'false'
+        run: |
+          for p in ${PATHS}; do
+            if [[ "${p}" == */ ]]; then
+              echo "recursive rm: ${p}"
+              aws s3 rm "s3://${R2_BUCKET}/${p}" --recursive \
+                  --endpoint-url "${R2_ENDPOINT}"
+            else
+              echo "rm: ${p}"
+              aws s3 rm "s3://${R2_BUCKET}/${p}" \
+                  --endpoint-url "${R2_ENDPOINT}"
+            fi
+          done
+
+      - name: Bucket state after
+        run: |
+          aws s3 ls "s3://${R2_BUCKET}/" --recursive --summarize --human-readable \
+              --endpoint-url "${R2_ENDPOINT}" | tail -30
