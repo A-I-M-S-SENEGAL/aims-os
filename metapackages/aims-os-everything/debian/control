@@ -28,12 +28,11 @@ Depends:
  aims-os-security,
  aims-os-centre-senegal,
  aims-os-welcome,
-# aims-os-branding is a Recommends, not a Depends: the apt repo does not
-# carry it (its payload needs the ISO render pipeline — see
-# apt-repo/build-debs.sh), so a hard dependency would make this
-# metapackage uninstallable on a vanilla Debian. ISO installs already
-# have branding; vanilla-Debian installs get everything else and apt
-# just warns about the unavailable recommend.
+# aims-os-branding stays a Recommends rather than a Depends: it is now
+# published in the apt repo too (build-debs.sh renders the payload on
+# the CI runner), but a vanilla Debian user may legitimately want the
+# whole AIMS stack without the AIMS look. apt installs recommends by
+# default, so ISO users and default installs still get it.
 Recommends:
  aims-os-branding,
 Description: AIMS OS — pull every layer (v2.0 "complete install" alias)
@@ -51,6 +50,7 @@ Description: AIMS OS — pull every layer (v2.0 "complete install" alias)
  the slim v2.1 ISO plus a single filière pick (aims-os-bigdata or
  aims-os-security via the first-boot wizard) covers the curriculum.
  .
- aims-os-branding is pulled as a Recommends: it only exists on AIMS OS
- ISO installs (the apt repo does not carry it), so on a vanilla Debian
- this metapackage installs everything else and skips the branding.
+ aims-os-branding is pulled as a Recommends (installed by default): it
+ carries the AIMS look (Plymouth, GRUB theme, wallpapers, os-release),
+ which a vanilla Debian user may prefer to skip with
+ --no-install-recommends.

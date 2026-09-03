@@ -23,16 +23,20 @@ Window.SetBackgroundBottomColor (0.961, 0.937, 0.906);
 # -----------------------------------------------------------------------------
 # 2. Rotating ray ring (drawn FIRST so the logo lands on top)
 # -----------------------------------------------------------------------------
-# 12 short terracotta dashes arranged around an empty centre. We rotate
-# THIS image at every refresh tick — the logo itself never moves. The
-# effect mimics the AIMS visual identity (rays around Africa) extended
-# into a calm orbiting halo that says "boot in progress" without
-# disturbing the brand mark.
-ring_image  = Image("ray-ring.png");
+# 12 short terracotta dashes arranged around an empty centre. The
+# rotation is PRE-RENDERED: branding/generate-assets.sh produces 30
+# frames (ring-0.png .. ring-29.png, one degree apart, anti-aliased by
+# ImageMagick) and the refresh callback simply cycles through them.
+# Plymouth's own Image.Rotate() was used before; it resamples with
+# nearest-neighbour and showed dashes of uneven length on real hardware.
+# The logo sprite renders ON TOP and never moves.
+ring_frames = 30;
+for (i = 0; i < ring_frames; i++)
+    ring_image[i] = Image("ring-" + i + ".png");
 ring_sprite = Sprite();
-ring_sprite.SetImage(ring_image);
-ring_sprite.SetX(Window.GetWidth()  / 2 - ring_image.GetWidth()  / 2);
-ring_sprite.SetY(Window.GetHeight() / 2 - ring_image.GetHeight() / 2);
+ring_sprite.SetImage(ring_image[0]);
+ring_sprite.SetX(Window.GetWidth()  / 2 - ring_image[0].GetWidth()  / 2);
+ring_sprite.SetY(Window.GetHeight() / 2 - ring_image[0].GetHeight() / 2);
 
 # -----------------------------------------------------------------------------
 # 3. Centre the AIMS circle logo — STATIC, on top of the ring
@@ -44,16 +48,17 @@ logo_sprite.SetX(Window.GetWidth()  / 2 - logo_image.GetWidth()  / 2);
 logo_sprite.SetY(Window.GetHeight() / 2 - logo_image.GetHeight() / 2);
 
 # -----------------------------------------------------------------------------
-# 4. Refresh callback — rotate ONLY the ring, not the logo
+# 4. Refresh callback — advance the ring by one frame, nothing else moves
 # -----------------------------------------------------------------------------
-# 0.030 rad per refresh tick. Plymouth refreshes at ~20 Hz by default,
-# which works out to roughly one full revolution every 10–11 seconds —
-# slow enough to feel calm, fast enough to be visibly alive.
-ring_angle = 0;
+# Two frames (2 degrees) per refresh tick. Plymouth refreshes at ~20 Hz,
+# which works out to one full revolution every ~9 seconds — slow enough
+# to feel calm, fast enough to be visibly alive. The 12-dash ring has
+# 30-degree symmetry, so wrapping at frame 30 is seamless.
+ring_index = 0;
 fun refresh_callback () {
-    ring_angle = ring_angle + 0.030;
-    if (ring_angle >= 6.283185) ring_angle = ring_angle - 6.283185;
-    ring_sprite.SetImage(ring_image.Rotate(ring_angle));
+    ring_index = ring_index + 2;
+    if (ring_index >= ring_frames) ring_index = ring_index - ring_frames;
+    ring_sprite.SetImage(ring_image[ring_index]);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
 

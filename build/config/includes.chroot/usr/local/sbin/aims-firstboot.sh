@@ -49,6 +49,17 @@ if [ -f "${APT_SRC}" ] && [ ! -f "${APT_DST}" ]; then
     echo "AIMS apt repo activated at ${APT_DST}."
 fi
 
+# Calamares derives the "numbers and dates" locale from the timezone's
+# country. glibc has no fr_SN locale, so for Africa/Dakar it picks wo_SN
+# (Wolof) for LC_NUMERIC / LC_TIME / LC_MONETARY and friends, which the
+# installer summary reports as "Wolof (Senegaal)". AIMS teaches in
+# French and wo_SN is not even generated on the installed system, so
+# keep the whole locale on fr_FR.UTF-8.
+if [ -f /etc/default/locale ] && grep -q "wo_SN" /etc/default/locale; then
+    sed -i 's/wo_SN\.UTF-8/fr_FR.UTF-8/g; s/wo_SN/fr_FR.UTF-8/g' /etc/default/locale
+    echo "Locale: wo_SN replaced by fr_FR.UTF-8 in /etc/default/locale."
+fi
+
 # Find every regular user (UID >= 1000, real shell, real home).
 # In practice on a Calamares install this is exactly one account.
 users=$(getent passwd | awk -F: '

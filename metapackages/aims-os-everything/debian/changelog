@@ -1,3 +1,10 @@
+aims-os-everything (2.1+2) trixie; urgency=medium
+
+  * Description resync: aims-os-branding is now published in the apt
+    repo, the Recommends is a taste choice rather than a workaround.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 03 Sep 2026 20:00:00 +0000
+
 aims-os-everything (2.1+1) trixie; urgency=medium
 
   * Demote aims-os-branding from Depends to Recommends. The apt repo

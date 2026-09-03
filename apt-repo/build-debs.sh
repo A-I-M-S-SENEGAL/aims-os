@@ -30,15 +30,19 @@ for pkg_dir in "${METAPKG_DIR}"/aims-os-*/; do
     pkg_name=$(basename "${pkg_dir}")
 
     # aims-os-branding ships a generated payload (wallpapers, GRUB theme,
-    # Plymouth assets, Calamares branding) that lives under files/ only
-    # after build/build-metapackages.sh has run the ImageMagick pipeline
-    # to render them from branding/source/*. The apt-repo flow doesn't
-    # invoke that pipeline (it would need docker + librsvg + optipng on
-    # the runner), and standalone apt users don't want a wallpaper drop
-    # over their existing Debian anyway. Skip it.
+    # Plymouth assets, Calamares branding) rendered from branding/source/*
+    # by branding/stage-payload.sh. That needs ImageMagick, librsvg and
+    # optipng; the publish / test workflows install them. Without the
+    # toolchain (a bare developer box) the package is skipped rather than
+    # shipped empty.
     if [ "${pkg_name}" = "aims-os-branding" ]; then
-        log "skipping ${pkg_name} (ISO-only, depends on render pipeline)"
-        continue
+        if command -v convert >/dev/null && command -v rsvg-convert >/dev/null && command -v optipng >/dev/null; then
+            log "staging ${pkg_name} payload (render pipeline)..."
+            REPO_ROOT="${REPO_ROOT}" bash "${REPO_ROOT}/branding/stage-payload.sh" >/dev/null
+        else
+            log "skipping ${pkg_name} (imagemagick / librsvg2-bin / optipng not installed)"
+            continue
+        fi
     fi
 
     log "building ${pkg_name}..."

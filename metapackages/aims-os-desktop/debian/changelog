@@ -1,3 +1,14 @@
+aims-os-desktop (2.1+2) trixie; urgency=medium
+
+  * Ship the GRUB binaries in the live system (grub2-common, grub-pc-bin,
+    grub-efi-amd64-bin, grub-efi-amd64-signed, shim-signed, efibootmgr).
+    Calamares used to fetch grub-pc / grub-efi from the ISO pool at
+    install time; when that step fails the installed disk has no
+    bootloader at all (seen 2026-09-03 on an HP All-in-One 24-f0xx).
+    With the binaries present, grub-install always has what it needs.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 03 Sep 2026 20:00:00 +0000
+
 aims-os-desktop (2.1+1) trixie; urgency=medium
 
   * Description resync, no dependency change. Node.js, Bun, Deno, uv,

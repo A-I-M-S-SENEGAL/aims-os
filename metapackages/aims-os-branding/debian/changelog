@@ -1,3 +1,13 @@
+aims-os-branding (2.1) trixie; urgency=medium
+
+  * Plymouth: the rotating ray ring is now 30 pre-rendered frames
+    (ImageMagick, anti-aliased) cycled by the script instead of a
+    runtime Image.Rotate(), which showed dashes of uneven length on
+    real hardware (HP All-in-One 24-f0xx, 2026-09-03).
+  * Now built and published in the apt repo as well as the ISO.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 03 Sep 2026 20:00:00 +0000
+
 aims-os-branding (2.0) trixie; urgency=medium
 
   * v2.0 — rebase to Debian 13 Trixie.

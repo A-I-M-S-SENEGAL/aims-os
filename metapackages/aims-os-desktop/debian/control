@@ -32,6 +32,21 @@ Depends:
  plymouth,
  plymouth-themes,
  plymouth-label,
+# --- Bootloader payload for Calamares installs -----------------------
+# calamares-settings-debian installs grub-pc / grub-efi into the target
+# from the ISO's package pool at install time. When that step fails the
+# target is left without a bootloader (seen on 2026-09-03 on an HP
+# All-in-One; Debian bug #1005196 describes the same failure for offline
+# installs). Ship the GRUB binaries in the live system so
+# `grub-install` always works, BIOS or UEFI, media or not.
+# grub-pc-bin and grub-efi-amd64-bin coexist; only the grub-pc /
+# grub-efi-amd64 config packages conflict, so those stay out.
+ grub2-common,
+ grub-pc-bin,
+ grub-efi-amd64-bin,
+ grub-efi-amd64-signed,
+ shim-signed,
+ efibootmgr,
 # --- One browser (French) --------------------------------------------
 # Chromium + Chromium-l10n moved to aims-os-desktop-extras. Firefox ESR
 # is sufficient for the live install + first-boot wizard.

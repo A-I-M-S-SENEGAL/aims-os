@@ -196,6 +196,22 @@ convert -size 600x600 xc:transparent \
     -strip "${OUT_DIR}/plymouth/ray-ring.png"
 optipng -quiet -o2 "${OUT_DIR}/plymouth/ray-ring.png" 2>/dev/null || true
 
+# Pre-rendered rotation frames. Plymouth's Image.Rotate() resamples with
+# nearest-neighbour at every refresh tick and, on real hardware (HP
+# All-in-One 24-f0xx, 2026-09-03), showed dashes of visibly uneven length.
+# Rendering the rotation here with ImageMagick's anti-aliased SRT distort
+# gives a clean ring at every angle; the Plymouth script just cycles the
+# frames. 12 dashes have 30-degree symmetry, so 30 frames at 1 degree
+# cover a seamless loop. ~4 KB each.
+log "generating Plymouth ring frames ..."
+mkdir -p "${OUT_DIR}/plymouth/ring"
+for i in $(seq 0 29); do
+    convert "${OUT_DIR}/plymouth/ray-ring.png" \
+        -virtual-pixel transparent -distort SRT "${i}" \
+        -strip "${OUT_DIR}/plymouth/ring/ring-${i}.png"
+    optipng -quiet -o2 "${OUT_DIR}/plymouth/ring/ring-${i}.png" 2>/dev/null || true
+done
+
 # Optional secondary progress bar (kept for potential future use)
 convert -size 600x4 "xc:${COLOR_BRAND_ACCENT}" \
     -strip "${OUT_DIR}/plymouth/progress-bar-fg.png"
