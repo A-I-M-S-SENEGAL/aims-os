@@ -17,6 +17,7 @@ Depends:
  ${misc:Depends},
  aims-os-centre-senegal,
  adduser,
+ dconf-cli,
  openssh-server,
  sudo,
 Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
@@ -37,6 +38,8 @@ Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
     in the AIMS 1Password vault.
   * the authorized key under /etc/ssh/authorized_keys.d/aimsit. Rotate
     it by shipping a new version of this package.
+  * no suspend: GNOME idle suspend off by default (dconf) and the
+    systemd sleep targets masked, so the machine stays reachable.
   * a UFW rule opening port 22 to the campus LAN (192.168.10.0/24)
     only, since aims-os-core enables UFW with deny-in. Removed when
     the package is removed.

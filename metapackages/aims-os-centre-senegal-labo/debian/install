@@ -1,3 +1,4 @@
 files/etc/ssh/sshd_config.d/40-aims-labo.conf  etc/ssh/sshd_config.d/
 files/etc/ssh/authorized_keys.d/aimsit         etc/ssh/authorized_keys.d/
 files/etc/sudoers.d/aims-labo-it               etc/sudoers.d/
+files/etc/dconf/db/local.d/02-aims-labo               etc/dconf/db/local.d/

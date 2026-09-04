@@ -173,13 +173,18 @@ compose_centered 3840 2160 "${COLOR_BG_DARK}" "${LOGO_CIRCLE}" 640 \
 
 # -----------------------------------------------------------------------------
 # 2. Plymouth boot splash
-#    A static circle at high res (Plymouth's script rotates it at runtime).
-#    Plymouth's image-loading code dislikes alpha quirks, so we paint the
-#    logo over an opaque cream square instead of keeping it transparent.
+#    Static circle logo, TRANSPARENT 8-bit RGBA. It used to be painted on
+#    an opaque cream square "because Plymouth dislikes alpha quirks"; on
+#    real hardware (HP All-in-One, 2026-09-04) that square was visible as
+#    a frame around the logo. The ring frames are RGBA and render fine,
+#    so alpha is not the problem: 16-bit depth and palette PNGs were. Every
+#    Plymouth PNG is now forced to 8-bit RGBA (PNG32) and optipng is told
+#    not to reduce colour type or palette (-nc -np).
 # -----------------------------------------------------------------------------
 log "generating Plymouth assets ..."
-compose_centered 400 400 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 360 \
-    "${OUT_DIR}/plymouth/aims-circle.png"
+convert "${LOGO_CIRCLE}" -resize 360x360 -background none -gravity center \
+    -extent 400x400 -depth 8 -strip "PNG32:${OUT_DIR}/plymouth/aims-circle.png"
+optipng -quiet -o2 -nc -np "${OUT_DIR}/plymouth/aims-circle.png" 2>/dev/null || true
 
 # Ray ring — 12 short terracotta dashes arranged on a 600×600 canvas
 # around an empty 440×440 center (so the logo will fit inside cleanly).
@@ -201,8 +206,8 @@ convert -size 600x600 xc:transparent \
            line 80,300  20,300
            line 109,190 58,160
            line 190,110 160,58" \
-    -strip "${OUT_DIR}/plymouth/ray-ring.png"
-optipng -quiet -o2 "${OUT_DIR}/plymouth/ray-ring.png" 2>/dev/null || true
+    -depth 8 -strip "PNG32:${OUT_DIR}/plymouth/ray-ring.png"
+optipng -quiet -o2 -nc -np "${OUT_DIR}/plymouth/ray-ring.png" 2>/dev/null || true
 
 # Pre-rendered rotation frames. Plymouth's Image.Rotate() resamples with
 # nearest-neighbour at every refresh tick and, on real hardware (HP
@@ -216,8 +221,8 @@ mkdir -p "${OUT_DIR}/plymouth/ring"
 for i in $(seq 0 29); do
     convert "${OUT_DIR}/plymouth/ray-ring.png" \
         -virtual-pixel transparent -distort SRT "${i}" \
-        -strip "${OUT_DIR}/plymouth/ring/ring-${i}.png"
-    optipng -quiet -o2 "${OUT_DIR}/plymouth/ring/ring-${i}.png" 2>/dev/null || true
+        -depth 8 -strip "PNG32:${OUT_DIR}/plymouth/ring/ring-${i}.png"
+    optipng -quiet -o2 -nc -np "${OUT_DIR}/plymouth/ring/ring-${i}.png" 2>/dev/null || true
 done
 
 # Optional secondary progress bar (kept for potential future use)

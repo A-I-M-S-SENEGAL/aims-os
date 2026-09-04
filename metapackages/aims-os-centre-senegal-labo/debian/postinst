@@ -27,6 +27,17 @@ case "$1" in
                 >/dev/null 2>&1 || true
         fi
 
+        # Lab workstations must stay reachable: never suspend. The dconf
+        # default below stops GNOME's idle suspend; masking the systemd
+        # targets stops every other path (menu, lid, DE bugs).
+        if command -v dconf >/dev/null 2>&1; then
+            dconf update 2>/dev/null || true
+        fi
+        if [ -d /run/systemd/system ]; then
+            systemctl mask sleep.target suspend.target hibernate.target \
+                hybrid-sleep.target >/dev/null 2>&1 || true
+        fi
+
         # Apply the sshd drop-in on a running system. deb-systemd-invoke
         # honours policy-rc.d, so this is a no-op inside a build chroot.
         if [ -d /run/systemd/system ]; then

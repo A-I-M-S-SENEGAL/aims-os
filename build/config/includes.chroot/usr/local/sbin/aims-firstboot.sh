@@ -55,9 +55,27 @@ fi
 # installer summary reports as "Wolof (Senegaal)". AIMS teaches in
 # French and wo_SN is not even generated on the installed system, so
 # keep the whole locale on fr_FR.UTF-8.
-if [ -f /etc/default/locale ] && grep -q "wo_SN" /etc/default/locale; then
-    sed -i 's/wo_SN\.UTF-8/fr_FR.UTF-8/g; s/wo_SN/fr_FR.UTF-8/g' /etc/default/locale
-    echo "Locale: wo_SN replaced by fr_FR.UTF-8 in /etc/default/locale."
+# Calamares writes BOTH /etc/default/locale and /etc/locale.conf, and
+# systemd-localed re-syncs the former from the latter, so fixing only
+# /etc/default/locale came back as wo_SN after a reboot (labo-hp-01,
+# 2026-09-04). Patch both.
+for f in /etc/default/locale /etc/locale.conf; do
+    if [ -f "${f}" ] && grep -q "wo_SN" "${f}"; then
+        sed -i 's/wo_SN\.UTF-8/fr_FR.UTF-8/g; s/wo_SN/fr_FR.UTF-8/g' "${f}"
+        echo "Locale: wo_SN replaced by fr_FR.UTF-8 in ${f}."
+    fi
+done
+
+# And do not even generate wo_SN: nothing at AIMS uses it, and a stray
+# LC_* pointing at it would then fall back to LANG instead of Wolof.
+if [ -f /etc/locale.gen ] && grep -qE "^wo_SN" /etc/locale.gen; then
+    sed -i 's/^wo_SN/# wo_SN/' /etc/locale.gen
+    locale-gen >/dev/null 2>&1 || true
+    # locale-gen does not drop compiled locales from the archive.
+    for l in $(locale -a 2>/dev/null | grep '^wo_'); do
+        localedef --delete-from-archive "${l}" >/dev/null 2>&1 || true
+    done
+    echo "Locale: wo_SN removed from /etc/locale.gen."
 fi
 
 # Find every regular user (UID >= 1000, real shell, real home).

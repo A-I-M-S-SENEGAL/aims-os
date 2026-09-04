@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+2) trixie; urgency=medium
+
+  * Never suspend: dconf default (sleep-inactive-ac-type=nothing) and
+    the systemd sleep targets masked. A lab machine that went to sleep
+    dropped off the network (labo-hp-01, 2026-09-04).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 04 Sep 2026 16:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+1) trixie; urgency=medium
 
   * Open port 22 in UFW for the campus LAN (192.168.10.0/24). AIMS OS

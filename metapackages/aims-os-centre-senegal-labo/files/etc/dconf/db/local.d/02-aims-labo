@@ -1,0 +1,12 @@
+# AIMS OS — lab workstation defaults (aims-os-centre-senegal-labo).
+# Fixed machines in the Mbour lab: never suspend (they must stay
+# reachable for SSH and FOG), blank the screen after 15 minutes instead.
+# Not locked; compiled by `dconf update` in the package postinst.
+[org/gnome/settings-daemon/plugins/power]
+sleep-inactive-ac-type='nothing'
+sleep-inactive-ac-timeout=0
+sleep-inactive-battery-type='nothing'
+power-button-action='interactive'
+
+[org/gnome/desktop/session]
+idle-delay=uint32 900
