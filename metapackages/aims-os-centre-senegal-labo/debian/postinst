@@ -18,10 +18,10 @@ case "$1" in
                 > /var/lib/AccountsService/users/aimsit
         fi
 
-        # Apply the sshd drop-in on a running system (no-op in a chroot).
-        if [ -d /run/systemd/system ] \
-           && systemctl is-active --quiet ssh.service; then
-            systemctl reload ssh.service || true
+        # Apply the sshd drop-in on a running system. deb-systemd-invoke
+        # honours policy-rc.d, so this is a no-op inside a build chroot.
+        if [ -d /run/systemd/system ]; then
+            deb-systemd-invoke reload ssh.service >/dev/null 2>&1 || true
         fi
         ;;
 esac
