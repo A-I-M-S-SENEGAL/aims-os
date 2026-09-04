@@ -1,0 +1,2 @@
+files/usr/lib/aims-os/apt-proxy-detect        usr/lib/aims-os/
+files/etc/apt/apt.conf.d/02aims-senegal-proxy  etc/apt/apt.conf.d/

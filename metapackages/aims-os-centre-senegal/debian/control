@@ -16,9 +16,13 @@ Multi-Arch: foreign
 Depends:
  ${misc:Depends},
  aims-os-core,
-# Locale and timezone packages are pulled by aims-os-core. This package
-# is intentionally empty at v2.1 — it exists as the slot for centre-
-# specific content that we'll layer on as we go:
+# Locale and timezone packages are pulled by aims-os-core. First
+# centre-specific payload (2.1+1): the campus apt cache wiring —
+# /etc/apt/apt.conf.d/02aims-senegal-proxy + /usr/lib/aims-os/
+# apt-proxy-detect route http package downloads through the
+# apt-cacher-ng on serveur 2 (192.168.10.241:3142) when it answers,
+# DIRECT otherwise, so the file is harmless off campus.
+# More centre content is layered on as we go:
 #   * Firefox bookmarks pointing at the AIMS Mbour intranet, library,
 #     mail and learning platforms (deployed via /etc/skel and
 #     /usr/lib/firefox-esr/distribution).
@@ -45,7 +49,9 @@ Description: AIMS OS — AIMS Senegal (Mbour) centre profile
  aims-os-centre-{southafrica,cameroon,ghana,rwanda,tanzania} can be
  added without refactoring the base.
  .
- v2.1 ships this metapackage empty (Depends: aims-os-core only) — it
- marks the architecture without committing to specific Senegal content
- yet. Content will be added incrementally as the AIMS Mbour deployment
- grows.
+ Ships the campus apt cache wiring: an apt Proxy-Auto-Detect helper
+ that routes http package downloads through the Mbour apt-cacher-ng
+ (192.168.10.241:3142) when it is reachable and falls back to DIRECT
+ within a second otherwise. Safe on a laptop used off campus. More
+ Senegal content (bookmarks, wallpapers, printers, courses) will be
+ layered on incrementally as the AIMS Mbour deployment grows.

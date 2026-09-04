@@ -1,3 +1,13 @@
+aims-os-centre-senegal (2.1+1) trixie; urgency=medium
+
+  * First centre payload: apt cache wiring for the Mbour campus.
+    /usr/lib/aims-os/apt-proxy-detect probes the apt-cacher-ng on
+    serveur 2 (192.168.10.241:3142) and apt's Proxy-Auto-Detect uses it
+    for http downloads when it answers, DIRECT otherwise. https sources
+    stay direct (they would only be tunnelled, never cached).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 04 Sep 2026 07:30:00 +0000
+
 aims-os-centre-senegal (2.1) trixie; urgency=medium
 
   * Initial release. Empty placeholder for AIMS Senegal (Mbour) centre

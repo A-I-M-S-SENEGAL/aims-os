@@ -1,0 +1,26 @@
+#!/bin/sh
+# =============================================================================
+# AIMS OS — apt proxy auto-detection (AIMS Senegal, Mbour campus)
+# =============================================================================
+# Called by apt for every http download (Acquire::http::Proxy-Auto-Detect,
+# see /etc/apt/apt.conf.d/02aims-senegal-proxy). Prints the URL of the
+# campus apt-cacher-ng when it answers within a second, DIRECT otherwise.
+#
+# The cache lives in an LXD container on serveur 2 (gazellesrv) and keeps
+# a copy of every Debian package a lab machine ever downloaded, so the
+# second machine gets it from the LAN instead of the WAN. Off campus the
+# probe fails fast and apt goes straight to the mirrors: this file is
+# safe on a student laptop anywhere in the world.
+#
+# Only http is routed: Debian mirrors and security updates are http and
+# cacheable. https sources (AIMS apt repo on GitHub Pages, NodeSource,
+# VSCodium...) would only be tunnelled, not cached, so they stay direct.
+# =============================================================================
+CACHE_HOST=192.168.10.241
+CACHE_PORT=3142
+
+if timeout 1 sh -c "exec 3<>/dev/tcp/${CACHE_HOST}/${CACHE_PORT}" 2>/dev/null; then
+    echo "http://${CACHE_HOST}:${CACHE_PORT}"
+else
+    echo "DIRECT"
+fi

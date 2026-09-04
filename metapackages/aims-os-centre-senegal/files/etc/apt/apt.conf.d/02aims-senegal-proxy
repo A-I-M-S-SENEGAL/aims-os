@@ -1,0 +1,4 @@
+// AIMS OS — AIMS Senegal campus apt cache (apt-cacher-ng on serveur 2).
+// The helper probes the cache and answers DIRECT when it is unreachable,
+// so this is harmless off campus. http only: https sources stay direct.
+Acquire::http::Proxy-Auto-Detect "/usr/lib/aims-os/apt-proxy-detect";
