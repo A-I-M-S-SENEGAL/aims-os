@@ -82,7 +82,7 @@ Coop Big Data, Coop Computer Security), voir
 |---|---|---|
 | Bureau slim | `sudo apt install aims-os-desktop` | GNOME + Firefox + LibreOffice fr + codecs libres + utilitaires |
 | Bureau extras | `sudo apt install aims-os-desktop-extras` | Chromium + GIMP + Inkscape + Evolution + codecs non-free + dictionnaire EN |
-| Stack dev complète | `sudo apt install aims-os-desktop-dev` | OpenJDK 21 + Gradle + Kotlin + PHP + Docker + Podman + kubectl + rustup |
+| Stack dev complète | `sudo apt install aims-os-desktop-dev` | OpenJDK 21 + PHP + Docker + Podman + kubectl + Ansible + rustup + adb |
 | Stack maths extras | `sudo apt install aims-os-math-extras` | Maxima + Octave complet + R tidyverse + LaTeX multilingue |
 | Centre Sénégal | `sudo apt install aims-os-centre-senegal` | Locale fr_FR + Africa/Dakar + bookmarks AIMS-Mbour |
 | Labo Mbour (postes fixes) | `sudo apt install aims-os-centre-senegal-labo` | SSH clé seule pour l'équipe IT, compte `aimsit` ; hors ISO, poste modèle uniquement |
