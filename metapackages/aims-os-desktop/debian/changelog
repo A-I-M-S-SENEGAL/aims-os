@@ -1,3 +1,14 @@
+aims-os-desktop (2.1+4) trixie; urgency=medium
+
+  * Drop calamares, calamares-settings-debian and qml6-module-qtquick-
+    controls from Depends; they now come from the live-build package
+    list 40-installer.list.chroot. Calamares purges
+    calamares-settings-debian from every installed system, which
+    removed this metapackage along with it (labo-hp-01, 2026-09-03).
+    Machines installed before this fix: `apt install aims-os-desktop`.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 04 Sep 2026 14:00:00 +0000
+
 aims-os-desktop (2.1+3) trixie; urgency=medium
 
   * Express the GRUB binaries as per-architecture alternatives

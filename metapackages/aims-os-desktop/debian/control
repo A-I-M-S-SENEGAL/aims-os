@@ -23,11 +23,13 @@ Depends:
  gnome-shell-extension-manager,
  dconf-cli,
  dconf-editor,
-# --- Calamares graphical installer -----------------------------------
- calamares,
- calamares-settings-debian,
-# Calamares 3.3 (Trixie) is a Qt6 build — Qt5 QML modules don't apply.
- qml6-module-qtquick-controls,
+# --- Calamares graphical installer: NOT here ------------------------
+# calamares / calamares-settings-debian / qml6-module-qtquick-controls
+# live in build/config/package-lists/40-installer.list.chroot. Calamares
+# removes calamares-settings-debian from the target at the end of every
+# install; while it was a Depends here, that purge took aims-os-desktop
+# with it (seen on labo-hp-01, 2026-09-03), leaving installed machines
+# without the desktop metapackage and its updates.
 # --- Boot splash (themed by aims-os-branding) ------------------------
  plymouth,
  plymouth-themes,

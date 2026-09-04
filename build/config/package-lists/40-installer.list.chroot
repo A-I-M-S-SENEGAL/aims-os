@@ -1,0 +1,16 @@
+# =============================================================================
+# AIMS OS — graphical installer (live ISO only)
+# =============================================================================
+# Calamares belongs to the live medium, not to any AIMS metapackage: at
+# the end of every install it purges calamares-settings-debian from the
+# target, and a metapackage depending on it would be purged too (that
+# is what silently removed aims-os-desktop from installed machines
+# until 2.1+4). Listing it here installs it in the live system as a
+# manually-marked package, and the target simply loses it.
+#
+# build/build-metapackages.sh only reads 30-aims-os.list.chroot, so
+# this list is not mistaken for local debs to stage.
+calamares
+calamares-settings-debian
+# Calamares 3.3 (Trixie) is a Qt6 build; Qt5 QML modules don't apply.
+qml6-module-qtquick-controls
