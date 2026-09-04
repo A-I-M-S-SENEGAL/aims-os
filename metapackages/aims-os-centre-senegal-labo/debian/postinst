@@ -1,0 +1,31 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        # IT admin account: no password (key-only SSH), bash, sudo via
+        # /etc/sudoers.d/aims-labo-it. aims-firstboot adds it to docker
+        # and wireshark like any other UID >= 1000 account.
+        if ! getent passwd aimsit >/dev/null; then
+            adduser --quiet --disabled-password --gecos "AIMS IT" \
+                --shell /bin/bash aimsit
+        fi
+
+        # Keep it out of the GDM login list: it has no password anyway.
+        mkdir -p -m 0700 /var/lib/AccountsService/users
+        if [ ! -f /var/lib/AccountsService/users/aimsit ]; then
+            printf '[User]\nSystemAccount=true\n' \
+                > /var/lib/AccountsService/users/aimsit
+        fi
+
+        # Apply the sshd drop-in on a running system (no-op in a chroot).
+        if [ -d /run/systemd/system ] \
+           && systemctl is-active --quiet ssh.service; then
+            systemctl reload ssh.service || true
+        fi
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

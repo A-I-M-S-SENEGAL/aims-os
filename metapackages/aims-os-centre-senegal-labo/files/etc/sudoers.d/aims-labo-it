@@ -1,0 +1,2 @@
+# aimsit has no password (SSH key only), so sudo must not ask for one.
+aimsit ALL=(ALL:ALL) NOPASSWD: ALL

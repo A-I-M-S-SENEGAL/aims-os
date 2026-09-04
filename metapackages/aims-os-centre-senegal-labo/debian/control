@@ -1,0 +1,39 @@
+Source: aims-os-centre-senegal-labo
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-centre-senegal-labo
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ aims-os-centre-senegal,
+ adduser,
+ openssh-server,
+ sudo,
+Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
+ Profile for the fixed workstations of the AIMS Senegal (Mbour) computer
+ lab. NOT shipped on the ISO: it is installed by hand on the golden
+ machine before the FOG capture, so it only ever lands on cloned lab
+ machines, never on a student laptop installed from the ISO.
+ .
+ Ships remote administration for the IT team:
+ .
+  * openssh-server, restricted by a drop-in under
+    /etc/ssh/sshd_config.d/: public key only (password and
+    keyboard-interactive refused), root login refused, and only the
+    aimsit account allowed in.
+  * the aimsit account (created at install time, password locked,
+    hidden from the GDM user list) with passwordless sudo, so the team
+    can administer a machine over SSH with the "AIMS IT labo" key kept
+    in the AIMS 1Password vault.
+  * the authorized key under /etc/ssh/authorized_keys.d/aimsit. Rotate
+    it by shipping a new version of this package.

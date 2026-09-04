@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+# Config-only package; debhelper handles everything except the sudoers
+# drop-in, which sudo refuses unless it is exactly 0440.
+%:
+	dh $@
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod 0440 debian/aims-os-centre-senegal-labo/etc/sudoers.d/aims-labo-it

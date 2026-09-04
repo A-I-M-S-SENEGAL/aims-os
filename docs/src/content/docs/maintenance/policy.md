@@ -20,6 +20,7 @@ multi-centre sans dupliquer le tronc technique.
 │
 ├─ Centre profiles (1 par centre AIMS)
 │  aims-os-centre-senegal      ← bookmarks Mbour, wallpapers, WiFi
+│  aims-os-centre-senegal-labo ← postes fixes : SSH équipe IT (hors ISO)
 │  aims-os-centre-southafrica  ← futur, par AIMS SA
 │
 └─ Centre × subject × year (curriculum)

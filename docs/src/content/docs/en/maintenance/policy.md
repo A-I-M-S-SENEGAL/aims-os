@@ -19,6 +19,7 @@ without duplicating the technical baseline.
 │
 ├─ Centre profiles (one per AIMS centre)
 │  aims-os-centre-senegal      ← Mbour bookmarks, wallpapers, Wi-Fi
+│  aims-os-centre-senegal-labo ← lab workstations: IT SSH (off the ISO)
 │  aims-os-centre-southafrica  ← future, by AIMS SA
 │
 └─ Centre × subject × year (curriculum)

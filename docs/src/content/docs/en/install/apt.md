@@ -83,6 +83,7 @@ Data, Coop Computer Security), see [Get started → Tracks](/en/filieres/regular
 | Full dev stack | `sudo apt install aims-os-desktop-dev` | OpenJDK 21 + Gradle + Kotlin + PHP + Docker + Podman + kubectl + rustup |
 | Maths extras | `sudo apt install aims-os-math-extras` | Maxima + full Octave + R tidyverse + multilingual LaTeX + GeoGebra |
 | Senegal centre | `sudo apt install aims-os-centre-senegal` | fr_FR locale + Africa/Dakar + AIMS-Mbour bookmarks |
+| Mbour lab (fixed workstations) | `sudo apt install aims-os-centre-senegal-labo` | Key-only SSH for the IT team, `aimsit` account; off the ISO, golden machine only |
 | Wizard + scripts | `sudo apt install aims-os-welcome` | Install scripts at `/usr/share/aims-os/install/*.sh` |
 | System baseline | `sudo apt install aims-os-core` | Security + firmware + locales + CLI + Miniforge |
 

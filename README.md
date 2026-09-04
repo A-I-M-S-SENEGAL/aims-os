@@ -40,13 +40,14 @@ aims_os/
 ├── .github/        # CI: ISO builds, boot tests, apt repo + docs publishing
 ├── docker/         # build container (live-build inside privileged Debian)
 ├── build/          # live-build config + host-side build wrapper
-├── metapackages/   # 12 metapackages defining the distro package set
+├── metapackages/   # 13 metapackages defining the distro package set
 │   ├── aims-os-core/            # base system, security, locales, build tools
 │   ├── aims-os-desktop/         # slim GNOME, Calamares, Firefox, LibreOffice fr
 │   ├── aims-os-math/            # slim scientific stack: SciPy, Jupyter, R, TeX fr
 │   ├── aims-os-branding/        # plymouth, grub, wallpapers, theming (ISO only)
 │   ├── aims-os-welcome/         # first-boot wizard runtime + post-install scripts
 │   ├── aims-os-centre-senegal/  # AIMS Senegal (Mbour) centre profile
+│   ├── aims-os-centre-senegal-labo/  # Mbour lab workstations: IT SSH access (apt only)
 │   ├── aims-os-desktop-extras/  # Chromium, GIMP, Inkscape, non-free codecs
 │   ├── aims-os-desktop-dev/     # Java, PHP, containers, Rust
 │   ├── aims-os-math-extras/     # Maxima, Octave, full TeX Live, R tidyverse

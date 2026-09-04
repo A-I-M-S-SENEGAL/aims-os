@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    purge)
+        rm -f /var/lib/AccountsService/users/aimsit
+        if getent passwd aimsit >/dev/null; then
+            deluser --quiet aimsit >/dev/null 2>&1 || true
+        fi
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0
