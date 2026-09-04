@@ -1,3 +1,10 @@
+aims-os-centre-senegal-labo (2.1+6) trixie; urgency=medium
+
+  * lintian overrides for the deliberate 10_linux diversion and the
+    tool without a manual page.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 04 Sep 2026 21:40:00 +0000
+
 aims-os-centre-senegal-labo (2.1+5) trixie; urgency=medium
 
   * aims-labo-grub-password: generate the random password without a

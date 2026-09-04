@@ -1,0 +1,5 @@
+# 10_linux belongs to grub-common; we divert it on purpose to add
+# --unrestricted (GRUB superuser without a password prompt on normal boot).
+aims-os-centre-senegal-labo: diversion-for-unknown-file etc/grub.d/10_linux *
+# Single-purpose admin tool documented in the private IT runbook.
+aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-grub-password]
