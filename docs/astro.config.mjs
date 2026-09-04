@@ -118,6 +118,11 @@ export default defineConfig({
               translations: { en: 'Maintenance policy' },
               slug: 'maintenance/policy',
             },
+            {
+              label: 'Déploiement labo (FOG)',
+              translations: { en: 'Lab deployment (FOG)' },
+              slug: 'maintenance/lab-deployment',
+            },
           ],
         },
         // Dépannage and Contribuer groups are deliberately omitted for v1.
