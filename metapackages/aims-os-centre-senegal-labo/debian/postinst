@@ -42,6 +42,34 @@ case "$1" in
             deb-systemd-invoke start systemd-timesyncd.service >/dev/null 2>&1 || true
         fi
 
+        # GRUB: normal entries must boot without a password once a superuser
+        # is set, so Debian's 10_linux gets --unrestricted in CLASS. Done
+        # through a diversion so grub upgrades land at the diverted name.
+        if [ -f /etc/grub.d/10_linux ]; then
+            if ! dpkg-divert --list /etc/grub.d/10_linux | grep -q aims; then
+                dpkg-divert --quiet --add --rename --package aims-os-centre-senegal-labo \
+                    --divert /etc/grub.d/10_linux.aims-original /etc/grub.d/10_linux
+            fi
+            sed 's/^CLASS="--class gnu-linux/CLASS="--unrestricted --class gnu-linux/' \
+                /etc/grub.d/10_linux.aims-original > /etc/grub.d/10_linux
+            chmod 0755 /etc/grub.d/10_linux
+            if [ -s /etc/aims-os/grub-password.pbkdf2 ] && command -v update-grub >/dev/null 2>&1; then
+                update-grub >/dev/null 2>&1 || true
+            fi
+        fi
+
+        # The local account created by the installer (member of sudo, same
+        # password on every clone) must not remain a root path on lab
+        # machines: lock it and drop it from sudo. IT uses aimsit (key) and
+        # the directory group admins (sudo rule in FreeIPA).
+        for u in $(getent group sudo | cut -d: -f4 | tr ',' ' '); do
+            [ "${u}" = "aimsit" ] && continue
+            uid=$(id -u "${u}" 2>/dev/null || echo 0)
+            [ "${uid}" -ge 1000 ] || continue
+            passwd -l "${u}" >/dev/null 2>&1 && echo "aims-os-centre-senegal-labo: local account ${u} locked" || true
+            gpasswd -d "${u}" sudo >/dev/null 2>&1 || true
+        done
+
         # Apply the sshd drop-in on a running system. deb-systemd-invoke
         # honours policy-rc.d, so this is a no-op inside a build chroot.
         if [ -d /run/systemd/system ]; then

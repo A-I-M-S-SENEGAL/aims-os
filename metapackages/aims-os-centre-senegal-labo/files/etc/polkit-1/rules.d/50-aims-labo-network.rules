@@ -1,0 +1,12 @@
+// AIMS OS labo — only administrators touch the network.
+// A student session could otherwise disconnect Wi-Fi/Ethernet from the
+// GNOME menu and take the machine off the network (no more SSH, no more
+// FOG). Admins: local group sudo, directory group admins, and aimsit.
+polkit.addRule(function(action, subject) {
+    if (action.id.indexOf("org.freedesktop.NetworkManager.") === 0) {
+        if (subject.user === "aimsit" || subject.isInGroup("sudo") || subject.isInGroup("admins")) {
+            return polkit.Result.YES;
+        }
+        return polkit.Result.NO;
+    }
+});

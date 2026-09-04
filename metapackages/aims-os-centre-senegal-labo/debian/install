@@ -2,3 +2,6 @@ files/etc/ssh/sshd_config.d/00-aims-labo.conf  etc/ssh/sshd_config.d/
 files/etc/ssh/authorized_keys.d/aimsit         etc/ssh/authorized_keys.d/
 files/etc/sudoers.d/aims-labo-it               etc/sudoers.d/
 files/etc/dconf/db/local.d/02-aims-labo               etc/dconf/db/local.d/
+files/etc/grub.d/01_aims_labo_password             etc/grub.d/
+files/usr/sbin/aims-labo-grub-password             usr/sbin/
+files/etc/polkit-1/rules.d/50-aims-labo-network.rules  etc/polkit-1/rules.d/

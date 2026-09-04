@@ -3,6 +3,11 @@ set -e
 
 case "$1" in
     remove|purge)
+        if dpkg-divert --list /etc/grub.d/10_linux 2>/dev/null | grep -q aims; then
+            rm -f /etc/grub.d/10_linux
+            dpkg-divert --quiet --remove --rename --package aims-os-centre-senegal-labo /etc/grub.d/10_linux
+            command -v update-grub >/dev/null 2>&1 && update-grub >/dev/null 2>&1 || true
+        fi
         if command -v dconf >/dev/null 2>&1; then
             dconf update 2>/dev/null || true
         fi
