@@ -108,6 +108,17 @@ stage_branding_payload() {
            "${FILES_DIR}/usr/share/icons/hicolor/${size}x${size}/apps/"
     done
 
+    # ---- Vendor logos + emblems (desktop-base "vendor-logos" alternative) ----
+    # Registered at priority 100 by /usr/lib/aims-os/debrand (postinst).
+    mkdir -p "${FILES_DIR}/usr/share/aims-os/vendor-logos" \
+             "${FILES_DIR}/usr/share/icons/aims-os"
+    cp "${BRAND_DIR}/generated/vendor/vendor-logos/"* \
+       "${FILES_DIR}/usr/share/aims-os/vendor-logos/"
+    cp -R "${BRAND_DIR}/generated/vendor/emblems/." \
+          "${FILES_DIR}/usr/share/icons/aims-os/"
+    # The debranding script itself (alternatives, wallpaper picker, perms).
+    install -m 0755 "${BRAND_DIR}/debrand.sh" "${FILES_DIR}/usr/lib/aims-os/debrand"
+
     # ---- Identity files (os-release + lsb-release) ----
     cp "${BRAND_DIR}/os-release/os-release"  "${FILES_DIR}/usr/lib/aims-os/"
     cp "${BRAND_DIR}/os-release/lsb-release" "${FILES_DIR}/usr/lib/aims-os/"

@@ -66,6 +66,12 @@ GRUBCFG
             dconf update 2>/dev/null \
                 || echo "aims-os-branding: dconf update reported a failure; continuing." >&2
         fi
+        # Debian branding sweep: vendor-logos alternative (Settings → About
+        # logo), Debian wallpapers out of the picker, permission repair.
+        if [ -x /usr/lib/aims-os/debrand ]; then
+            /usr/lib/aims-os/debrand \
+                || echo "aims-os-branding: debrand reported a failure; continuing." >&2
+        fi
         if command -v gtk-update-icon-cache >/dev/null 2>&1; then
             # -q quiet, -f force, -t no validation (faster)
             gtk-update-icon-cache -q -f -t /usr/share/icons/hicolor 2>/dev/null \

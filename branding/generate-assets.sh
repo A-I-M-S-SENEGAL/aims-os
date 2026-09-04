@@ -508,6 +508,63 @@ done
 # class to roughly "debian gnu-linux gnu os", so shipping AIMS icons under
 # those four names guarantees every entry picks up the same logo without us
 # having to rewrite the generated grub.cfg.
+# -----------------------------------------------------------------------------
+# Vendor logos + emblems (the desktop-base "vendor-logos" alternative)
+#
+# Debian builds gnome-control-center with a compiled-in logo path,
+# /usr/share/icons/vendor/scalable/emblems/emblem-vendor.svg, and never
+# looks at os-release LOGO. That path is a slave of the update-alternatives
+# group "vendor-logos", which desktop-base registers at priority 50 with
+# its Debian swirl. aims-os-branding registers the same group at priority
+# 100 (see branding/debrand.sh) pointing at the files generated here, so
+# Settings → About, and anything else reading the vendor emblem, shows
+# the AIMS logo. Same file names as desktop-base, one AIMS image for
+# every variant (plain / -symbolic / -white, with and without text).
+# -----------------------------------------------------------------------------
+log "generating vendor logos + emblems ..."
+VENDOR_DIR="${OUT_DIR}/vendor"
+mkdir -p "${VENDOR_DIR}/vendor-logos" \
+         "${VENDOR_DIR}/emblems/scalable"
+
+# svg_wrap <png> <px> <out.svg>: librsvg-friendly SVG embedding the PNG.
+svg_wrap() {
+    local png="$1" px="$2" out="$3"
+    {
+        printf '<?xml version="1.0" encoding="UTF-8"?>\n'
+        printf '<svg xmlns="http://www.w3.org/2000/svg" '
+        printf 'xmlns:xlink="http://www.w3.org/1999/xlink" '
+        printf 'width="%s" height="%s" viewBox="0 0 %s %s">\n' "${px}" "${px}" "${px}" "${px}"
+        printf '  <image href="data:image/png;base64,'
+        base64 < "${png}" | tr -d '\n'
+        printf '" width="%s" height="%s" preserveAspectRatio="xMidYMid meet"/>\n' "${px}" "${px}"
+        printf '</svg>\n'
+    } > "${out}"
+}
+
+for size in 64 128 256; do
+    VENDOR_PNG="${VENDOR_DIR}/logo-${size}.png"
+    resize_keep_alpha "${LOGO_CIRCLE}" "${size}" "${VENDOR_PNG}"
+    optipng -quiet -o2 "${VENDOR_PNG}" 2>/dev/null || true
+    for variant in "" "-text" "-text-version"; do
+        cp "${VENDOR_PNG}" "${VENDOR_DIR}/vendor-logos/logo${variant}-${size}.png"
+    done
+    mkdir -p "${VENDOR_DIR}/emblems/${size}x${size}"
+    for variant in "" "-symbolic" "-white"; do
+        cp "${VENDOR_PNG}" "${VENDOR_DIR}/emblems/${size}x${size}/emblem-aims${variant}.png"
+    done
+    rm -f "${VENDOR_PNG}"
+done
+VENDOR_SVG_SRC="${VENDOR_DIR}/logo-512.png"
+resize_keep_alpha "${LOGO_CIRCLE}" 512 "${VENDOR_SVG_SRC}"
+optipng -quiet -o2 "${VENDOR_SVG_SRC}" 2>/dev/null || true
+for variant in "" "-text" "-text-version"; do
+    svg_wrap "${VENDOR_SVG_SRC}" 512 "${VENDOR_DIR}/vendor-logos/logo${variant}.svg"
+done
+for variant in "" "-symbolic" "-white"; do
+    svg_wrap "${VENDOR_SVG_SRC}" 512 "${VENDOR_DIR}/emblems/scalable/emblem-aims${variant}.svg"
+done
+rm -f "${VENDOR_SVG_SRC}"
+
 log "generating GRUB per-entry icons ..."
 mkdir -p "${OUT_DIR}/grub/icons"
 ICON_PX=24

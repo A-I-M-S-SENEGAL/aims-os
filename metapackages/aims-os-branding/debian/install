@@ -6,3 +6,4 @@ files/usr/share/icons/hicolor/                       usr/share/icons/
 files/usr/lib/aims-os/                               usr/lib/
 files/etc/calamares/branding/aims-os/                etc/calamares/branding/
 files/etc/dconf/db/local.d/                          etc/dconf/db/
+files/usr/share/aims-os/                             usr/share/

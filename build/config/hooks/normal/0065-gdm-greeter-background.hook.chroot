@@ -298,7 +298,10 @@ aims_divert_swap() {
     [ -f "${target}" ] || return 0
     dpkg-divert --quiet --add --rename \
         --divert "${target}.aims-original" "${target}" >/dev/null
-    cp -af "${replacement}" "${target}"
+    # install, not cp -a: the SVG replacement comes from mktemp (0600) and
+    # a copied 0600 file is unreadable by the desktop session, which is
+    # how Settings → About kept showing the Debian swirl (2026-09-04).
+    install -m 0644 "${replacement}" "${target}"
 }
 
 if [ -d "${DEB_LOGOS_DIR}" ]; then

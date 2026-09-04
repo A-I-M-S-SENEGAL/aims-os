@@ -21,6 +21,9 @@ case "$1" in
         fi
 
         # ----- 2. Drop our GRUB theme drop-in --------------------------------
+        if [ -x /usr/lib/aims-os/debrand ]; then
+            /usr/lib/aims-os/debrand --undo || true
+        fi
         rm -f /etc/default/grub.d/aims-os.cfg
         if command -v update-grub >/dev/null 2>&1; then
             update-grub 2>/dev/null \

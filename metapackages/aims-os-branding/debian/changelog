@@ -1,3 +1,18 @@
+aims-os-branding (2.1+2) trixie; urgency=medium
+
+  * Settings → About showed the Debian swirl: Debian's
+    gnome-control-center is built with a fixed logo path,
+    /usr/share/icons/vendor/scalable/emblems/emblem-vendor.svg, a slave
+    of the desktop-base "vendor-logos" alternative (priority 50), and
+    ignores os-release LOGO. Ship AIMS vendor logos + emblems and
+    register the same alternative at priority 100 (/usr/lib/aims-os/
+    debrand, run from postinst; undone in prerm).
+  * debrand also hides the ten Debian wallpapers from the GNOME picker
+    (dpkg-divert) and repairs the 0600 logo files left by the older
+    ISO hook (mktemp + cp -a), which the desktop session could not read.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 04 Sep 2026 15:00:00 +0000
+
 aims-os-branding (2.1+1) trixie; urgency=medium
 
   * Dark-mode wallpaper: aims-os-default-dark-{1080p,4k}.png (same logo
