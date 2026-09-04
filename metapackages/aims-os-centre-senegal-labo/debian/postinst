@@ -35,6 +35,13 @@ case "$1" in
             dconf update 2>/dev/null || true
         fi
 
+        # Kerberos (FreeIPA) needs clocks within five minutes; installed
+        # systems came up with systemd-timesyncd disabled.
+        if [ -d /run/systemd/system ]; then
+            deb-systemd-helper enable systemd-timesyncd.service >/dev/null 2>&1 || true
+            deb-systemd-invoke start systemd-timesyncd.service >/dev/null 2>&1 || true
+        fi
+
         # Apply the sshd drop-in on a running system. deb-systemd-invoke
         # honours policy-rc.d, so this is a no-op inside a build chroot.
         if [ -d /run/systemd/system ]; then

@@ -78,6 +78,15 @@ if [ -f /etc/locale.gen ] && grep -qE "^wo_SN" /etc/locale.gen; then
     echo "Locale: wo_SN removed from /etc/locale.gen."
 fi
 
+# Time sync: the installed system came up with systemd-timesyncd disabled
+# (labo-hp-01, 2026-09-04) although hook 0020 enables it in the live
+# chroot. Kerberos (FreeIPA) needs clocks within five minutes.
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl unmask systemd-timesyncd.service >/dev/null 2>&1 || true
+    systemctl enable --now systemd-timesyncd.service >/dev/null 2>&1 \
+        && echo "systemd-timesyncd enabled."
+fi
+
 # Find every regular user (UID >= 1000, real shell, real home).
 # In practice on a Calamares install this is exactly one account.
 users=$(getent passwd | awk -F: '

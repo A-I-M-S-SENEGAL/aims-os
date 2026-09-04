@@ -19,6 +19,7 @@ Depends:
  adduser,
  dconf-cli,
  openssh-server,
+ systemd-timesyncd,
  sudo,
 Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
  Profile for the fixed workstations of the AIMS Senegal (Mbour) computer
@@ -28,6 +29,8 @@ Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
  .
  Ships remote administration for the IT team:
  .
+  * NTP time sync enabled (systemd-timesyncd), a Kerberos prerequisite
+    for the FreeIPA directory (ipa.lab.aimssnportal.org).
   * openssh-server, restricted by a drop-in under
     /etc/ssh/sshd_config.d/: public key only (password and
     keyboard-interactive refused), root login refused, and only the

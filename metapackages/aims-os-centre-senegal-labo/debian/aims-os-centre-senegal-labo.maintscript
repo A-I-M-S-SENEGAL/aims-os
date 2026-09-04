@@ -1,0 +1,1 @@
+rm_conffile /etc/ssh/sshd_config.d/40-aims-labo.conf 2.1+3~ aims-os-centre-senegal-labo
