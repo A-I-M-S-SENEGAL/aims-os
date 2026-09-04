@@ -529,7 +529,7 @@ done
 log "generating vendor logos + emblems ..."
 VENDOR_DIR="${OUT_DIR}/vendor"
 mkdir -p "${VENDOR_DIR}/vendor-logos" \
-         "${VENDOR_DIR}/emblems/scalable"
+         "${VENDOR_DIR}/emblems/scalable/emblems"
 
 # svg_wrap <png> <px> <out.svg>: librsvg-friendly SVG embedding the PNG.
 svg_wrap() {
@@ -553,9 +553,10 @@ for size in 64 128 256; do
     for variant in "" "-text" "-text-version"; do
         cp "${VENDOR_PNG}" "${VENDOR_DIR}/vendor-logos/logo${variant}-${size}.png"
     done
-    mkdir -p "${VENDOR_DIR}/emblems/${size}x${size}"
+    # Same layout as desktop-base: <size>x<size>/emblems/emblem-*.png
+    mkdir -p "${VENDOR_DIR}/emblems/${size}x${size}/emblems"
     for variant in "" "-symbolic" "-white"; do
-        cp "${VENDOR_PNG}" "${VENDOR_DIR}/emblems/${size}x${size}/emblem-aims${variant}.png"
+        cp "${VENDOR_PNG}" "${VENDOR_DIR}/emblems/${size}x${size}/emblems/emblem-aims${variant}.png"
     done
     rm -f "${VENDOR_PNG}"
 done
@@ -566,7 +567,7 @@ for variant in "" "-text" "-text-version"; do
     svg_wrap "${VENDOR_SVG_SRC}" 512 "${VENDOR_DIR}/vendor-logos/logo${variant}.svg"
 done
 for variant in "" "-symbolic" "-white"; do
-    svg_wrap "${VENDOR_SVG_SRC}" 512 "${VENDOR_DIR}/emblems/scalable/emblem-aims${variant}.svg"
+    svg_wrap "${VENDOR_SVG_SRC}" 512 "${VENDOR_DIR}/emblems/scalable/emblems/emblem-aims${variant}.svg"
 done
 rm -f "${VENDOR_SVG_SRC}"
 
