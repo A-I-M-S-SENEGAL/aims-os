@@ -41,10 +41,14 @@ Depends:
 # `grub-install` always works, BIOS or UEFI, media or not.
 # grub-pc-bin and grub-efi-amd64-bin coexist; only the grub-pc /
 # grub-efi-amd64 config packages conflict, so those stay out.
+# This metapackage is Architecture: all, so per-architecture packages
+# are expressed as alternatives: apt takes the first installable one,
+# i.e. the amd64 binaries on amd64 and grub-efi-arm64-* on arm64
+# (arm64 machines are UEFI-only, there is no grub-pc there).
  grub2-common,
- grub-pc-bin,
- grub-efi-amd64-bin,
- grub-efi-amd64-signed,
+ grub-pc-bin | grub-efi-arm64-bin,
+ grub-efi-amd64-bin | grub-efi-arm64-bin,
+ grub-efi-amd64-signed | grub-efi-arm64-signed,
  shim-signed,
  efibootmgr,
 # --- One browser (French) --------------------------------------------
