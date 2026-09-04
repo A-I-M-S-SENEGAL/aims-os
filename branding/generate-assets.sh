@@ -36,7 +36,10 @@ COLOR_BRAND_ACCENT="#A0392E"    # lighter terracotta — for elements that need
                                 # default background is already terracotta.
 COLOR_BG_CREAM="#F5EFE7"        # cream — used for boot chain (Plymouth, GRUB)
 COLOR_BG_MAROON="#600000"       # deep maroon — lattice wallpaper base, matches SVG
-COLOR_BG_DARK="#2A282B"         # warm charcoal — dark-mode wallpaper, same tone as GRUB
+COLOR_BG_DARK="#2A282B"         # warm charcoal — kept for the GRUB extent fallback
+COLOR_MAROON_APP="#8A1538"      # AIMS mobile app maroon — boot splash + light wallpaper
+COLOR_MAROON_DEEP="#4E0C1F"     # darker, softer maroon — dark wallpaper, GRUB edges
+COLOR_MAROON_GRUB="#7A1232"     # GRUB gradient centre
 COLOR_TEXT_DARK="#1A1A1A"       # primary text on cream
 COLOR_TEXT_MUTED="#666666"      # secondary text
 
@@ -159,16 +162,17 @@ compose_pattern_with_logo() {
 #    so the boot screen still carries the brand colour.
 # -----------------------------------------------------------------------------
 log "generating wallpapers ..."
-compose_centered 1920 1080 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 320 \
+# Same identity as the AIMS mobile app (2026-09-04): maroon canvas, white
+# disc logo centred. Dark style gets a darker, less saturated maroon so
+# the desktop is easier on the eyes; GNOME swaps to it automatically
+# (picture-uri-dark in dconf, <filename-dark> in the picker manifest).
+compose_centered 1920 1080 "${COLOR_MAROON_APP}" "${LOGO_CIRCLE}" 320 \
     "${OUT_DIR}/wallpapers/aims-os-default-1080p.png"
-compose_centered 3840 2160 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 640 \
+compose_centered 3840 2160 "${COLOR_MAROON_APP}" "${LOGO_CIRCLE}" 640 \
     "${OUT_DIR}/wallpapers/aims-os-default-4k.png"
-# Dark-mode variants: same composition on warm charcoal. GNOME swaps to
-# these automatically when the user picks the dark style (picture-uri-dark
-# in dconf, <filename-dark> in the wallpaper picker manifest).
-compose_centered 1920 1080 "${COLOR_BG_DARK}" "${LOGO_CIRCLE}" 320 \
+compose_centered 1920 1080 "${COLOR_MAROON_DEEP}" "${LOGO_CIRCLE}" 320 \
     "${OUT_DIR}/wallpapers/aims-os-default-dark-1080p.png"
-compose_centered 3840 2160 "${COLOR_BG_DARK}" "${LOGO_CIRCLE}" 640 \
+compose_centered 3840 2160 "${COLOR_MAROON_DEEP}" "${LOGO_CIRCLE}" 640 \
     "${OUT_DIR}/wallpapers/aims-os-default-dark-4k.png"
 
 # -----------------------------------------------------------------------------
@@ -186,41 +190,37 @@ convert "${LOGO_CIRCLE}" -resize 360x360 -background none -gravity center \
     -extent 400x400 -depth 8 -strip "PNG32:${OUT_DIR}/plymouth/aims-circle.png"
 optipng -quiet -o2 -nc -np "${OUT_DIR}/plymouth/aims-circle.png" 2>/dev/null || true
 
-# Ray ring — 12 short terracotta dashes arranged on a 600×600 canvas
-# around an empty 440×440 center (so the logo will fit inside cleanly).
-# Plymouth's refresh callback rotates this image around its centre; the
-# logo sprite renders ON TOP and stays motionless. Coordinates below are
-# computed for canvas center (300,300), inner radius 220, outer radius 280.
-convert -size 600x600 xc:transparent \
-    -stroke "${COLOR_BRAND_PRIMARY}" -strokewidth 10 -fill none \
-    -draw "stroke-linecap round
-           line 300,80  300,20
-           line 410,110 440,58
-           line 491,190 543,160
-           line 520,300 580,300
-           line 491,410 543,440
-           line 410,490 440,542
-           line 300,520 300,580
-           line 190,490 160,542
-           line 109,410 58,440
-           line 80,300  20,300
-           line 109,190 58,160
-           line 190,110 160,58" \
-    -depth 8 -strip "PNG32:${OUT_DIR}/plymouth/ray-ring.png"
+# Ray ring — the AIMS app's activity indicator: 12 white dashes on a
+# 600×600 canvas around an empty 440×440 centre (the logo sits inside),
+# opacity decreasing from the head (100 %) to the tail (25 %). Coordinates
+# for canvas centre (300,300), inner radius 220, outer radius 280.
+RING_TMP="$(mktemp --suffix=.png)"
+convert -size 600x600 xc:transparent -depth 8 "PNG32:${RING_TMP}"
+i=0
+for seg in "300,80 300,20" "410,110 440,58" "491,190 543,160" "520,300 580,300" \
+           "491,410 543,440" "410,490 440,542" "300,520 300,580" "190,490 160,542" \
+           "109,410 58,440" "80,300 20,300" "109,190 58,160" "190,110 160,58"; do
+    # head is the top dash; each following dash (clockwise) is fainter
+    alpha=$(awk -v i="${i}" 'BEGIN{printf "%.3f", 1.0 - 0.75*i/11}')
+    convert "${RING_TMP}" -stroke "rgba(255,255,255,${alpha})" -strokewidth 10 -fill none \
+        -draw "stroke-linecap round line ${seg}" -depth 8 "PNG32:${RING_TMP}"
+    i=$((i+1))
+done
+convert "${RING_TMP}" -depth 8 -strip "PNG32:${OUT_DIR}/plymouth/ray-ring.png"
+rm -f "${RING_TMP}"
 optipng -quiet -o2 -nc -np "${OUT_DIR}/plymouth/ray-ring.png" 2>/dev/null || true
 
-# Pre-rendered rotation frames. Plymouth's Image.Rotate() resamples with
-# nearest-neighbour at every refresh tick and, on real hardware (HP
-# All-in-One 24-f0xx, 2026-09-03), showed dashes of visibly uneven length.
-# Rendering the rotation here with ImageMagick's anti-aliased SRT distort
-# gives a clean ring at every angle; the Plymouth script just cycles the
-# frames. 12 dashes have 30-degree symmetry, so 30 frames at 1 degree
-# cover a seamless loop. ~4 KB each.
+# Pre-rendered rotation frames (Plymouth's Image.Rotate() resamples with
+# nearest-neighbour and looked ragged on real hardware). The opacity
+# gradient breaks the 30-degree symmetry, so a full turn is 36 frames of
+# 10 degrees; the script advances one frame per refresh tick (~20 Hz),
+# one revolution in about two seconds, like the app's spinner.
 log "generating Plymouth ring frames ..."
 mkdir -p "${OUT_DIR}/plymouth/ring"
-for i in $(seq 0 29); do
+rm -f "${OUT_DIR}/plymouth/ring/ring-"*.png
+for i in $(seq 0 35); do
     convert "${OUT_DIR}/plymouth/ray-ring.png" \
-        -virtual-pixel transparent -distort SRT "${i}" \
+        -virtual-pixel transparent -distort SRT "$((i*10))" \
         -depth 8 -strip "PNG32:${OUT_DIR}/plymouth/ring/ring-${i}.png"
     optipng -quiet -o2 -nc -np "${OUT_DIR}/plymouth/ring/ring-${i}.png" 2>/dev/null || true
 done
@@ -336,8 +336,14 @@ log "generating GRUB background (SVG + 16:9 extension + brand baked-in) ..."
 #   knob for the brand, but at build time we composite it at exactly
 #   the right pixel coordinates and never have to think about it
 #   again at boot.
+# 2026-09-04: the Vimix triangles gave way to a plain maroon canvas in the
+# Canonical spirit (solid colour, nothing to distract from the menu): a
+# soft radial gradient from COLOR_MAROON_GRUB at the centre to
+# COLOR_MAROON_DEEP at the edges. The brand block below keeps its exact
+# place. The triangles SVG stays in branding/source for reference.
 GRUB_BG_TMP="$(mktemp --suffix=.png)"
-rsvg-convert -h 1080 "${SRC_DIR}/aims-grub-bg.svg" -o "${GRUB_BG_TMP}"
+convert -size 1920x1080 "radial-gradient:${COLOR_MAROON_GRUB}-${COLOR_MAROON_DEEP}" \
+    -depth 8 "PNG24:${GRUB_BG_TMP}"
 
 # Build the brand block in a temp 600×220 transparent PNG, then
 # composite onto the right-side dark area of the extended canvas.
@@ -366,7 +372,7 @@ convert -size 600x220 xc:transparent \
 # wallpaper"). Truecolor PNG is the only format GRUB renders
 # faithfully on every codepath (desktop-image and + image alike).
 convert "${GRUB_BG_TMP}" \
-    -background "#2A282B" \
+    -background "${COLOR_MAROON_DEEP}" \
     -gravity west -extent 1920x1080 \
     -gravity northwest \
     "${GRUB_BRAND_TMP}" -geometry +1180+780 -compose over -composite \

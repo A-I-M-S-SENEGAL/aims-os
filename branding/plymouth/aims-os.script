@@ -1,7 +1,7 @@
 # =============================================================================
 # AIMS OS — Plymouth boot splash script
 # =============================================================================
-# A deliberately calm splash: cream background, STATIC centred AIMS
+# A deliberately calm splash: maroon background, STATIC centred AIMS
 # circular logo, plus the password prompt for LUKS-encrypted disks and
 # a quiet message line for any system status the kernel/initramfs may
 # send (fsck progress, "Mounting…", etc.).
@@ -15,10 +15,10 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# 1. Solid cream background (#F5EFE7)
+# 1. Solid maroon background (#8A1538, the AIMS mobile app colour)
 # -----------------------------------------------------------------------------
-Window.SetBackgroundTopColor    (0.961, 0.937, 0.906);
-Window.SetBackgroundBottomColor (0.961, 0.937, 0.906);
+Window.SetBackgroundTopColor    (0.541, 0.082, 0.220);
+Window.SetBackgroundBottomColor (0.541, 0.082, 0.220);
 
 # -----------------------------------------------------------------------------
 # 2. Rotating ray ring (drawn FIRST so the logo lands on top)
@@ -30,7 +30,7 @@ Window.SetBackgroundBottomColor (0.961, 0.937, 0.906);
 # Plymouth's own Image.Rotate() was used before; it resamples with
 # nearest-neighbour and showed dashes of uneven length on real hardware.
 # The logo sprite renders ON TOP and never moves.
-ring_frames = 30;
+ring_frames = 36;
 for (i = 0; i < ring_frames; i++)
     ring_image[i] = Image("ring-" + i + ".png");
 ring_sprite = Sprite();
@@ -50,13 +50,12 @@ logo_sprite.SetY(Window.GetHeight() / 2 - logo_image.GetHeight() / 2);
 # -----------------------------------------------------------------------------
 # 4. Refresh callback — advance the ring by one frame, nothing else moves
 # -----------------------------------------------------------------------------
-# Two frames (2 degrees) per refresh tick. Plymouth refreshes at ~20 Hz,
-# which works out to one full revolution every ~9 seconds — slow enough
-# to feel calm, fast enough to be visibly alive. The 12-dash ring has
-# 30-degree symmetry, so wrapping at frame 30 is seamless.
+# One frame (10 degrees) per refresh tick. Plymouth refreshes at ~20 Hz,
+# so the white gradient ring turns once every ~2 seconds, like the
+# activity indicator of the AIMS mobile app. 36 frames = a full turn.
 ring_index = 0;
 fun refresh_callback () {
-    ring_index = ring_index + 2;
+    ring_index = ring_index + 1;
     if (ring_index >= ring_frames) ring_index = ring_index - ring_frames;
     ring_sprite.SetImage(ring_image[ring_index]);
 }
@@ -71,7 +70,7 @@ Plymouth.SetRefreshFunction(refresh_callback);
 # happen, the text appears in muted #666666 below the logo.
 message_sprite = Sprite();
 fun message_callback (text) {
-    message_image = Image.Text(text, 0.40, 0.40, 0.40);
+    message_image = Image.Text(text, 0.92, 0.88, 0.88);
     message_sprite.SetImage(message_image);
     message_sprite.SetX(Window.GetWidth() / 2 - message_image.GetWidth() / 2);
     message_sprite.SetY(Window.GetHeight() / 2 + logo_image.GetHeight() / 2 + 30);
@@ -89,7 +88,7 @@ prompt_sprite  = Sprite();
 bullets_sprite = Sprite();
 
 fun display_password_callback (prompt, bullets) {
-    prompt_image = Image.Text(prompt, 0.502, 0.188, 0.094);
+    prompt_image = Image.Text(prompt, 1.0, 1.0, 1.0);
     prompt_sprite.SetImage(prompt_image);
     prompt_sprite.SetX(Window.GetWidth() / 2 - prompt_image.GetWidth() / 2);
     prompt_sprite.SetY(Window.GetHeight() / 2 + logo_image.GetHeight() / 2 + 50);
@@ -101,7 +100,7 @@ fun display_password_callback (prompt, bullets) {
         i = i + 1;
     }
     if (bullets > 0) {
-        bullets_image = Image.Text(bullets_string, 0.502, 0.188, 0.094);
+        bullets_image = Image.Text(bullets_string, 1.0, 1.0, 1.0);
         bullets_sprite.SetImage(bullets_image);
         bullets_sprite.SetX(Window.GetWidth() / 2 - bullets_image.GetWidth() / 2);
         bullets_sprite.SetY(Window.GetHeight() / 2 + logo_image.GetHeight() / 2 + 90);

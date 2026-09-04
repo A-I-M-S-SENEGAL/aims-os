@@ -1,3 +1,14 @@
+aims-os-branding (2.1+6) trixie; urgency=medium
+
+  * Same identity as the AIMS mobile app: maroon (#8A1538) boot splash
+    with a white activity ring (12 dashes, opacity gradient, 36 frames,
+    one turn per ~2 s), maroon wallpaper with a darker, softer variant
+    (#4E0C1F) for the dark style, and a plain maroon GRUB background
+    (radial #7A1232 → #4E0C1F, Canonical spirit) with the brand block
+    exactly where it was. Menu layout, logo and texts unchanged.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 04 Sep 2026 21:00:00 +0000
+
 aims-os-branding (2.1+5) trixie; urgency=medium
 
   * Emblems land under <size>/emblems/ and scalable/emblems/, the
