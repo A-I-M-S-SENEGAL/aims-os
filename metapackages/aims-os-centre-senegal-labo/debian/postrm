@@ -3,10 +3,6 @@ set -e
 
 case "$1" in
     remove|purge)
-        if [ -d /run/systemd/system ]; then
-            systemctl unmask sleep.target suspend.target hibernate.target \
-                hybrid-sleep.target >/dev/null 2>&1 || true
-        fi
         if command -v dconf >/dev/null 2>&1; then
             dconf update 2>/dev/null || true
         fi

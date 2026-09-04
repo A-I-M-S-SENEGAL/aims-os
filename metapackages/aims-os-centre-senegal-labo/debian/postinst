@@ -28,14 +28,11 @@ case "$1" in
         fi
 
         # Lab workstations must stay reachable: never suspend. The dconf
-        # default below stops GNOME's idle suspend; masking the systemd
-        # targets stops every other path (menu, lid, DE bugs).
+        # default (02-aims-labo) stops GNOME's idle suspend; the /dev/null
+        # symlinks in debian/links mask the systemd sleep targets for
+        # every other path (menu, lid, DE bugs).
         if command -v dconf >/dev/null 2>&1; then
             dconf update 2>/dev/null || true
-        fi
-        if [ -d /run/systemd/system ]; then
-            systemctl mask sleep.target suspend.target hibernate.target \
-                hybrid-sleep.target >/dev/null 2>&1 || true
         fi
 
         # Apply the sshd drop-in on a running system. deb-systemd-invoke

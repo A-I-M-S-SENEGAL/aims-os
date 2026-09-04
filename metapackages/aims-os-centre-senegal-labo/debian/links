@@ -1,0 +1,8 @@
+# Mask the sleep targets: a lab workstation must never suspend (it would
+# drop off the network). Shipping the /dev/null symlinks is the same
+# thing `systemctl mask` does, without a maintainer-script call, and
+# they leave with the package.
+/dev/null etc/systemd/system/sleep.target
+/dev/null etc/systemd/system/suspend.target
+/dev/null etc/systemd/system/hibernate.target
+/dev/null etc/systemd/system/hybrid-sleep.target
