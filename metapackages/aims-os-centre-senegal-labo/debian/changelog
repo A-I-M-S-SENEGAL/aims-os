@@ -1,3 +1,10 @@
+aims-os-centre-senegal-labo (2.1+5) trixie; urgency=medium
+
+  * aims-labo-grub-password: generate the random password without a
+    pipe closed early by head (pipefail aborted the tool silently).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 04 Sep 2026 20:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+4) trixie; urgency=medium
 
   * Hardening against the student at the keyboard: GRUB superuser
