@@ -61,6 +61,11 @@ GRUBCFG
         fi
 
         # ----- 5. Hicolor icon cache -----------------------------------------
+        # Compile the dconf defaults we ship (dark-mode wallpaper).
+        if command -v dconf >/dev/null 2>&1; then
+            dconf update 2>/dev/null \
+                || echo "aims-os-branding: dconf update reported a failure; continuing." >&2
+        fi
         if command -v gtk-update-icon-cache >/dev/null 2>&1; then
             # -q quiet, -f force, -t no validation (faster)
             gtk-update-icon-cache -q -f -t /usr/share/icons/hicolor 2>/dev/null \

@@ -36,6 +36,7 @@ COLOR_BRAND_ACCENT="#A0392E"    # lighter terracotta — for elements that need
                                 # default background is already terracotta.
 COLOR_BG_CREAM="#F5EFE7"        # cream — used for boot chain (Plymouth, GRUB)
 COLOR_BG_MAROON="#600000"       # deep maroon — lattice wallpaper base, matches SVG
+COLOR_BG_DARK="#2A282B"         # warm charcoal — dark-mode wallpaper, same tone as GRUB
 COLOR_TEXT_DARK="#1A1A1A"       # primary text on cream
 COLOR_TEXT_MUTED="#666666"      # secondary text
 
@@ -162,6 +163,13 @@ compose_centered 1920 1080 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 320 \
     "${OUT_DIR}/wallpapers/aims-os-default-1080p.png"
 compose_centered 3840 2160 "${COLOR_BG_CREAM}" "${LOGO_CIRCLE}" 640 \
     "${OUT_DIR}/wallpapers/aims-os-default-4k.png"
+# Dark-mode variants: same composition on warm charcoal. GNOME swaps to
+# these automatically when the user picks the dark style (picture-uri-dark
+# in dconf, <filename-dark> in the wallpaper picker manifest).
+compose_centered 1920 1080 "${COLOR_BG_DARK}" "${LOGO_CIRCLE}" 320 \
+    "${OUT_DIR}/wallpapers/aims-os-default-dark-1080p.png"
+compose_centered 3840 2160 "${COLOR_BG_DARK}" "${LOGO_CIRCLE}" 640 \
+    "${OUT_DIR}/wallpapers/aims-os-default-dark-4k.png"
 
 # -----------------------------------------------------------------------------
 # 2. Plymouth boot splash

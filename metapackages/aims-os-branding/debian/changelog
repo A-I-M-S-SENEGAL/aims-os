@@ -1,3 +1,14 @@
+aims-os-branding (2.1+1) trixie; urgency=medium
+
+  * Dark-mode wallpaper: aims-os-default-dark-{1080p,4k}.png (same logo
+    on warm charcoal #2A282B). Wired through picture-uri-dark and the
+    wallpaper picker manifest (<filename-dark>), so GNOME swaps the
+    background when the user picks the dark style. The dconf default
+    now ships in this package (01-aims-os-branding, dconf update in
+    postinst) so already-installed machines get it on upgrade.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 04 Sep 2026 13:00:00 +0000
+
 aims-os-branding (2.1) trixie; urgency=medium
 
   * Plymouth: the rotating ray ring is now 30 pre-rendered frames

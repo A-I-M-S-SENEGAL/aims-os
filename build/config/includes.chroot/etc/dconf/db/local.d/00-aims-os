@@ -17,7 +17,7 @@
 
 [org/gnome/desktop/background]
 picture-uri='file:///usr/share/backgrounds/aims-os/aims-os-default-1080p.png'
-picture-uri-dark='file:///usr/share/backgrounds/aims-os/aims-os-default-1080p.png'
+picture-uri-dark='file:///usr/share/backgrounds/aims-os/aims-os-default-dark-1080p.png'
 picture-options='zoom'
 primary-color='#F5EFE7'
 secondary-color='#F5EFE7'

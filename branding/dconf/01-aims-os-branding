@@ -1,0 +1,9 @@
+# AIMS OS — dconf defaults owned by aims-os-branding.
+# Installed at /etc/dconf/db/local.d/01-aims-os-branding; later files
+# override earlier ones, so this wins over the ISO's 00-aims-os. Compiled
+# by `dconf update` in the package postinst. Not locked: the user can
+# pick any wallpaper in Settings → Appearance.
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/aims-os/aims-os-default-1080p.png'
+picture-uri-dark='file:///usr/share/backgrounds/aims-os/aims-os-default-dark-1080p.png'
+picture-options='zoom'

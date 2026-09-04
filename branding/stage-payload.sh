@@ -61,6 +61,19 @@ stage_branding_payload() {
        "${FILES_DIR}/usr/share/backgrounds/aims-os/"
     cp "${BRAND_DIR}/generated/wallpapers/aims-os-greeter-1080p.png" \
        "${FILES_DIR}/usr/share/backgrounds/aims-os/"
+    # aims-os-default-dark-*  → dark-style twins, picked by GNOME when the
+    #                            user switches to the dark appearance.
+    cp "${BRAND_DIR}/generated/wallpapers/aims-os-default-dark-1080p.png" \
+       "${FILES_DIR}/usr/share/backgrounds/aims-os/"
+    cp "${BRAND_DIR}/generated/wallpapers/aims-os-default-dark-4k.png" \
+       "${FILES_DIR}/usr/share/backgrounds/aims-os/"
+
+    # ---- dconf defaults owned by the package (background light/dark) ----
+    # Later files in local.d override earlier ones, so this wins over the
+    # ISO's 00-aims-os and also reaches machines installed from older ISOs.
+    mkdir -p "${FILES_DIR}/etc/dconf/db/local.d"
+    cp "${BRAND_DIR}/dconf/01-aims-os-branding" \
+       "${FILES_DIR}/etc/dconf/db/local.d/"
 
     # ---- Plymouth (text + images) ----
     cp "${BRAND_DIR}/plymouth/aims-os.plymouth"   \

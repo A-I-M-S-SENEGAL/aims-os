@@ -19,6 +19,7 @@ Depends:
  plymouth,
  plymouth-themes,
  plymouth-label,
+ dconf-cli,
 Description: AIMS OS — boot splash, login theme, wallpapers and icons
  This metapackage carries the AIMS Senegal visual identity that
  transforms a default Debian + GNOME installation into AIMS OS:
