@@ -72,6 +72,11 @@ jobs:
       ARCH: amd64
 
     steps:
+      # First: actions/checkout cleans the workspace, so it must run before
+      # the ISO artifact is downloaded (it wiped the ISO on the first try).
+      - name: Checkout (for build/tests/)
+        uses: actions/checkout@v4
+
       - name: Free disk
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be  # v1.3.1
         with:
@@ -141,9 +146,6 @@ jobs:
 
           file boot-vmlinuz boot-initrd
           ls -lh boot-vmlinuz boot-initrd
-
-      - name: Checkout (for build/tests/)
-        uses: actions/checkout@v4
 
       - name: Installer-readiness checks (amd64)
         run: bash build/tests/check-iso-install-readiness.sh aims-os-${ISO_VERSION}-amd64.iso amd64
@@ -246,6 +248,11 @@ jobs:
       ARCH: arm64
 
     steps:
+      # First: actions/checkout cleans the workspace, so it must run before
+      # the ISO artifact is downloaded (it wiped the ISO on the first try).
+      - name: Checkout (for build/tests/)
+        uses: actions/checkout@v4
+
       - name: Free disk
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be  # v1.3.1
         with:
@@ -333,9 +340,6 @@ jobs:
           fi
 
           sudo umount iso-mount
-
-      - name: Checkout (for build/tests/)
-        uses: actions/checkout@v4
 
       - name: Installer-readiness checks (arm64)
         run: bash build/tests/check-iso-install-readiness.sh aims-os-${ISO_VERSION}-arm64.iso arm64
