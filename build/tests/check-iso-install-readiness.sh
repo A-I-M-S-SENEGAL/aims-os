@@ -47,7 +47,7 @@ case "${ARCH}" in
     *) echo "unknown arch ${ARCH}"; exit 2 ;;
 esac
 for p in ${want} calamares calamares-settings-debian live-boot initramfs-tools aims-os-desktop aims-os-core; do
-    if grep -qE "^${p}[[:space:]]" "${PKGS}" 2>/dev/null; then ok "${p}"; else fail "${p} not in the live system"; fi
+    if grep -qE "^${p}(:[a-z0-9]+)?[[:space:]]" "${PKGS}" 2>/dev/null; then ok "${p}"; else fail "${p} not in the live system"; fi
 done
 
 echo "== packages in the ISO pool (Calamares bootloader-config source)"
