@@ -5,7 +5,7 @@ files/etc/dconf/db/local.d/02-aims-labo               etc/dconf/db/local.d/
 files/etc/grub.d/01_aims_labo_password             etc/grub.d/
 files/usr/sbin/aims-labo-grub-password             usr/sbin/
 files/etc/polkit-1/rules.d/50-aims-labo-network.rules  etc/polkit-1/rules.d/
-files/etc/udev/rules.d/60-aims-labo-kvm.rules           etc/udev/rules.d/
+files/usr/lib/udev/rules.d/60-aims-labo-kvm.rules       usr/lib/udev/rules.d/
 files/etc/containers/storage.conf.d/aims-labo.conf      etc/containers/storage.conf.d/
 files/etc/profile.d/aims-labo.sh                        etc/profile.d/
 files/usr/bin/aims-db                                   usr/bin/
