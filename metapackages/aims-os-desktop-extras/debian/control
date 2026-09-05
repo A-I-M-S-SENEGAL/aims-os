@@ -17,8 +17,6 @@ Depends:
  ${misc:Depends},
  aims-os-desktop,
 # --- Second browser ---------------------------------------------------
- chromium,
- chromium-l10n,
 # --- LibreOffice English helpers + offline help (French) -------------
  libreoffice-help-fr,
  libreoffice-l10n-en-gb,
@@ -39,6 +37,8 @@ Depends:
 # These pull from Debian's non-free component; live-build enables it
 # so the ISO can include them via Recommends.
 Recommends:
+ chromium,
+ chromium-l10n,
  gstreamer1.0-plugins-bad,
  gstreamer1.0-plugins-ugly,
  gstreamer1.0-libav,

@@ -1,0 +1,137 @@
+#!/bin/bash
+# =============================================================================
+# aims-labo-extras — vendor software for the lab golden machine (run once, root)
+# =============================================================================
+# Everything here comes from outside Debian: vendor apt repositories (kept
+# up to date by apt afterwards) or upstream archives unpacked in /opt.
+# Re-runnable: each step skips what is already there.
+#
+#   aims-labo-extras            everything
+#   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
+#                               drawio julia ghidra android geogebra dbimages
+# =============================================================================
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || { echo "root required" >&2; exit 1; }
+export DEBIAN_FRONTEND=noninteractive
+KEYS=/usr/share/keyrings; LIST=/etc/apt/sources.list.d; ARCH=$(dpkg --print-architecture)
+log() { printf '\033[1;34m[aims-labo-extras]\033[0m %s\n' "$*"; }
+need() { command -v "$1" >/dev/null 2>&1 || apt-get -q -y install "$1" >/dev/null; }
+desktop_entry() { # name exec icon comment
+    cat > "/usr/share/applications/$1.desktop" <<D
+[Desktop Entry]
+Type=Application
+Name=$2
+Exec=$3
+Icon=$4
+Comment=$5
+Categories=Development;
+Terminal=false
+D
+}
+
+step_repos() {
+    need curl; need gpg
+    log "Microsoft (VS Code)"
+    [ -f $KEYS/microsoft.gpg ] || curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o $KEYS/microsoft.gpg
+    echo "deb [arch=amd64,arm64 signed-by=$KEYS/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > $LIST/vscode.list
+    log "Google (Chrome)"
+    [ -f $KEYS/google-chrome.gpg ] || curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o $KEYS/google-chrome.gpg
+    echo "deb [arch=amd64 signed-by=$KEYS/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" > $LIST/google-chrome.list
+    log "Bruno"
+    [ -f $KEYS/bruno.gpg ] || gpg --no-default-keyring --keyring $KEYS/bruno.gpg --keyserver keyserver.ubuntu.com --recv-keys 9FA6017ECABE0266 >/dev/null 2>&1
+    echo "deb [signed-by=$KEYS/bruno.gpg] http://debian.usebruno.com/ bruno stable" > $LIST/bruno.list
+    apt-get -q update >/dev/null
+}
+step_code()   { log "VS Code";  apt-get -q -y install code >/dev/null; }
+step_chrome() { log "Google Chrome"; apt-get -q -y install google-chrome-stable >/dev/null; }
+step_bruno()  { log "Bruno (API client)"; apt-get -q -y install bruno >/dev/null; }
+step_zotero() {
+    log "Zotero (retorquere apt repo)"
+    need curl
+    if [ ! -f $LIST/zotero.list ] && [ ! -f $LIST/zotero.sources ]; then
+        curl -fsSL https://raw.githubusercontent.com/retorquere/zotero-deb/master/install.sh | bash >/dev/null
+        apt-get -q update >/dev/null
+    fi
+    apt-get -q -y install zotero >/dev/null
+}
+step_drawio() {
+    log "draw.io desktop"
+    need curl
+    url=$(curl -fsSL https://api.github.com/repos/jgraph/drawio-desktop/releases/latest | grep -oE 'https://[^"]+drawio-amd64-[0-9.]+\.deb' | head -1)
+    [ -n "$url" ] || { echo "draw.io: release URL not found" >&2; return 1; }
+    dpkg -l drawio >/dev/null 2>&1 && dpkg -l drawio | grep -q "^ii.*$(echo "$url" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')" && return 0
+    curl -fsSL -o /tmp/drawio.deb "$url" && apt-get -q -y install /tmp/drawio.deb >/dev/null && rm -f /tmp/drawio.deb
+}
+step_julia() {
+    log "Julia (official binaries, /opt/julia)"
+    need curl; need python3
+    read -r ver url sha < <(curl -fsSL https://julialang-s3.julialang.org/bin/versions.json | python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+stable=[v for v,i in d.items() if i.get("stable")]
+stable.sort(key=lambda v:[int(x) for x in v.split(".")])
+v=stable[-1]
+for f in d[v]["files"]:
+    if f["os"]=="linux" and f["arch"]=="x86_64" and f["kind"]=="archive": print(v,f["url"],f["sha256"]); break')
+    if [ -x /opt/julia/bin/julia ] && /opt/julia/bin/julia --version | grep -q "$ver"; then return 0; fi
+    curl -fsSL -o /tmp/julia.tgz "$url"; echo "$sha  /tmp/julia.tgz" | sha256sum -c --quiet
+    rm -rf /opt/julia && mkdir -p /opt/julia && tar -xzf /tmp/julia.tgz -C /opt/julia --strip-components=1 && rm -f /tmp/julia.tgz
+    ln -sf /opt/julia/bin/julia /usr/local/bin/julia
+}
+step_ghidra() {
+    log "Ghidra (GitHub release, /opt/ghidra)"
+    need curl; need unzip; apt-get -q -y install default-jdk >/dev/null
+    url=$(curl -fsSL https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest | grep -oE 'https://[^"]+ghidra_[0-9.]+_PUBLIC_[0-9]+\.zip' | head -1)
+    [ -n "$url" ] || { echo "ghidra: release URL not found" >&2; return 1; }
+    ver=$(echo "$url" | grep -oE 'ghidra_[0-9.]+_PUBLIC')
+    [ -f "/opt/ghidra/.version" ] && [ "$(cat /opt/ghidra/.version)" = "$ver" ] && return 0
+    curl -fsSL -o /tmp/ghidra.zip "$url"; rm -rf /opt/ghidra /tmp/ghidra-x && mkdir -p /tmp/ghidra-x && unzip -q /tmp/ghidra.zip -d /tmp/ghidra-x
+    mv /tmp/ghidra-x/ghidra_* /opt/ghidra && echo "$ver" > /opt/ghidra/.version && rm -rf /tmp/ghidra.zip /tmp/ghidra-x
+    chmod +x /opt/ghidra/ghidraRun
+    desktop_entry ghidra "Ghidra" "/opt/ghidra/ghidraRun" "/opt/ghidra/support/ghidra.ico" "Rétro-ingénierie (NSA)"
+}
+step_android() {
+    log "Android Studio + shared SDK (/opt/android-studio, /opt/android-sdk)"
+    need curl; need unzip; apt-get -q -y install default-jdk libc6:i386 2>/dev/null || true
+    page=$(curl -fsSL https://developer.android.com/studio)
+    url=$(echo "$page" | grep -oE 'https://[^"]+android-studio-[0-9.]+-linux\.tar\.gz' | head -1)
+    [ -n "$url" ] || { echo "android studio: tarball URL not found on developer.android.com" >&2; return 1; }
+    ver=$(echo "$url" | grep -oE 'android-studio-[0-9.]+')
+    if [ ! -f /opt/android-studio/.version ] || [ "$(cat /opt/android-studio/.version)" != "$ver" ]; then
+        curl -fL -o /tmp/android-studio.tgz "$url"
+        rm -rf /opt/android-studio && tar -xzf /tmp/android-studio.tgz -C /opt && echo "$ver" > /opt/android-studio/.version && rm -f /tmp/android-studio.tgz
+        desktop_entry android-studio "Android Studio" "/opt/android-studio/bin/studio.sh" "/opt/android-studio/bin/studio.png" "IDE Android (Google)"
+    fi
+    # shared SDK
+    tools=$(echo "$page" | grep -oE 'https://dl.google.com/android/repository/commandlinetools-linux-[0-9]+_latest\.zip' | head -1)
+    [ -n "$tools" ] || { echo "android sdk: command-line tools URL not found" >&2; return 1; }
+    mkdir -p /opt/android-sdk/cmdline-tools
+    if [ ! -x /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager ]; then
+        curl -fL -o /tmp/cmdtools.zip "$tools" && rm -rf /tmp/cmdtools && unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
+        rm -rf /opt/android-sdk/cmdline-tools/latest && mv /tmp/cmdtools/cmdline-tools /opt/android-sdk/cmdline-tools/latest && rm -rf /tmp/cmdtools /tmp/cmdtools.zip
+    fi
+    export ANDROID_HOME=/opt/android-sdk
+    yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/opt/android-sdk --licenses >/dev/null 2>&1 || true
+    /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/opt/android-sdk \
+        "platform-tools" "platforms;android-35" "build-tools;35.0.0" "emulator" \
+        "system-images;android-35;google_apis;x86_64" >/dev/null
+    chmod -R a+rX /opt/android-sdk
+    # Studio must not try to write the shared SDK; students keep AVDs/caches in their home
+    install -d -m 0755 /etc/skel/.config/Google 2>/dev/null || true
+}
+step_geogebra() {
+    log "GeoGebra (Flatpak, system-wide)"
+    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    flatpak install -y --noninteractive --system flathub org.geogebra.GeoGebra >/dev/null
+}
+step_dbimages() {
+    log "Database images for aims-db (shared read-only Podman store)"
+    for img in docker.io/library/postgres:17 docker.io/library/mariadb:11 docker.io/library/redis:7 docker.io/library/mongo:8; do
+        podman pull -q "$img" >/dev/null
+    done
+    podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
+}
+
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages)
+for s in "${steps[@]}"; do "step_$s"; done
+log "done"

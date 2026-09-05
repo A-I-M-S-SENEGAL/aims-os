@@ -3,3 +3,5 @@
 aims-os-centre-senegal-labo: diversion-for-unknown-file etc/grub.d/10_linux *
 # Single-purpose admin tool documented in the private IT runbook.
 aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-grub-password]
+aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-extras]
+aims-os-centre-senegal-labo: no-manual-page [usr/bin/aims-db]

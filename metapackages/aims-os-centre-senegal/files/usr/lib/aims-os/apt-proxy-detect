@@ -21,7 +21,7 @@ CACHE_PORT=3142
 
 # /dev/tcp is a bash feature: /bin/sh is dash on Debian and always fails
 # there, which made 2.1+1 answer DIRECT even on campus.
-if timeout 1 bash -c "exec 3<>/dev/tcp/${CACHE_HOST}/${CACHE_PORT}" 2>/dev/null; then
+if timeout 2 bash -c "exec 3<>/dev/tcp/${CACHE_HOST}/${CACHE_PORT}" 2>/dev/null; then
     echo "http://${CACHE_HOST}:${CACHE_PORT}"
 else
     echo "DIRECT"

@@ -1,0 +1,4 @@
+# AIMS OS labo — the person seated at the machine may use KVM
+# (Android emulator, GNOME Boxes). Directory accounts are not in the
+# local kvm group; the uaccess tag hands them an ACL for the session.
+KERNEL=="kvm", TAG+="uaccess"

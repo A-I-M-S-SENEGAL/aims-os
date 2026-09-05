@@ -1,3 +1,10 @@
+aims-os-centre-senegal (2.1+3) trixie; urgency=medium
+
+  * apt-proxy-detect: two-second probe (one second missed the cache over
+    Wi-Fi on labo-hp-01).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 05 Sep 2026 09:00:00 +0000
+
 aims-os-centre-senegal (2.1+2) trixie; urgency=medium
 
   * apt-proxy-detect: probe with bash, not sh. /dev/tcp does not exist

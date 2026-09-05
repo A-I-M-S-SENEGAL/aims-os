@@ -22,6 +22,21 @@ Depends:
  systemd-timesyncd,
  grub2-common,
  polkitd,
+# Lab software beyond aims-os-everything (validated 2026-09-05):
+ vlc,
+ scilab,
+ qgis,
+ flatpak,
+ gnome-software-plugin-flatpak,
+ qemu-system-x86,
+ qemu-utils,
+ libvirt-daemon-system,
+ libvirt-clients,
+ gnome-boxes,
+ virt-manager,
+ podman,
+ uidmap,
+ slirp4netns,
  sudo,
 Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
  Profile for the fixed workstations of the AIMS Senegal (Mbour) computer
@@ -49,6 +64,13 @@ Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
     NetworkManager reserved to administrators (polkit).
   * no suspend: GNOME idle suspend off by default (dconf) and the
     systemd sleep targets masked, so the machine stays reachable.
+  * the lab software set on top of aims-os-everything: VLC, Scilab,
+    QGIS, Flatpak (GeoGebra), QEMU/KVM with GNOME Boxes and virt-manager
+    (student-owned VMs, session mode, /dev/kvm granted to the seated
+    user), rootless Podman with pre-pulled database images and the
+    aims-db helper. Vendor software (VS Code, Google Chrome, Zotero,
+    Bruno, draw.io, Julia, Ghidra, Android Studio + SDK, GeoGebra) is
+    fetched by aims-labo-extras on the golden machine.
   * a UFW rule opening port 22 to the campus LAN (192.168.10.0/24)
     only, since aims-os-core enables UFW with deny-in. Removed when
     the package is removed.

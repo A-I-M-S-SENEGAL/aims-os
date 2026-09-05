@@ -1,3 +1,11 @@
+aims-os-desktop-extras (2.1+2) trixie; urgency=medium
+
+  * Chromium moves from Depends to Recommends: installed by default,
+    but a site that standardises on Firefox + Google Chrome (the Mbour
+    lab) can remove it without losing this metapackage.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 05 Sep 2026 09:00:00 +0000
+
 aims-os-desktop-extras (2.1) trixie; urgency=medium
 
   * Initial release. Carved out of aims-os-desktop to slim the live ISO

@@ -1,3 +1,17 @@
+aims-os-centre-senegal-labo (2.1+7) trixie; urgency=medium
+
+  * Lab software set (validated with Hakim, 2026-09-05): VLC, Scilab,
+    QGIS, Flatpak, QEMU/KVM + GNOME Boxes + virt-manager (session VMs,
+    /dev/kvm for the seated user via udev uaccess), rootless Podman
+    with a shared read-only image store and the aims-db helper
+    (PostgreSQL, MariaDB, Redis, MongoDB per student, no root).
+  * aims-labo-extras: one-shot installer for vendor software on the
+    golden machine (VS Code, Google Chrome, Zotero, Bruno, draw.io,
+    Julia, Ghidra, Android Studio + shared SDK, GeoGebra Flatpak,
+    database images).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 05 Sep 2026 09:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+6) trixie; urgency=medium
 
   * lintian overrides for the deliberate 10_linux diversion and the
