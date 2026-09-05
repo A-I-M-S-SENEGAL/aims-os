@@ -377,11 +377,10 @@
     <img src="../logos/aims-circle-256.png" alt="AIMS OS logo">
     <div>
       <p class="eyebrow" data-i18n="eyebrow">Bienvenue</p>
-      <h1 data-i18n="title">Tout votre cursus AIMS, déjà&nbsp;installé.</h1>
+      <h1 data-i18n="title">AIMS OS 2.1, prêt pour vos cours.</h1>
       <p class="lead" data-i18n="lead">
-        AIMS OS est calibré sur les 45 cours du curriculum 2025-2026. Base
-        <strong>Debian 13 (Trixie)</strong>, bureau GNOME 48, stack scientifique
-        complète, outils dev modernes, le tout aux couleurs d'AIMS Sénégal.
+        Une base Debian 13 (Trixie) avec GNOME 48, la stack scientifique du
+        tronc commun, et chaque filière à une commande. Aux couleurs d'AIMS Sénégal.
       </p>
     </div>
   </header>
@@ -389,65 +388,80 @@
   <main>
 
     <section aria-labelledby="h-stack">
-      <h2 id="h-stack" data-i18n="h-stack">Ce qui est pré-installé</h2>
+      <h2 id="h-stack" data-i18n="h-stack">Ce qui est installé</h2>
       <p class="section-lead" data-i18n="p-stack">
-        Huit piliers, organisés par filière. Le détail complet vit dans les
+        La base, sur toute installation AIMS OS. Le détail vit dans les
         <code>debian/control</code> de chaque métapaquet, sur GitHub.
       </p>
       <div class="stack">
         <div class="stack-item">
           <h3 data-i18n="c-math-h">Mathématiques &amp; science</h3>
-          <p data-i18n="c-math-p">NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, R + tidyverse, Octave, Maxima, GeoGebra, TeX Live, Jupyter.</p>
+          <p data-i18n="c-math-p">NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, Jupyter, R, TeX Live (français), conda (Miniforge).</p>
         </div>
         <div class="stack-item">
-          <h3 data-i18n="c-data-h">Big Data &amp; IA</h3>
-          <p data-i18n="c-data-p">Dask + distributed, NLTK, OpenCV, xarray, netCDF, scikit-image, mpi4py, biopython. PyTorch / JAX / Polars / DuckDB via pipx ou mamba.</p>
+          <h3 data-i18n="c-office-h">Bureau</h3>
+          <p data-i18n="c-office-p">Firefox, LibreOffice en français, lecteur vidéo, codecs libres, Git, éditeurs de texte, terminal.</p>
         </div>
         <div class="stack-item">
-          <h3 data-i18n="c-web-h">Dev Web &amp; Android</h3>
-          <p data-i18n="c-web-p">Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin, adb, fastboot, PHP, Composer.</p>
-        </div>
-        <div class="stack-item">
-          <h3 data-i18n="c-ctn-h">Conteneurs &amp; cloud</h3>
-          <p data-i18n="c-ctn-p">Docker Engine + Compose v2 + Buildx, Podman, kubectl, Ansible.</p>
-        </div>
-        <div class="stack-item">
-          <h3 data-i18n="c-ide-h">IDEs &amp; éditeurs</h3>
-          <p data-i18n="c-ide-p">VSCodium (libre), Cursor (AI), RStudio, neovim, GNOME Text Editor.</p>
-        </div>
-        <div class="stack-item">
-          <h3 data-i18n="c-db-h">Bases de données</h3>
-          <p data-i18n="c-db-p">DBeaver CE + clients PostgreSQL, MariaDB, Redis (serveur local), MongoDB, SQLite.</p>
-        </div>
-        <div class="stack-item">
-          <h3 data-i18n="c-sec-h">Sécurité &amp; forensics</h3>
-          <p data-i18n="c-sec-p">nmap, Wireshark, tcpdump, John the Ripper, hashcat, aircrack-ng, Sleuth Kit, foremost, binwalk, scapy.</p>
-        </div>
-        <div class="stack-item">
-          <h3 data-i18n="c-office-h">Bureautique</h3>
-          <p data-i18n="c-office-p">LibreOffice complet (FR + EN), Firefox ESR, Chromium, Evolution, GIMP, Inkscape, VLC.</p>
+          <h3 data-i18n="c-sys-h">Système</h3>
+          <p data-i18n="c-sys-p">Pare-feu activé, mises à jour de sécurité automatiques, locale française, fuseau de Dakar, cache de paquets du campus détecté tout seul.</p>
         </div>
       </div>
     </section>
 
-    <section aria-labelledby="h-quick">
-      <h2 id="h-quick" data-i18n="h-quick">Pour aller plus loin</h2>
-      <p class="section-lead" data-i18n="p-quick">
-        Ce qui n'est pas pré-installé reste à portée d'une commande.
+    <section aria-labelledby="h-tracks">
+      <h2 id="h-tracks" data-i18n="h-tracks">Ajouter votre filière ou des outils</h2>
+      <p class="section-lead" data-i18n="p-tracks">
+        Une commande, depuis le terminal. Tout vient du dépôt AIMS OS et se met à jour avec le système.
       </p>
       <div class="code">
         <span class="code-label">shell</span>
-<pre><span class="c" data-i18n="cm-apt"># Paquet Debian</span>
-<span class="k">sudo</span> apt install &lt;paquet&gt;
+<pre><span class="c" data-i18n="cm-bigdata"># Big Data, NLP, vision, climat (Dask, NLTK, OpenCV, xarray, clients de bases)</span>
+<span class="k">sudo</span> apt install aims-os-bigdata
 
-<span class="c" data-i18n="cm-pipx"># Outil Python isolé (ruff, jupyterlab, sagemath, …)</span>
-pipx install &lt;outil&gt;
+<span class="c" data-i18n="cm-security"># Sécurité et forensique (nmap, Wireshark, John, hashcat, Sleuth Kit, scapy)</span>
+<span class="k">sudo</span> apt install aims-os-security
 
-<span class="c" data-i18n="cm-mamba"># Environnement scientifique reproductible</span>
-mamba create -n monenv python=3.13 pytorch jupyterlab
+<span class="c" data-i18n="cm-mathx"># Maths avancées (Maxima, Octave, R tidyverse, TeX Live complet, TeXstudio)</span>
+<span class="k">sudo</span> apt install aims-os-math-extras
 
-<span class="c" data-i18n="cm-flat"># App graphique sandboxée</span>
-flatpak install flathub &lt;app-id&gt;</pre>
+<span class="c" data-i18n="cm-dev"># Dev (Java, PHP, Podman, Docker, kubectl, Ansible, Rust, adb)</span>
+<span class="k">sudo</span> apt install aims-os-desktop-dev
+
+<span class="c" data-i18n="cm-extras"># Bureau étendu (GIMP, Inkscape, Chromium, Evolution, codecs non libres)</span>
+<span class="k">sudo</span> apt install aims-os-desktop-extras
+
+<span class="c" data-i18n="cm-all"># Tout d'un coup</span>
+<span class="k">sudo</span> apt install aims-os-everything
+
+<span class="c" data-i18n="cm-scripts"># Outils hors Debian : VS Code, RStudio, Node.js, DBeaver, Bun/Deno/uv</span>
+ls /usr/share/aims-os/install/    <span class="c" data-i18n="cm-scripts2"># puis : sudo /usr/share/aims-os/install/&lt;outil&gt;.sh</span>
+
+<span class="c" data-i18n="cm-conda"># PyTorch, JAX, SageMath… : un environnement conda</span>
+mamba create -n monenv python=3.13 pytorch jupyterlab</pre>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-lab">
+      <h2 id="h-lab" data-i18n="h-lab">Sur un poste du labo AIMS</h2>
+      <p class="section-lead" data-i18n="p-lab">
+        Les postes fixes du labo ont tout ce qui précède, plus VS Code, Google Chrome, Android Studio,
+        GeoGebra, Scilab, QGIS, Zotero, Bruno, draw.io, Julia, Ghidra. Vous vous connectez avec votre
+        identifiant AIMS ; vos fichiers restent sur votre poste.
+      </p>
+      <div class="stack">
+        <div class="stack-item">
+          <h3 data-i18n="l-db-h">Vos bases de données</h3>
+          <p data-i18n="l-db-p">Un serveur rien qu'à vous, sans droits particuliers : <code>aims-db start postgres</code> (ou mariadb, redis, mongo). <code>aims-db status</code>, <code>aims-db stop</code>.</p>
+        </div>
+        <div class="stack-item">
+          <h3 data-i18n="l-vm-h">Vos machines virtuelles</h3>
+          <p data-i18n="l-vm-p">GNOME Boxes ou virt-manager pour faire tourner une machine cible (Kali, Metasploitable) sur votre poste, pas sur le réseau du campus.</p>
+        </div>
+        <div class="stack-item">
+          <h3 data-i18n="l-android-h">Android</h3>
+          <p data-i18n="l-android-p">Android Studio avec un SDK partagé déjà en place. Au premier lancement, créez votre appareil virtuel (Pixel, 2 Go) ou branchez votre téléphone par USB.</p>
+        </div>
       </div>
     </section>
 
@@ -455,6 +469,10 @@ flatpak install flathub &lt;app-id&gt;</pre>
       <h2 id="h-res" data-i18n="h-res">Ressources</h2>
       <p class="section-lead" data-i18n="p-res">Les liens utiles, pour aller vite à l'essentiel.</p>
       <ul class="res">
+        <li>
+          <span class="label" data-i18n="r-doc">Documentation AIMS OS</span>
+          <a href="https://a-i-m-s-senegal.github.io/aims-os/docs/">a-i-m-s-senegal.github.io/aims-os/docs</a>
+        </li>
         <li>
           <span class="label" data-i18n="r-up">Code source du projet</span>
           <a href="https://github.com/A-I-M-S-SENEGAL/aims-os">github.com/A-I-M-S-SENEGAL/aims-os</a>
@@ -464,12 +482,8 @@ flatpak install flathub &lt;app-id&gt;</pre>
           <a href="https://aims-senegal.org">aims-senegal.org</a>
         </li>
         <li>
-          <span class="label" data-i18n="r-apt">Repo apt (installer la stack sur Debian existant)</span>
-          <a href="https://a-i-m-s-senegal.github.io/aims-os/">aims-os.github.io</a>
-        </li>
-        <li>
-          <span class="label" data-i18n="r-bug">Reporter un bug</span>
-          <a href="mailto:hakim@aims-senegal.org">hakim@aims-senegal.org</a>
+          <span class="label" data-i18n="r-bug">Signaler un problème</span>
+          <a href="https://github.com/A-I-M-S-SENEGAL/aims-os/issues">github.com/A-I-M-S-SENEGAL/aims-os/issues</a>
         </li>
       </ul>
     </section>
@@ -477,7 +491,7 @@ flatpak install flathub &lt;app-id&gt;</pre>
   </main>
 
   <footer>
-    <div class="grow">AIMS OS v2.0 · Debian 13 (Trixie) · GNOME 48</div>
+    <div class="grow">AIMS OS 2.1 · Debian 13 (Trixie) · GNOME 48</div>
     <a href="#" onclick="window.close(); return false;" data-i18n="close">Fermer cette page</a>
   </footer>
 
@@ -486,79 +500,75 @@ flatpak install flathub &lt;app-id&gt;</pre>
 <script>
   const i18n = {
     fr: {
-      skip:      "Aller au contenu principal",
-      eyebrow:   "Bienvenue",
-      title:     "Tout votre cursus AIMS, déjà installé.",
-      lead:      "AIMS OS est calibré sur les 45 cours du curriculum 2025-2026. Base Debian 13 (Trixie), bureau GNOME 48, stack scientifique complète, outils dev modernes, le tout aux couleurs d'AIMS Sénégal.",
-      "h-stack": "Ce qui est pré-installé",
-      "p-stack": "Huit piliers, organisés par filière. Le détail complet vit dans les debian/control de chaque métapaquet, sur GitHub.",
-      "c-math-h":  "Mathématiques & science",
-      "c-math-p":  "NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, R + tidyverse, Octave, Maxima, GeoGebra, TeX Live, Jupyter.",
-      "c-data-h":  "Big Data & IA",
-      "c-data-p":  "Dask + distributed, NLTK, OpenCV, xarray, netCDF, scikit-image, mpi4py, biopython. PyTorch / JAX / Polars / DuckDB via pipx ou mamba.",
-      "c-web-h":   "Dev Web & Android",
-      "c-web-p":   "Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin, adb, fastboot, PHP, Composer.",
-      "c-ctn-h":   "Conteneurs & cloud",
-      "c-ctn-p":   "Docker Engine + Compose v2 + Buildx, Podman, kubectl, Ansible.",
-      "c-ide-h":   "IDEs & éditeurs",
-      "c-ide-p":   "VSCodium (libre), Cursor (AI), RStudio, neovim, GNOME Text Editor.",
-      "c-db-h":    "Bases de données",
-      "c-db-p":    "DBeaver CE + clients PostgreSQL, MariaDB, Redis (serveur local), MongoDB, SQLite.",
-      "c-sec-h":   "Sécurité & forensics",
-      "c-sec-p":   "nmap, Wireshark, tcpdump, John the Ripper, hashcat, aircrack-ng, Sleuth Kit, foremost, binwalk, scapy.",
-      "c-office-h":"Bureautique",
-      "c-office-p":"LibreOffice complet (FR + EN), Firefox ESR, Chromium, Evolution, GIMP, Inkscape, VLC.",
-      "h-quick":   "Pour aller plus loin",
-      "p-quick":   "Ce qui n'est pas pré-installé reste à portée d'une commande.",
-      "cm-apt":    "# Paquet Debian",
-      "cm-pipx":   "# Outil Python isolé (ruff, jupyterlab, sagemath, …)",
-      "cm-mamba":  "# Environnement scientifique reproductible",
-      "cm-flat":   "# App graphique sandboxée",
-      "h-res":     "Ressources",
-      "p-res":     "Les liens utiles, pour aller vite à l'essentiel.",
-      "r-up":      "Code source du projet",
-      "r-aims":    "Site AIMS Sénégal",
-      "r-apt":     "Repo apt (installer la stack sur Debian existant)",
-      "r-bug":     "Reporter un bug",
-      close:       "Fermer cette page",
+      skip: "Aller au contenu principal", eyebrow: "Bienvenue",
+      title: "AIMS OS 2.1, prêt pour vos cours.",
+      lead: "Une base Debian 13 (Trixie) avec GNOME 48, la stack scientifique du tronc commun, et chaque filière à une commande. Aux couleurs d'AIMS Sénégal.",
+      "h-stack": "Ce qui est installé",
+      "p-stack": "La base, sur toute installation AIMS OS. Le détail vit dans les debian/control de chaque métapaquet, sur GitHub.",
+      "c-math-h": "Mathématiques & science",
+      "c-math-p": "NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, Jupyter, R, TeX Live (français), conda (Miniforge).",
+      "c-office-h": "Bureau",
+      "c-office-p": "Firefox, LibreOffice en français, lecteur vidéo, codecs libres, Git, éditeurs de texte, terminal.",
+      "c-sys-h": "Système",
+      "c-sys-p": "Pare-feu activé, mises à jour de sécurité automatiques, locale française, fuseau de Dakar, cache de paquets du campus détecté tout seul.",
+      "h-tracks": "Ajouter votre filière ou des outils",
+      "p-tracks": "Une commande, depuis le terminal. Tout vient du dépôt AIMS OS et se met à jour avec le système.",
+      "cm-bigdata": "# Big Data, NLP, vision, climat (Dask, NLTK, OpenCV, xarray, clients de bases)",
+      "cm-security": "# Sécurité et forensique (nmap, Wireshark, John, hashcat, Sleuth Kit, scapy)",
+      "cm-mathx": "# Maths avancées (Maxima, Octave, R tidyverse, TeX Live complet, TeXstudio)",
+      "cm-dev": "# Dev (Java, PHP, Podman, Docker, kubectl, Ansible, Rust, adb)",
+      "cm-extras": "# Bureau étendu (GIMP, Inkscape, Chromium, Evolution, codecs non libres)",
+      "cm-all": "# Tout d'un coup",
+      "cm-scripts": "# Outils hors Debian : VS Code, RStudio, Node.js, DBeaver, Bun/Deno/uv",
+      "cm-scripts2": "# puis : sudo /usr/share/aims-os/install/<outil>.sh",
+      "cm-conda": "# PyTorch, JAX, SageMath… : un environnement conda",
+      "h-lab": "Sur un poste du labo AIMS",
+      "p-lab": "Les postes fixes du labo ont tout ce qui précède, plus VS Code, Google Chrome, Android Studio, GeoGebra, Scilab, QGIS, Zotero, Bruno, draw.io, Julia, Ghidra. Vous vous connectez avec votre identifiant AIMS ; vos fichiers restent sur votre poste.",
+      "l-db-h": "Vos bases de données",
+      "l-db-p": "Un serveur rien qu'à vous, sans droits particuliers : aims-db start postgres (ou mariadb, redis, mongo). aims-db status, aims-db stop.",
+      "l-vm-h": "Vos machines virtuelles",
+      "l-vm-p": "GNOME Boxes ou virt-manager pour faire tourner une machine cible (Kali, Metasploitable) sur votre poste, pas sur le réseau du campus.",
+      "l-android-h": "Android",
+      "l-android-p": "Android Studio avec un SDK partagé déjà en place. Au premier lancement, créez votre appareil virtuel (Pixel, 2 Go) ou branchez votre téléphone par USB.",
+      "h-res": "Ressources", "p-res": "Les liens utiles, pour aller vite à l'essentiel.",
+      "r-doc": "Documentation AIMS OS", "r-up": "Code source du projet", "r-aims": "Site AIMS Sénégal", "r-bug": "Signaler un problème",
+      close: "Fermer cette page"
     },
     en: {
-      skip:      "Skip to main content",
-      eyebrow:   "Welcome",
-      title:     "Your whole AIMS curriculum, pre-installed.",
-      lead:      "AIMS OS is calibrated against the 45 courses of the 2025-2026 curriculum. Debian 13 (Trixie) base, GNOME 48 desktop, full scientific stack, modern dev tooling, branded for AIMS Senegal.",
-      "h-stack": "What's pre-installed",
-      "p-stack": "Eight pillars, organised by filière. The full detail lives in each metapackage's debian/control file on GitHub.",
-      "c-math-h":  "Math & science",
-      "c-math-p":  "NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, R + tidyverse, Octave, Maxima, GeoGebra, TeX Live, Jupyter.",
-      "c-data-h":  "Big Data & AI",
-      "c-data-p":  "Dask + distributed, NLTK, OpenCV, xarray, netCDF, scikit-image, mpi4py, biopython. PyTorch / JAX / Polars / DuckDB via pipx or mamba.",
-      "c-web-h":   "Web & Android Dev",
-      "c-web-p":   "Node 22 LTS, npm, Bun, Deno, OpenJDK 21, Gradle, Kotlin, adb, fastboot, PHP, Composer.",
-      "c-ctn-h":   "Containers & cloud",
-      "c-ctn-p":   "Docker Engine + Compose v2 + Buildx, Podman, kubectl, Ansible.",
-      "c-ide-h":   "IDEs & editors",
-      "c-ide-p":   "VSCodium (libre), Cursor (AI), RStudio, neovim, GNOME Text Editor.",
-      "c-db-h":    "Databases",
-      "c-db-p":    "DBeaver CE + PostgreSQL, MariaDB, Redis (local server), MongoDB, SQLite clients.",
-      "c-sec-h":   "Security & forensics",
-      "c-sec-p":   "nmap, Wireshark, tcpdump, John the Ripper, hashcat, aircrack-ng, Sleuth Kit, foremost, binwalk, scapy.",
-      "c-office-h":"Office",
-      "c-office-p":"Full LibreOffice (FR + EN), Firefox ESR, Chromium, Evolution, GIMP, Inkscape, VLC.",
-      "h-quick":   "Going further",
-      "p-quick":   "Whatever isn't pre-installed is one command away.",
-      "cm-apt":    "# Debian package",
-      "cm-pipx":   "# Isolated Python tool (ruff, jupyterlab, sagemath, …)",
-      "cm-mamba":  "# Reproducible scientific environment",
-      "cm-flat":   "# Sandboxed graphical app",
-      "h-res":     "Resources",
-      "p-res":     "The useful links, quick.",
-      "r-up":      "Project source",
-      "r-aims":    "AIMS Senegal site",
-      "r-apt":     "Apt repo (install the stack on existing Debian)",
-      "r-bug":     "Report a bug",
-      close:       "Close this page",
-    },
+      skip: "Skip to main content", eyebrow: "Welcome",
+      title: "AIMS OS 2.1, ready for your courses.",
+      lead: "A Debian 13 (Trixie) base with GNOME 48, the core scientific stack, and every track one command away. In the colours of AIMS Senegal.",
+      "h-stack": "What is installed",
+      "p-stack": "The base, on every AIMS OS installation. Details live in each metapackage's debian/control on GitHub.",
+      "c-math-h": "Mathematics & science",
+      "c-math-p": "NumPy, SciPy, SymPy, pandas, matplotlib, scikit-learn, Jupyter, R, TeX Live (French), conda (Miniforge).",
+      "c-office-h": "Desktop",
+      "c-office-p": "Firefox, LibreOffice in French, video player, free codecs, Git, text editors, terminal.",
+      "c-sys-h": "System",
+      "c-sys-p": "Firewall on, automatic security updates, French locale, Dakar time zone, campus package cache detected automatically.",
+      "h-tracks": "Add your track or tools",
+      "p-tracks": "One command from the terminal. Everything comes from the AIMS OS repository and updates with the system.",
+      "cm-bigdata": "# Big Data, NLP, vision, climate (Dask, NLTK, OpenCV, xarray, database clients)",
+      "cm-security": "# Security and forensics (nmap, Wireshark, John, hashcat, Sleuth Kit, scapy)",
+      "cm-mathx": "# Advanced maths (Maxima, Octave, R tidyverse, full TeX Live, TeXstudio)",
+      "cm-dev": "# Dev (Java, PHP, Podman, Docker, kubectl, Ansible, Rust, adb)",
+      "cm-extras": "# Extended desktop (GIMP, Inkscape, Chromium, Evolution, non-free codecs)",
+      "cm-all": "# Everything at once",
+      "cm-scripts": "# Tools outside Debian: VS Code, RStudio, Node.js, DBeaver, Bun/Deno/uv",
+      "cm-scripts2": "# then: sudo /usr/share/aims-os/install/<tool>.sh",
+      "cm-conda": "# PyTorch, JAX, SageMath…: a conda environment",
+      "h-lab": "On an AIMS lab machine",
+      "p-lab": "The lab's fixed machines have all of the above plus VS Code, Google Chrome, Android Studio, GeoGebra, Scilab, QGIS, Zotero, Bruno, draw.io, Julia, Ghidra. You log in with your AIMS account; your files stay on your machine.",
+      "l-db-h": "Your databases",
+      "l-db-p": "A server of your own, no special rights: aims-db start postgres (or mariadb, redis, mongo). aims-db status, aims-db stop.",
+      "l-vm-h": "Your virtual machines",
+      "l-vm-p": "GNOME Boxes or virt-manager to run a target machine (Kali, Metasploitable) on your machine, not on the campus network.",
+      "l-android-h": "Android",
+      "l-android-p": "Android Studio with a shared SDK already in place. On first launch, create your virtual device (Pixel, 2 GB) or plug in your phone over USB.",
+      "h-res": "Resources", "p-res": "Useful links, straight to the point.",
+      "r-doc": "AIMS OS documentation", "r-up": "Project source code", "r-aims": "AIMS Senegal website", "r-bug": "Report a problem",
+      close: "Close this page"
+    }
   };
 
   function apply(lang) {
