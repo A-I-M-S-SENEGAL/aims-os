@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+11) trixie; urgency=medium
+
+  * aims-labo-extras: every download retries up to six times with a
+    20-second connect timeout; the campus link drops about one
+    connection in six.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 13:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+10) trixie; urgency=medium
 
   * IPv4 only on lab machines (sysctl + apt ForceIPv4): the campus Wi-Fi
