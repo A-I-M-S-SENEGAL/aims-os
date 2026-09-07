@@ -9,7 +9,7 @@
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
 #                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda
-#                               nodejs dbeaver runtimes gnuplot
+#                               nodejs dbeaver runtimes gnuplot packettracer
 # =============================================================================
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || { echo "root required" >&2; exit 1; }
@@ -223,6 +223,22 @@ step_nodejs()   { log "Node.js LTS (NodeSource, script AIMS OS)"; aims_script no
 step_dbeaver()  { log "DBeaver CE (dbeaver.io, script AIMS OS)"; aims_script dbeaver.sh; dpkg -s dbeaver-ce >/dev/null 2>&1; }
 step_runtimes() { log "Bun, Deno, uv (script AIMS OS)"; aims_script runtimes.sh; command -v bun >/dev/null && command -v deno >/dev/null && command -v uv >/dev/null; }
 step_gnuplot()  { log "gnuplot"; apt-get -q -y install gnuplot >/dev/null; dpkg -s gnuplot >/dev/null 2>&1; }
+step_packettracer() {
+    # Cisco Packet Tracer: the .deb is not redistributable; the IT team fetches
+    # it once from NetAcad and drops it on the campus server (FOG web root,
+    # /var/www/html/aims/). Students sign in with their own NetAcad account.
+    log "Cisco Packet Tracer (from the campus server)"
+    local base=http://192.168.10.240/aims name
+    name=$(curl -fsSL "$base/" | grep -oE 'CiscoPacketTracer_[0-9]+_Ubuntu_64bit\.deb' | sort -u | tail -1)
+    [ -n "$name" ] || { echo "packet tracer: no .deb on $base/ (upload it there first)" >&2; return 1; }
+    local ver; ver=$(echo "$name" | grep -oE '_[0-9]+_' | tr -d _)
+    if dpkg -s packettracer >/dev/null 2>&1 && dpkg-query -W -f='${Version}' packettracer | tr -d . | grep -q "^${ver}"; then return 0; fi
+    curl -fsSL -o /tmp/packettracer.deb "$base/$name"
+    echo "packettracer packettracer/eula boolean true" | debconf-set-selections 2>/dev/null || true
+    echo "packettracer packettracer/show-eula boolean false" | debconf-set-selections 2>/dev/null || true
+    apt-get -q -y install /tmp/packettracer.deb 2>&1 | grep -E "^(E:|Setting up packettracer)"; rm -f /tmp/packettracer.deb
+    dpkg -s packettracer >/dev/null 2>&1
+}
 step_dbimages() {
     log "Database images for aims-db (shared read-only Podman store)"
     for img in docker.io/library/postgres:17 docker.io/library/mariadb:11 docker.io/library/redis:7 docker.io/library/mongo:8; do
@@ -231,7 +247,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot packettracer)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi
