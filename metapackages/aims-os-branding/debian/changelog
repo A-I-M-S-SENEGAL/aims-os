@@ -1,3 +1,12 @@
+aims-os-branding (2.1+7) trixie; urgency=medium
+
+  * Plymouth: the activity ring turns three times slower (one turn in
+    about five seconds; it spun too fast on the lab HP) and disappears
+    when boot finishes, so the still logo, not a frozen spinner, stays
+    on screen while the login screen starts.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 09:30:00 +0000
+
 aims-os-branding (2.1+6) trixie; urgency=medium
 
   * Same identity as the AIMS mobile app: maroon (#8A1538) boot splash

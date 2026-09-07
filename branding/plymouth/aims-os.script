@@ -50,9 +50,8 @@ logo_sprite.SetY(Window.GetHeight() / 2 - logo_image.GetHeight() / 2);
 # -----------------------------------------------------------------------------
 # 4. Refresh callback — advance the ring by one frame, nothing else moves
 # -----------------------------------------------------------------------------
-# One frame (10 degrees) per refresh tick. Plymouth refreshes at ~20 Hz,
-# so the white gradient ring turns once every ~2 seconds, like the
-# activity indicator of the AIMS mobile app. 36 frames = a full turn.
+# Plymouth refreshes at ~20 Hz; one 10-degree frame every three ticks
+# gives a full turn in about five seconds, calm and readable.
 ring_index = 0;
 fun refresh_callback () {
     ring_index = ring_index + 1;
