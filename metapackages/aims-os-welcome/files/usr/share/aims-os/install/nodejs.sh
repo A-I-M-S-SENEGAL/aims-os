@@ -1,15 +1,15 @@
 #!/bin/sh
 # =============================================================================
-# AIMS OS — post-install script: NodeSource Node.js 22 LTS
+# AIMS OS — post-install script: NodeSource Node.js 24 LTS
 # =============================================================================
-# Replaces Debian Trixie's nodejs (20.x EOL April 2026) with Node 22 LTS
+# Replaces Debian Trixie's nodejs (20.x, EOL April 2026) with Node 24 LTS (active LTS until April 2028)
 # from NodeSource. Pins priority 700 so a future Trixie point-release
 # can't downgrade us.
 #
 # Run as root (via pkexec from aims-welcome, or sudo manually):
 #   sudo /usr/share/aims-os/install/nodejs.sh
 #
-# Idempotent. Re-running upgrades to the latest 22.x without touching
+# Idempotent. Re-running upgrades to the latest 24.x without touching
 # the apt source files.
 # =============================================================================
 set -e
@@ -22,7 +22,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# Short-circuit if a NodeSource 22.x is already installed.
+# Short-circuit if a NodeSource 24.x is already installed.
 if command -v node >/dev/null 2>&1; then
     ver=$(node --version 2>/dev/null | sed 's/^v//')
     case "${ver}" in
@@ -32,7 +32,7 @@ if command -v node >/dev/null 2>&1; then
     esac
 fi
 
-echo "${BANNER} setting up NodeSource 22 LTS apt repo..."
+echo "${BANNER} setting up NodeSource 24 LTS apt repo..."
 
 # 1. GPG key
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
@@ -41,7 +41,7 @@ curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
 # 2. Source list — `nodistro` is NodeSource's distro-agnostic channel.
 cat > /etc/apt/sources.list.d/nodesource.sources <<'EOF'
 Types: deb
-URIs: https://deb.nodesource.com/node_22.x
+URIs: https://deb.nodesource.com/node_24.x
 Suites: nodistro
 Components: main
 Signed-by: /usr/share/keyrings/nodesource.gpg

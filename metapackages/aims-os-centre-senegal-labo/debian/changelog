@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+19) trixie; urgency=medium
+
+  * aims-labo-extras: Node.js LTS, DBeaver CE and Bun/Deno/uv through the
+    aims-os-welcome scripts, plus gnuplot; everything the welcome page
+    lists is now installed on a lab machine.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 17:45:00 +0000
+
 aims-os-centre-senegal-labo (2.1+18) trixie; urgency=medium
 
   * aims-labo-enroler <NN>: names a cloned machine labo-hp-NN, gives it

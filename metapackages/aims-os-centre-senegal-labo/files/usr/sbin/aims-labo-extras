@@ -9,6 +9,7 @@
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
 #                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda
+#                               nodejs dbeaver runtimes gnuplot
 # =============================================================================
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || { echo "root required" >&2; exit 1; }
@@ -211,6 +212,15 @@ step_anaconda() {
     sed -i 's/^Categories=.*/Categories=Development;Science;/' /usr/share/applications/anaconda-navigator.desktop
     # `conda` reste Miniforge ; Anaconda s'active avec : source /opt/anaconda3/bin/activate
 }
+aims_script() { # run one of the aims-os-welcome install scripts (either path layout)
+    local sc; sc=$(ls "/usr/share/aims-os/install/$1" "/usr/share/aims-os/install/install/$1" 2>/dev/null | head -1)
+    [ -n "$sc" ] || { echo "$1 missing (aims-os-welcome)" >&2; return 1; }
+    "$sc" >/dev/null 2>&1 || "$sc"
+}
+step_nodejs()   { log "Node.js LTS (NodeSource, script AIMS OS)"; aims_script nodejs.sh; node --version >/dev/null 2>&1; }
+step_dbeaver()  { log "DBeaver CE (dbeaver.io, script AIMS OS)"; aims_script dbeaver.sh; dpkg -s dbeaver-ce >/dev/null 2>&1; }
+step_runtimes() { log "Bun, Deno, uv (script AIMS OS)"; aims_script runtimes.sh; command -v bun >/dev/null && command -v deno >/dev/null && command -v uv >/dev/null; }
+step_gnuplot()  { log "gnuplot"; apt-get -q -y install gnuplot >/dev/null; dpkg -s gnuplot >/dev/null 2>&1; }
 step_dbimages() {
     log "Database images for aims-db (shared read-only Podman store)"
     for img in docker.io/library/postgres:17 docker.io/library/mariadb:11 docker.io/library/redis:7 docker.io/library/mongo:8; do
@@ -219,7 +229,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi
