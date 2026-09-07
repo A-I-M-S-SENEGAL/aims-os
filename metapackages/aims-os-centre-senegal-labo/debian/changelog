@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+13) trixie; urgency=medium
+
+  * aims-labo-extras: vendor keys re-fetched and verified every run (a
+    truncated key made the Microsoft repo unsigned), Chrome's own
+    .sources kept, Android Studio and SDK tool URLs built from the
+    version strings (the page escapes its links), draw.io errors shown.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 14:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+12) trixie; urgency=medium
 
   * Students now have sudo (directory rule etudiants-sudo). Two safety

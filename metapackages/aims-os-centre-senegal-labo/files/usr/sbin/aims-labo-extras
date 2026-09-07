@@ -36,16 +36,29 @@ D
 
 step_repos() {
     need curl; need gpg
+    # keyring helper: always re-fetch (a truncated download once left an
+    # unusable key behind) and refuse to keep a file gpg cannot read.
+    fetch_key() { # url dest
+        local tmp; tmp=$(mktemp)
+        curl -fsSL "$1" -o "$tmp" && gpg --dearmor --yes -o "$2" "$tmp" && gpg --show-keys "$2" >/dev/null 2>&1 \
+            || { rm -f "$2"; echo "key fetch failed: $1" >&2; rm -f "$tmp"; return 1; }
+        rm -f "$tmp"; chmod 0644 "$2"
+    }
     log "Microsoft (VS Code)"
-    [ -f $KEYS/microsoft.gpg ] || curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o $KEYS/microsoft.gpg
+    fetch_key https://packages.microsoft.com/keys/microsoft.asc $KEYS/microsoft.gpg
     echo "deb [arch=amd64,arm64 signed-by=$KEYS/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > $LIST/vscode.list
     log "Google (Chrome)"
-    [ -f $KEYS/google-chrome.gpg ] || curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o $KEYS/google-chrome.gpg
-    echo "deb [arch=amd64 signed-by=$KEYS/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" > $LIST/google-chrome.list
+    # Chrome's own package installs /etc/apt/sources.list.d/google-chrome.sources; ours only bootstraps
+    if [ ! -f $LIST/google-chrome.sources ]; then
+        fetch_key https://dl.google.com/linux/linux_signing_key.pub $KEYS/google-chrome.gpg
+        echo "deb [arch=amd64 signed-by=$KEYS/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" > $LIST/google-chrome.list
+    else
+        rm -f $LIST/google-chrome.list
+    fi
     log "Bruno"
-    [ -f $KEYS/bruno.gpg ] || curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9FA6017ECABE0266" | gpg --dearmor -o $KEYS/bruno.gpg
+    fetch_key "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9FA6017ECABE0266" $KEYS/bruno.gpg
     echo "deb [signed-by=$KEYS/bruno.gpg] http://debian.usebruno.com/ bruno stable" > $LIST/bruno.list
-    apt-get -q update >/dev/null
+    apt-get -q update 2>&1 | grep -E "^(E|W):" || true
 }
 step_code()   { log "VS Code";  apt-get -q -y install code >/dev/null; }
 step_chrome() { log "Google Chrome"; apt-get -q -y install google-chrome-stable >/dev/null; }
@@ -65,7 +78,8 @@ step_drawio() {
     url=$(curl -fsSL https://api.github.com/repos/jgraph/drawio-desktop/releases/latest | grep -oE 'https://[^"]+drawio-amd64-[0-9.]+\.deb' | head -1)
     [ -n "$url" ] || { echo "draw.io: release URL not found" >&2; return 1; }
     dpkg -l drawio >/dev/null 2>&1 && dpkg -l drawio | grep -q "^ii.*$(echo "$url" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')" && return 0
-    curl -fsSL -o /tmp/drawio.deb "$url" && apt-get -q -y install /tmp/drawio.deb >/dev/null && rm -f /tmp/drawio.deb
+    curl -fsSL -o /tmp/drawio.deb "$url" && apt-get -q -y install /tmp/drawio.deb 2>&1 | grep -E "^(E:|Setting up drawio)" ; rm -f /tmp/drawio.deb
+    dpkg -s drawio >/dev/null 2>&1
 }
 step_julia() {
     log "Julia (official binaries, /opt/julia)"
@@ -99,17 +113,19 @@ step_android() {
     log "Android Studio + shared SDK (/opt/android-studio, /opt/android-sdk)"
     need curl; need unzip; apt-get -q -y install default-jdk libc6:i386 2>/dev/null || true
     page=$(curl -fsSL https://developer.android.com/studio)
-    url=$(echo "$page" | grep -oE 'https://[^"]+android-studio-[0-9.]+-linux\.tar\.gz' | head -1)
-    [ -n "$url" ] || { echo "android studio: tarball URL not found on developer.android.com" >&2; return 1; }
-    ver=$(echo "$url" | grep -oE 'android-studio-[0-9.]+')
+    sver=$(echo "$page" | grep -oE 'android-studio-[0-9]+(\.[0-9]+)+-linux\.tar\.gz' | head -1 | sed -E 's/android-studio-([0-9.]+)-linux.*/\1/')
+    [ -n "$sver" ] || { echo "android studio: version not found on developer.android.com" >&2; return 1; }
+    url="https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${sver}/android-studio-${sver}-linux.tar.gz"
+    ver="android-studio-${sver}"
     if [ ! -f /opt/android-studio/.version ] || [ "$(cat /opt/android-studio/.version)" != "$ver" ]; then
         curl -fL -o /tmp/android-studio.tgz "$url"
         rm -rf /opt/android-studio && tar -xzf /tmp/android-studio.tgz -C /opt && echo "$ver" > /opt/android-studio/.version && rm -f /tmp/android-studio.tgz
         desktop_entry android-studio "Android Studio" "/opt/android-studio/bin/studio.sh" "/opt/android-studio/bin/studio.png" "IDE Android (Google)"
     fi
     # shared SDK
-    tools=$(echo "$page" | grep -oE 'https://dl.google.com/android/repository/commandlinetools-linux-[0-9]+_latest\.zip' | head -1)
-    [ -n "$tools" ] || { echo "android sdk: command-line tools URL not found" >&2; return 1; }
+    tname=$(echo "$page" | grep -oE 'commandlinetools-linux-[0-9]+_latest\.zip' | head -1)
+    tools="https://dl.google.com/android/repository/${tname}"
+    [ -n "$tname" ] || { echo "android sdk: command-line tools name not found" >&2; return 1; }
     mkdir -p /opt/android-sdk/cmdline-tools
     if [ ! -x /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager ]; then
         curl -fL -o /tmp/cmdtools.zip "$tools" && rm -rf /tmp/cmdtools && unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
