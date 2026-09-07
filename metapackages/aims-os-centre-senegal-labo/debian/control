@@ -36,6 +36,8 @@ Depends:
  libvirt-clients,
  gnome-boxes,
  virt-manager,
+ virtinst,
+ virt-viewer,
  podman,
  uidmap,
  slirp4netns,

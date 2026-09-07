@@ -23,3 +23,4 @@ files/etc/apt/apt.conf.d/52aims-labo-unattended          etc/apt/apt.conf.d/
 files/usr/sbin/aims-labo-update                        usr/sbin/
 files/lib/systemd/system/aims-labo-update.service       lib/systemd/system/
 files/lib/systemd/system/aims-labo-update.timer         lib/systemd/system/
+files/usr/bin/aims-vm                                   usr/bin/

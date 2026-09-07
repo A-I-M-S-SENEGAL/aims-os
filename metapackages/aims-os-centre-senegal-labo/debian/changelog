@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+22) trixie; urgency=medium
+
+  * aims-vm: personal KVM virtual machines without root, session mode:
+    the Cisco Cybersecurity LabVM (Security courses) and fresh Debian
+    13 sandboxes where the student is root (Linux/network courses),
+    from base images shipped on the machine (step vmimages of
+    aims-labo-extras, served from the campus server, checksummed).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 19:50:00 +0000
+
 aims-os-centre-senegal-labo (2.1+21) trixie; urgency=medium
 
   * aims-labo-extras: Cisco Packet Tracer from the campus server (the

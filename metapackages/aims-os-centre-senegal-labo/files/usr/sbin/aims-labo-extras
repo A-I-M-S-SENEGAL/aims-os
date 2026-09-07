@@ -9,7 +9,7 @@
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
 #                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda
-#                               nodejs dbeaver runtimes gnuplot packettracer
+#                               nodejs dbeaver runtimes gnuplot packettracer vmimages
 # =============================================================================
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || { echo "root required" >&2; exit 1; }
@@ -239,6 +239,21 @@ step_packettracer() {
     apt-get -q -y install /tmp/packettracer.deb 2>&1 | grep -E "^(E:|Setting up packettracer)"; rm -f /tmp/packettracer.deb
     dpkg -s packettracer >/dev/null 2>&1
 }
+step_vmimages() {
+    # Base images for aims-vm: the Cisco Cybersecurity LabVM (converted from
+    # Cisco's OVA by IT, served from the campus server) and a Debian 13
+    # cloud image customised as a root sandbox (built by IT on the server).
+    log "VM base images for aims-vm (/var/lib/aims-os/vm)"
+    local base=http://192.168.10.240/aims/vm; install -d -m 0755 /var/lib/aims-os/vm
+    for img in cisco-cyberlab.qcow2 debian-13.qcow2; do
+        local remote_sha; remote_sha=$(curl -fsSL "$base/$img.sha256" 2>/dev/null | cut -d' ' -f1) || continue
+        [ -n "$remote_sha" ] || continue
+        if [ -f "/var/lib/aims-os/vm/$img" ] && [ "$(cat /var/lib/aims-os/vm/$img.sha256 2>/dev/null)" = "$remote_sha" ]; then continue; fi
+        curl -fL -o "/var/lib/aims-os/vm/$img.part" "$base/$img" && echo "$remote_sha  /var/lib/aims-os/vm/$img.part" | sha256sum -c --quiet             && mv "/var/lib/aims-os/vm/$img.part" "/var/lib/aims-os/vm/$img" && echo "$remote_sha" > "/var/lib/aims-os/vm/$img.sha256"             || { rm -f "/var/lib/aims-os/vm/$img.part"; echo "vm image $img: download/checksum failed" >&2; }
+    done
+    chmod 0644 /var/lib/aims-os/vm/*.qcow2 2>/dev/null || true
+    ls /var/lib/aims-os/vm/*.qcow2 >/dev/null 2>&1
+}
 step_dbimages() {
     log "Database images for aims-db (shared read-only Podman store)"
     for img in docker.io/library/postgres:17 docker.io/library/mariadb:11 docker.io/library/redis:7 docker.io/library/mongo:8; do
@@ -247,7 +262,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot packettracer)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot packettracer vmimages)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi

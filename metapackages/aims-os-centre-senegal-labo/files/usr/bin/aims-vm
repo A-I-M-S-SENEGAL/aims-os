@@ -1,0 +1,31 @@
+#!/bin/bash
+# aims-vm — machines virtuelles personnelles (KVM, mode session, sans root).
+#   aims-vm cisco                 la VM Cisco « Cybersecurity LabVM » (cours Sécurité)
+#   aims-vm debian <nom>          une Debian 13 neuve où vous êtes root (cours Linux/réseau)
+#   aims-vm liste                 vos machines
+#   aims-vm reset <nom>           remettre une machine à neuf (données effacées)
+# Les images de base sont sur le poste (/var/lib/aims-os/vm) ; chaque étudiant a sa
+# copie dans ~/.local/share/aims-vm. Les machines apparaissent aussi dans GNOME Boxes
+# et virt-manager (connexion « QEMU/KVM session utilisateur »).
+set -euo pipefail
+BASE=/var/lib/aims-os/vm; DATA="${XDG_DATA_HOME:-$HOME/.local/share}/aims-vm"; mkdir -p "$DATA"
+export LIBVIRT_DEFAULT_URI=qemu:///session
+usage() { sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+mkvm() { # name base os ram vcpus
+    local name="$1" base="$2" os="$3" ram="$4" cpus="$5" disk="$DATA/$1.qcow2"
+    [ -r "$base" ] || { echo "image de base absente : $base (demander à l'équipe IT)" >&2; exit 1; }
+    if virsh dominfo "$name" >/dev/null 2>&1; then virsh start "$name" >/dev/null 2>&1 || true; virt-viewer --attach "$name" >/dev/null 2>&1 & echo "$name : démarrée"; return; fi
+    [ -f "$disk" ] || qemu-img create -q -f qcow2 -b "$base" -F qcow2 "$disk"
+    virt-install --connect qemu:///session --name "$name" --import --disk "path=$disk,format=qcow2" \
+        --memory "$ram" --vcpus "$cpus" --os-variant "$os" --graphics spice --video qxl --channel spicevmc \
+        --network user --noautoconsole >/dev/null
+    virt-viewer --attach "$name" >/dev/null 2>&1 & echo "$name : créée et démarrée (première fois : patientez une minute)"
+}
+case "${1:-}" in
+    cisco)  mkvm cisco-cyberlab "$BASE/cisco-cyberlab.qcow2" ubuntu22.04 4096 2 ;;
+    debian) [ $# -eq 2 ] || usage; mkvm "$2" "$BASE/debian-13.qcow2" debian13 2048 2
+            echo "Connexion : utilisateur aims / mot de passe aims, sudo sans mot de passe (vous êtes root dedans)." ;;
+    liste)  virsh list --all | tail -n +3 | sed '/^$/d' ;;
+    reset)  [ $# -eq 2 ] || usage; virsh destroy "$2" >/dev/null 2>&1 || true; virsh undefine "$2" >/dev/null 2>&1 || true; rm -f "$DATA/$2.qcow2"; echo "$2 : supprimée, relancez aims-vm pour la recréer" ;;
+    *) usage ;;
+esac
