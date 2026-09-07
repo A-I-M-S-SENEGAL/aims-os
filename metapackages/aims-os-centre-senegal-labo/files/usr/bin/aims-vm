@@ -12,11 +12,15 @@ BASE=/var/lib/aims-os/vm; DATA="${XDG_DATA_HOME:-$HOME/.local/share}/aims-vm"; m
 export LIBVIRT_DEFAULT_URI=qemu:///session
 usage() { sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 mkvm() { # name base os ram vcpus
-    local name="$1" base="$2" os="$3" ram="$4" cpus="$5" disk="$DATA/$1.qcow2"
+    local name="$1" base="$2" os="$3" ram="$4" cpus="$5" disk="$DATA/$1.qcow2" extra=""
     [ -r "$base" ] || { echo "image de base absente : $base (demander à l'équipe IT)" >&2; exit 1; }
     if virsh dominfo "$name" >/dev/null 2>&1; then virsh start "$name" >/dev/null 2>&1 || true; virt-viewer --attach "$name" >/dev/null 2>&1 & echo "$name : démarrée"; return; fi
     [ -f "$disk" ] || qemu-img create -q -f qcow2 -b "$base" -F qcow2 "$disk"
-    virt-install --connect qemu:///session --name "$name" --import --disk "path=$disk,format=qcow2" \
+    # second disk of the base image, if any (the Cisco LabVM ships two)
+    local base2="${base%.qcow2}-disk2.qcow2"
+    if [ -r "$base2" ]; then [ -f "$DATA/$1-disk2.qcow2" ] || qemu-img create -q -f qcow2 -b "$base2" -F qcow2 "$DATA/$1-disk2.qcow2"; extra="--disk path=$DATA/$1-disk2.qcow2,format=qcow2"; fi
+    # shellcheck disable=SC2086
+    virt-install --connect qemu:///session --name "$name" --import --disk "path=$disk,format=qcow2" $extra \
         --memory "$ram" --vcpus "$cpus" --os-variant "$os" --graphics spice --video qxl --channel spicevmc \
         --network user --noautoconsole >/dev/null
     virt-viewer --attach "$name" >/dev/null 2>&1 & echo "$name : créée et démarrée (première fois : patientez une minute)"
@@ -26,6 +30,6 @@ case "${1:-}" in
     debian) [ $# -eq 2 ] || usage; mkvm "$2" "$BASE/debian-13.qcow2" debian13 2048 2
             echo "Connexion : utilisateur aims / mot de passe aims, sudo sans mot de passe (vous êtes root dedans)." ;;
     liste)  virsh list --all | tail -n +3 | sed '/^$/d' ;;
-    reset)  [ $# -eq 2 ] || usage; virsh destroy "$2" >/dev/null 2>&1 || true; virsh undefine "$2" >/dev/null 2>&1 || true; rm -f "$DATA/$2.qcow2"; echo "$2 : supprimée, relancez aims-vm pour la recréer" ;;
+    reset)  [ $# -eq 2 ] || usage; virsh destroy "$2" >/dev/null 2>&1 || true; virsh undefine "$2" >/dev/null 2>&1 || true; rm -f "$DATA/$2.qcow2" "$DATA/$2-disk2.qcow2"; echo "$2 : supprimée, relancez aims-vm pour la recréer" ;;
     *) usage ;;
 esac

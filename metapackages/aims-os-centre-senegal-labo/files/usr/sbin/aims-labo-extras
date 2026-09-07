@@ -245,7 +245,7 @@ step_vmimages() {
     # cloud image customised as a root sandbox (built by IT on the server).
     log "VM base images for aims-vm (/var/lib/aims-os/vm)"
     local base=http://192.168.10.240/aims/vm; install -d -m 0755 /var/lib/aims-os/vm
-    for img in cisco-cyberlab.qcow2 debian-13.qcow2; do
+    for img in cisco-cyberlab.qcow2 cisco-cyberlab-disk2.qcow2 debian-13.qcow2; do
         local remote_sha; remote_sha=$(curl -fsSL "$base/$img.sha256" 2>/dev/null | cut -d' ' -f1) || continue
         [ -n "$remote_sha" ] || continue
         if [ -f "/var/lib/aims-os/vm/$img" ] && [ "$(cat /var/lib/aims-os/vm/$img.sha256 2>/dev/null)" = "$remote_sha" ]; then continue; fi

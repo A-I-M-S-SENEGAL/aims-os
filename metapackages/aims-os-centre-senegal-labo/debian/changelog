@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+23) trixie; urgency=medium
+
+  * aims-vm: attaches the second disk of a base image when present (the
+    Cisco Cybersecurity LabVM ships a 25 GB system disk and a 1 GB
+    second disk); vmimages fetches it too.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 20:40:00 +0000
+
 aims-os-centre-senegal-labo (2.1+22) trixie; urgency=medium
 
   * aims-vm: personal KVM virtual machines without root, session mode:
