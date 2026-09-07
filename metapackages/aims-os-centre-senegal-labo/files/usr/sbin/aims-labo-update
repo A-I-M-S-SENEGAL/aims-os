@@ -1,0 +1,19 @@
+#!/bin/bash
+# aims-labo-update — met à jour tout ce qu'apt ne gère pas sur un poste du labo.
+# Lancé chaque semaine par aims-labo-update.timer (et au démarrage si le
+# poste était éteint). apt/unattended-upgrades s'occupe des paquets Debian
+# et des dépôts éditeurs ; ici : Flatpak, images Podman, archives /opt
+# (Android Studio + SDK, Julia, Ghidra, Anaconda, Bun/Deno/uv, draw.io,
+# Zoom, SageMath) via aims-labo-extras, qui ne réinstalle que ce qui a changé.
+set -u
+export DEBIAN_FRONTEND=noninteractive
+note() { logger -t aims-labo-update -p local5.info -- "$*"; }
+note "début"
+flatpak update -y --noninteractive --system >/dev/null 2>&1 && note "flatpak: ok"
+for img in docker.io/library/postgres:17 docker.io/library/mariadb:11 docker.io/library/redis:7 docker.io/library/mongo:8; do podman pull -q "$img" >/dev/null 2>&1; done && note "images podman: ok"
+[ -x /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager ] && (yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/opt/android-sdk --update >/dev/null 2>&1; chmod -R a+rX /opt/android-sdk) && note "android sdk: ok"
+[ -x /opt/sage/bin/sage ] && /opt/miniforge3/bin/mamba update -y -q -p /opt/sage -c conda-forge sage >/dev/null 2>&1 && note "sage: ok"
+[ -x /opt/anaconda3/bin/conda ] && /opt/anaconda3/bin/conda update -n base -y -q conda >/dev/null 2>&1 && note "anaconda: conda ok"
+if /usr/sbin/aims-labo-extras repos code chrome bruno zotero drawio julia ghidra android zoom runtimes nodejs dbeaver >/tmp/aims-labo-update.log 2>&1; then note "extras: ok"; else note "extras: échec partiel, voir /tmp/aims-labo-update.log"; fi
+apt-get -q -y autoremove >/dev/null 2>&1; apt-get -q clean
+note "fin"

@@ -9,3 +9,4 @@ aims-os-centre-senegal-labo: appstream-metadata-missing-modalias-provide *
 aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-ensure]
 aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-enroler]
 aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-preparer-capture]
+aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-update]

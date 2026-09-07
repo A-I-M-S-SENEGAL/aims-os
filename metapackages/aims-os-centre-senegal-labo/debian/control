@@ -23,6 +23,7 @@ Depends:
  grub2-common,
  polkitd,
  rsyslog,
+ unattended-upgrades,
 # Lab software beyond aims-os-everything (validated 2026-09-05):
  vlc,
  scilab,
@@ -77,6 +78,10 @@ Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
     account locks if a student broke them, and sudo/auth logs are
     copied live to the campus server (rsyslog), out of the student's
     reach.
+  * everything stays up to date by itself: unattended-upgrades covers
+    every configured repository (Debian, AIMS OS, vendors), and a weekly
+    timer (aims-labo-update) refreshes Flatpak, Podman images, the
+    Android SDK, SageMath, Anaconda and the /opt archives.
   * a UFW rule opening port 22 to the campus LAN (192.168.10.0/24)
     only, since aims-os-core enables UFW with deny-in. Removed when
     the package is removed.

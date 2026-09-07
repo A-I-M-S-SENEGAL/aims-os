@@ -1,0 +1,13 @@
+// AIMS OS labo — les mises à jour automatiques couvrent TOUS les dépôts
+// configurés (Debian, AIMS OS, Google Chrome, VS Code, NodeSource, DBeaver,
+// Zotero, Bruno…), pas seulement la sécurité Debian. Pas de redémarrage
+// automatique : un poste de labo redémarre au prochain démarrage matinal.
+Unattended-Upgrade::Origins-Pattern {
+    "origin=*";
+};
+Unattended-Upgrade::Automatic-Reboot "false";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+Unattended-Upgrade::MinimalSteps "true";
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";

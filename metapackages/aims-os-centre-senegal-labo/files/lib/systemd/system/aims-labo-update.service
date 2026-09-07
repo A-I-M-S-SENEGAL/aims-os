@@ -1,0 +1,10 @@
+[Unit]
+Description=AIMS labo — mise à jour hebdomadaire des outils hors apt
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/aims-labo-update
+Nice=10
+IOSchedulingClass=idle

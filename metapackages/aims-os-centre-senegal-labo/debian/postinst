@@ -97,6 +97,8 @@ case "$1" in
         if [ -d /run/systemd/system ]; then
             systemctl daemon-reload >/dev/null 2>&1 || true
             deb-systemd-helper enable aims-labo-ensure.timer >/dev/null 2>&1 || true
+            deb-systemd-helper enable aims-labo-update.timer >/dev/null 2>&1 || true
+            deb-systemd-invoke start aims-labo-update.timer >/dev/null 2>&1 || true
             deb-systemd-invoke start aims-labo-ensure.timer >/dev/null 2>&1 || true
             deb-systemd-invoke restart rsyslog.service >/dev/null 2>&1 || true
         fi

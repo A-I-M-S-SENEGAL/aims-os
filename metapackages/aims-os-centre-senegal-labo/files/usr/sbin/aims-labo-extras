@@ -155,6 +155,8 @@ step_geogebra() {
 step_zoom() {
     log "Zoom (deb from zoom.us)"
     curl -fsSL -o /tmp/zoom.deb https://zoom.us/client/latest/zoom_amd64.deb
+    local newv; newv=$(dpkg-deb -f /tmp/zoom.deb Version 2>/dev/null)
+    if [ -n "$newv" ] && [ "$(dpkg-query -W -f='${Version}' zoom 2>/dev/null)" = "$newv" ]; then rm -f /tmp/zoom.deb; return 0; fi
     apt-get -q -y install /tmp/zoom.deb 2>&1 | grep -E "^(E:|Setting up zoom)"; rm -f /tmp/zoom.deb
     dpkg -s zoom >/dev/null 2>&1
 }

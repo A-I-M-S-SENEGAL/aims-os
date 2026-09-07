@@ -1,3 +1,16 @@
+aims-os-centre-senegal-labo (2.1+20) trixie; urgency=medium
+
+  * Everything up to date automatically (asked 2026-09-07):
+    unattended-upgrades now takes every configured origin (Debian,
+    AIMS OS, Google, Microsoft, NodeSource, DBeaver, Zotero, Bruno),
+    no automatic reboot; weekly aims-labo-update timer (Sunday 03:00,
+    catches up after a power-off) for Flatpak, Podman images, Android
+    SDK, SageMath, Anaconda's conda and the /opt archives through
+    aims-labo-extras (which only reinstalls what changed; Zoom now
+    compares versions before reinstalling).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 18:10:00 +0000
+
 aims-os-centre-senegal-labo (2.1+19) trixie; urgency=medium
 
   * aims-labo-extras: Node.js LTS, DBeaver CE and Bun/Deno/uv through the

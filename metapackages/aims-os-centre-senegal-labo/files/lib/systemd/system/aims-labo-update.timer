@@ -1,0 +1,10 @@
+[Unit]
+Description=AIMS labo — mise à jour hebdomadaire (dimanche, ou au prochain démarrage)
+
+[Timer]
+OnCalendar=Sun 03:00
+RandomizedDelaySec=2h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

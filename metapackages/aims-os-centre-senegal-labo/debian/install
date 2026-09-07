@@ -19,3 +19,7 @@ files/lib/systemd/system/aims-labo-ensure.timer         lib/systemd/system/
 files/etc/rsyslog.d/50-aims-labo.conf                   etc/rsyslog.d/
 files/usr/sbin/aims-labo-enroler                       usr/sbin/
 files/usr/sbin/aims-labo-preparer-capture              usr/sbin/
+files/etc/apt/apt.conf.d/52aims-labo-unattended          etc/apt/apt.conf.d/
+files/usr/sbin/aims-labo-update                        usr/sbin/
+files/lib/systemd/system/aims-labo-update.service       lib/systemd/system/
+files/lib/systemd/system/aims-labo-update.timer         lib/systemd/system/
