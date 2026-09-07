@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+8) trixie; urgency=medium
+
+  * GRUB: divert 10_linux to 10_linux.dpkg-divert-aims, a name
+    grub-mkconfig ignores. The previous .aims-original copy was run
+    too, so every menu entry appeared twice. Existing machines are
+    migrated on upgrade and grub.cfg regenerated.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 09:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+7) trixie; urgency=medium
 
   * Lab software set (validated with Hakim, 2026-09-05): VLC, Scilab,

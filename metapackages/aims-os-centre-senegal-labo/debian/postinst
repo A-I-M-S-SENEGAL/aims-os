@@ -45,13 +45,22 @@ case "$1" in
         # GRUB: normal entries must boot without a password once a superuser
         # is set, so Debian's 10_linux gets --unrestricted in CLASS. Done
         # through a diversion so grub upgrades land at the diverted name.
-        if [ -f /etc/grub.d/10_linux ]; then
-            if ! dpkg-divert --list /etc/grub.d/10_linux | grep -q aims; then
+        # The diverted name must match grub-mkconfig's ignore list
+        # (*.dpkg-*): with any other name the original script runs too
+        # and every entry shows twice (seen on labo-hp-01, 2026-09-07).
+        DIV=/etc/grub.d/10_linux.dpkg-divert-aims
+        if [ -f /etc/grub.d/10_linux.aims-original ]; then
+            # migrate the 2.1+4..2.1+7 diversion
+            rm -f /etc/grub.d/10_linux
+            dpkg-divert --quiet --remove --rename --package aims-os-centre-senegal-labo /etc/grub.d/10_linux || true
+        fi
+        if [ -f /etc/grub.d/10_linux ] || [ -f "${DIV}" ]; then
+            if ! dpkg-divert --list /etc/grub.d/10_linux | grep -q "${DIV}"; then
                 dpkg-divert --quiet --add --rename --package aims-os-centre-senegal-labo \
-                    --divert /etc/grub.d/10_linux.aims-original /etc/grub.d/10_linux
+                    --divert "${DIV}" /etc/grub.d/10_linux
             fi
             sed 's/^CLASS="--class gnu-linux/CLASS="--unrestricted --class gnu-linux/' \
-                /etc/grub.d/10_linux.aims-original > /etc/grub.d/10_linux
+                "${DIV}" > /etc/grub.d/10_linux
             chmod 0755 /etc/grub.d/10_linux
             if [ -s /etc/aims-os/grub-password.pbkdf2 ] && command -v update-grub >/dev/null 2>&1; then
                 update-grub >/dev/null 2>&1 || true
