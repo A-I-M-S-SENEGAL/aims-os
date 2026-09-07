@@ -10,3 +10,4 @@ files/etc/containers/storage.conf.d/aims-labo.conf      etc/containers/storage.c
 files/etc/profile.d/aims-labo.sh                        etc/profile.d/
 files/usr/bin/aims-db                                   usr/bin/
 files/usr/sbin/aims-labo-extras                         usr/sbin/
+files/etc/modprobe.d/aims-labo-nouveau.conf              etc/modprobe.d/

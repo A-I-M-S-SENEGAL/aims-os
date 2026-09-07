@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+9) trixie; urgency=medium
+
+  * Faster login screen on the lab HPs: nouveau blacklisted (the
+    discrete NVIDIA chip took ~7 s to initialise at boot while the
+    Intel GPU drives the panel), docker.service no longer started at
+    boot (socket activation only). Measured 28 s between GDM start and
+    greeter on labo-hp-01 before this change.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 11:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+8) trixie; urgency=medium
 
   * GRUB: divert 10_linux to 10_linux.dpkg-divert-aims, a name

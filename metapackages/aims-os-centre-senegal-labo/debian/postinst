@@ -79,6 +79,17 @@ case "$1" in
             gpasswd -d "${u}" sudo >/dev/null 2>&1 || true
         done
 
+        # Faster login screen: no nouveau in the initramfs (see
+        # /etc/modprobe.d/aims-labo-nouveau.conf) and Docker started on
+        # demand by its socket instead of at every boot (IT-only tool).
+        if [ -d /run/systemd/system ]; then
+            deb-systemd-helper disable docker.service >/dev/null 2>&1 || true
+            deb-systemd-helper enable docker.socket >/dev/null 2>&1 || true
+        fi
+        if command -v update-initramfs >/dev/null 2>&1 && [ ! -f /var/lib/aims-os/labo-nouveau-initramfs ]; then
+            update-initramfs -u >/dev/null 2>&1 && mkdir -p /var/lib/aims-os && touch /var/lib/aims-os/labo-nouveau-initramfs || true
+        fi
+
         # Apply the sshd drop-in on a running system. deb-systemd-invoke
         # honours policy-rc.d, so this is a no-op inside a build chroot.
         if [ -d /run/systemd/system ]; then
