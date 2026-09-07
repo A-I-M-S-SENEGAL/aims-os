@@ -79,9 +79,10 @@ step_drawio() {
     tag=$(curl -s -o /dev/null -w '%{redirect_url}' https://github.com/jgraph/drawio-desktop/releases/latest | grep -oE 'v[0-9.]+$')
     [ -n "$tag" ] || { echo "draw.io: latest tag not found" >&2; return 1; }
     url="https://github.com/jgraph/drawio-desktop/releases/download/${tag}/drawio-amd64-${tag#v}.deb"
-    dpkg -l drawio >/dev/null 2>&1 && dpkg -l drawio | grep -q "^ii.*$(echo "$url" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')" && return 0
-    curl -fsSL -o /tmp/drawio.deb "$url" && apt-get -q -y install /tmp/drawio.deb 2>&1 | grep -E "^(E:|Setting up drawio)" ; rm -f /tmp/drawio.deb
-    dpkg -s drawio >/dev/null 2>&1
+    # the package is named "draw.io"
+    dpkg -s draw.io 2>/dev/null | grep -q "^Version: ${tag#v}" && return 0
+    curl -fsSL -o /tmp/drawio.deb "$url" && apt-get -q -y install /tmp/drawio.deb 2>&1 | grep -E "^(E:|Setting up draw)" ; rm -f /tmp/drawio.deb
+    dpkg -s draw.io >/dev/null 2>&1
 }
 step_julia() {
     log "Julia (official binaries, /opt/julia)"

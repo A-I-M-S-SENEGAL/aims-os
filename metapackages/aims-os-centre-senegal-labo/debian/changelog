@@ -1,3 +1,10 @@
+aims-os-centre-senegal-labo (2.1+16) trixie; urgency=medium
+
+  * aims-labo-extras: the draw.io package is named "draw.io"; the step
+    reported a failure although it had installed correctly.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 15:45:00 +0000
+
 aims-os-centre-senegal-labo (2.1+15) trixie; urgency=medium
 
   * aims-labo-extras: Zoom (deb from zoom.us), RStudio (Posit deb via
