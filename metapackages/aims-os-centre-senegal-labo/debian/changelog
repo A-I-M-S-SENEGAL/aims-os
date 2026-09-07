@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+17) trixie; urgency=medium
+
+  * aims-labo-extras: TeX Live complet (texlive-full) and the Anaconda
+    Distribution in /opt/anaconda3 (free for academic curricula per
+    Anaconda's Academic Policy; Miniforge stays the default conda),
+    with a Navigator launcher.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 16:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+16) trixie; urgency=medium
 
   * aims-labo-extras: the draw.io package is named "draw.io"; the step

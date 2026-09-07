@@ -8,7 +8,7 @@
 #
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
-#                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps
+#                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda
 # =============================================================================
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || { echo "root required" >&2; exit 1; }
@@ -186,6 +186,31 @@ step_webapps() {
     desktop_entry overleaf "Overleaf" "/usr/bin/google-chrome-stable --app=https://www.overleaf.com" "google-chrome" "Overleaf (LaTeX en ligne)"
     sed -i 's/^Categories=.*/Categories=Network;Office;/' /usr/share/applications/microsoft-teams.desktop /usr/share/applications/overleaf.desktop
 }
+step_texlive() {
+    log "TeX Live complet (texlive-full, Debian)"
+    apt-get -q -y install texlive-full 2>&1 | grep -E "^(E:|Setting up texlive-full)"
+    dpkg -s texlive-full >/dev/null 2>&1
+}
+step_anaconda() {
+    # Anaconda Distribution, free for accredited educational institutions
+    # (Anaconda Academic Policy, 2026). Installed in /opt/anaconda3 next to
+    # Miniforge (which stays the default `conda`); Navigator gets a launcher.
+    log "Anaconda Distribution (/opt/anaconda3, ~7 GB)"
+    local page name sha
+    page=$(curl -fsSL https://repo.anaconda.com/archive/)
+    name=$(echo "$page" | grep -oE 'Anaconda3-20[0-9]{2}\.[0-9]+-[0-9]+-Linux-x86_64\.sh' | sort -u | tail -1)
+    [ -n "$name" ] || { echo "anaconda: installer name not found" >&2; return 1; }
+    if [ -f /opt/anaconda3/.installed ] && [ "$(cat /opt/anaconda3/.installed)" = "$name" ]; then return 0; fi
+    sha=$(echo "$page" | tr -d '\n' | grep -oE "${name}</a>.{0,400}" | grep -oE '[0-9a-f]{64}' | head -1)
+    curl -fSL -o /tmp/anaconda.sh "https://repo.anaconda.com/archive/${name}"
+    if [ -n "$sha" ]; then echo "${sha}  /tmp/anaconda.sh" | sha256sum -c --quiet || { echo "anaconda: checksum mismatch" >&2; rm -f /tmp/anaconda.sh; return 1; }; fi
+    rm -rf /opt/anaconda3 && bash /tmp/anaconda.sh -b -p /opt/anaconda3 >/dev/null && rm -f /tmp/anaconda.sh
+    echo "$name" > /opt/anaconda3/.installed
+    chmod -R a+rX /opt/anaconda3
+    desktop_entry anaconda-navigator "Anaconda Navigator" "/opt/anaconda3/bin/anaconda-navigator" "/opt/anaconda3/lib/python3*/site-packages/anaconda_navigator/static/images/anaconda-icon-256x256.png" "Anaconda Distribution (Navigator, Spyder, JupyterLab)"
+    sed -i 's/^Categories=.*/Categories=Development;Science;/' /usr/share/applications/anaconda-navigator.desktop
+    # `conda` reste Miniforge ; Anaconda s'active avec : source /opt/anaconda3/bin/activate
+}
 step_dbimages() {
     log "Database images for aims-db (shared read-only Podman store)"
     for img in docker.io/library/postgres:17 docker.io/library/mariadb:11 docker.io/library/redis:7 docker.io/library/mongo:8; do
@@ -194,7 +219,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi
