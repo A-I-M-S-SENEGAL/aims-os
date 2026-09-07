@@ -1,0 +1,2 @@
+// AIMS OS labo — IPv4-only campus, see /etc/sysctl.d/60-aims-labo-ipv6.conf
+Acquire::ForceIPv4 "true";

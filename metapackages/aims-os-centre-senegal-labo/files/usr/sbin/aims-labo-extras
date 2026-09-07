@@ -14,6 +14,9 @@ set -euo pipefail
 [ "$(id -u)" -eq 0 ] || { echo "root required" >&2; exit 1; }
 export DEBIAN_FRONTEND=noninteractive
 KEYS=/usr/share/keyrings; LIST=/etc/apt/sources.list.d; ARCH=$(dpkg --print-architecture)
+# IPv4 only: the campus has no IPv6 connectivity (see sysctl.d/60-aims-labo-ipv6.conf)
+curl() { command curl -4 "$@"; }
+export JAVA_TOOL_OPTIONS="-Djava.net.preferIPv4Stack=true"
 log() { printf '\033[1;34m[aims-labo-extras]\033[0m %s\n' "$*"; }
 need() { command -v "$1" >/dev/null 2>&1 || apt-get -q -y install "$1" >/dev/null; }
 desktop_entry() { # name exec icon comment
@@ -38,7 +41,7 @@ step_repos() {
     [ -f $KEYS/google-chrome.gpg ] || curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o $KEYS/google-chrome.gpg
     echo "deb [arch=amd64 signed-by=$KEYS/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" > $LIST/google-chrome.list
     log "Bruno"
-    [ -f $KEYS/bruno.gpg ] || gpg --no-default-keyring --keyring $KEYS/bruno.gpg --keyserver keyserver.ubuntu.com --recv-keys 9FA6017ECABE0266 >/dev/null 2>&1
+    [ -f $KEYS/bruno.gpg ] || curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9FA6017ECABE0266" | gpg --dearmor -o $KEYS/bruno.gpg
     echo "deb [signed-by=$KEYS/bruno.gpg] http://debian.usebruno.com/ bruno stable" > $LIST/bruno.list
     apt-get -q update >/dev/null
 }
@@ -133,5 +136,8 @@ step_dbimages() {
 }
 
 steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages)
-for s in "${steps[@]}"; do "step_$s"; done
-log "done"
+failed=""
+for s in "${steps[@]}"; do
+    if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi
+done
+[ -z "$failed" ] && log "done, all steps OK" || { log "done with failures:$failed"; exit 1; }

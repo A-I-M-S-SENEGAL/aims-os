@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+10) trixie; urgency=medium
+
+  * IPv4 only on lab machines (sysctl + apt ForceIPv4): the campus Wi-Fi
+    advertises IPv6 without connectivity and downloads from hosts with
+    AAAA records hung for minutes. aims-labo-extras forces IPv4 too,
+    fetches the Bruno key over HTTPS, and keeps going when one vendor
+    step fails, reporting the failures at the end.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 12:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+9) trixie; urgency=medium
 
   * Faster login screen on the lab HPs: nouveau blacklisted (the
