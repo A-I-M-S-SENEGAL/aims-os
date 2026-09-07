@@ -17,3 +17,5 @@ files/usr/sbin/aims-labo-ensure                        usr/sbin/
 files/lib/systemd/system/aims-labo-ensure.service       lib/systemd/system/
 files/lib/systemd/system/aims-labo-ensure.timer         lib/systemd/system/
 files/etc/rsyslog.d/50-aims-labo.conf                   etc/rsyslog.d/
+files/usr/sbin/aims-labo-enroler                       usr/sbin/
+files/usr/sbin/aims-labo-preparer-capture              usr/sbin/

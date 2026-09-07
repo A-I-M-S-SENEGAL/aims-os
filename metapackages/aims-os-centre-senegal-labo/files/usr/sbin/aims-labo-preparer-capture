@@ -1,0 +1,16 @@
+#!/bin/bash
+# aims-labo-preparer-capture — met le poste modèle en état d'être capturé (FOG ou Clonezilla).
+# Retire l'identité (annuaire, machine-id, clés SSH), nettoie les caches et journaux,
+# supprime les dossiers des comptes de test, puis éteint. À lancer en dernier, après validation.
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || { echo "sudo requis" >&2; exit 1; }
+read -r -p "Préparer ce poste pour la capture et l'ETEINDRE ? (oui/non) " ok; [ "$ok" = "oui" ] || exit 1
+[ -f /etc/ipa/default.conf ] && ipa-client-install --uninstall -U >/dev/null 2>&1 || true
+for u in $(ls /home 2>/dev/null); do case "$u" in aims|aimsit) ;; *) userdel -r "$u" >/dev/null 2>&1 || rm -rf "/home/$u" ;; esac; done
+rm -rf /var/lib/sss/db/* /var/lib/sss/mc/* 2>/dev/null || true
+apt-get clean; rm -rf /var/lib/apt/lists/*; journalctl --rotate >/dev/null 2>&1; journalctl --vacuum-time=1s >/dev/null 2>&1
+rm -f /var/log/*.log.* /var/log/*.gz /tmp/aims-*.log; : > /var/log/wtmp; : > /var/log/btmp; : > /var/log/lastlog
+rm -f /etc/machine-id /var/lib/dbus/machine-id; : > /etc/machine-id; rm -f /etc/ssh/ssh_host_*
+rm -f /home/*/.bash_history /root/.bash_history
+hostnamectl set-hostname aims-clone >/dev/null 2>&1 || true
+echo "Poste prêt : sans identité, sans journaux. Extinction dans 10 s (Ctrl+C pour annuler)."; sleep 10; systemctl poweroff

@@ -1,3 +1,14 @@
+aims-os-centre-senegal-labo (2.1+18) trixie; urgency=medium
+
+  * aims-labo-enroler <NN>: names a cloned machine labo-hp-NN, gives it
+    a fresh machine-id and SSH host keys, and enrols it in the directory
+    with the limited "enrol" account (works over Wi-Fi). 
+  * aims-labo-preparer-capture: strips identity, caches, logs and test
+    accounts from the golden machine and powers it off for FOG or
+    Clonezilla capture.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 17:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+17) trixie; urgency=medium
 
   * aims-labo-extras: TeX Live complet (texlive-full) and the Anaconda
