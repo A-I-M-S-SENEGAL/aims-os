@@ -8,7 +8,7 @@
 #
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
-#                               drawio julia ghidra android geogebra dbimages
+#                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps
 # =============================================================================
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || { echo "root required" >&2; exit 1; }
@@ -150,6 +150,40 @@ step_geogebra() {
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     flatpak install -y --noninteractive --system flathub org.geogebra.GeoGebra >/dev/null
 }
+step_zoom() {
+    log "Zoom (deb from zoom.us)"
+    curl -fsSL -o /tmp/zoom.deb https://zoom.us/client/latest/zoom_amd64.deb
+    apt-get -q -y install /tmp/zoom.deb 2>&1 | grep -E "^(E:|Setting up zoom)"; rm -f /tmp/zoom.deb
+    dpkg -s zoom >/dev/null 2>&1
+}
+step_rstudio() {
+    log "RStudio (AIMS OS install script, Posit deb)"
+    [ -x /usr/share/aims-os/install/rstudio.sh ] || { echo "rstudio.sh missing (aims-os-welcome)" >&2; return 1; }
+    /usr/share/aims-os/install/rstudio.sh >/dev/null 2>&1 || /usr/share/aims-os/install/rstudio.sh
+    dpkg -s rstudio >/dev/null 2>&1
+}
+step_sage() {
+    # SageMath is not installable from Debian 13 (Python 3.13 mismatch);
+    # conda-forge ships it. One shared environment under /opt/sage.
+    log "SageMath (conda-forge, /opt/sage, ~4 GB)"
+    local mf; mf=$(ls -d /opt/miniforge* /opt/conda 2>/dev/null | head -1)
+    [ -n "$mf" ] && [ -x "$mf/bin/mamba" ] || { echo "miniforge/mamba not found" >&2; return 1; }
+    if [ ! -x /opt/sage/bin/sage ]; then
+        "$mf/bin/mamba" create -y -q -p /opt/sage -c conda-forge sage >/dev/null
+    fi
+    chmod -R a+rX /opt/sage
+    ln -sf /opt/sage/bin/sage /usr/local/bin/sage
+    desktop_entry sagemath "SageMath" "/usr/local/bin/sage -n jupyter" "utilities-terminal" "SageMath (notebook Jupyter)"
+}
+step_webapps() {
+    # Teams has no Linux client any more (Microsoft: use the PWA); Overleaf is
+    # a web app. Both open in Google Chrome in app mode.
+    log "Teams and Overleaf as Chrome web apps"
+    command -v google-chrome-stable >/dev/null || { echo "google-chrome missing (run step chrome first)" >&2; return 1; }
+    desktop_entry microsoft-teams "Microsoft Teams" "/usr/bin/google-chrome-stable --app=https://teams.microsoft.com" "google-chrome" "Teams (application web)"
+    desktop_entry overleaf "Overleaf" "/usr/bin/google-chrome-stable --app=https://www.overleaf.com" "google-chrome" "Overleaf (LaTeX en ligne)"
+    sed -i 's/^Categories=.*/Categories=Network;Office;/' /usr/share/applications/microsoft-teams.desktop /usr/share/applications/overleaf.desktop
+}
 step_dbimages() {
     log "Database images for aims-db (shared read-only Podman store)"
     for img in docker.io/library/postgres:17 docker.io/library/mariadb:11 docker.io/library/redis:7 docker.io/library/mongo:8; do
@@ -158,7 +192,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi
