@@ -26,7 +26,7 @@ fi
 if command -v node >/dev/null 2>&1; then
     ver=$(node --version 2>/dev/null | sed 's/^v//')
     case "${ver}" in
-        22.*)
+        24.*)
             echo "${BANNER} Node v${ver} already installed — refreshing apt only."
             ;;
     esac
