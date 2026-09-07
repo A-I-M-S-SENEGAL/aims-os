@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+14) trixie; urgency=medium
+
+  * aims-labo-extras: Android Studio archive URL read from the page as
+    published (edgedl.me.gvt1.com, named after the release), command-
+    line tools from Google's repository manifest, draw.io via the
+    releases/latest redirect instead of the rate-limited GitHub API.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 14:40:00 +0000
+
 aims-os-centre-senegal-labo (2.1+13) trixie; urgency=medium
 
   * aims-labo-extras: vendor keys re-fetched and verified every run (a

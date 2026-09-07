@@ -75,8 +75,10 @@ step_zotero() {
 step_drawio() {
     log "draw.io desktop"
     need curl
-    url=$(curl -fsSL https://api.github.com/repos/jgraph/drawio-desktop/releases/latest | grep -oE 'https://[^"]+drawio-amd64-[0-9.]+\.deb' | head -1)
-    [ -n "$url" ] || { echo "draw.io: release URL not found" >&2; return 1; }
+    # No GitHub API (rate-limited per campus IP): follow the "latest" redirect to the tag.
+    tag=$(curl -s -o /dev/null -w '%{redirect_url}' https://github.com/jgraph/drawio-desktop/releases/latest | grep -oE 'v[0-9.]+$')
+    [ -n "$tag" ] || { echo "draw.io: latest tag not found" >&2; return 1; }
+    url="https://github.com/jgraph/drawio-desktop/releases/download/${tag}/drawio-amd64-${tag#v}.deb"
     dpkg -l drawio >/dev/null 2>&1 && dpkg -l drawio | grep -q "^ii.*$(echo "$url" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')" && return 0
     curl -fsSL -o /tmp/drawio.deb "$url" && apt-get -q -y install /tmp/drawio.deb 2>&1 | grep -E "^(E:|Setting up drawio)" ; rm -f /tmp/drawio.deb
     dpkg -s drawio >/dev/null 2>&1
@@ -112,10 +114,12 @@ step_ghidra() {
 step_android() {
     log "Android Studio + shared SDK (/opt/android-studio, /opt/android-sdk)"
     need curl; need unzip; apt-get -q -y install default-jdk libc6:i386 2>/dev/null || true
+    # The page carries the real Linux archive URL, e.g.
+    # https://edgedl.me.gvt1.com/android/studio/ide-zips/2026.1.4.7/android-studio-quail4-linux.tar.gz
     page=$(curl -fsSL https://developer.android.com/studio)
-    sver=$(echo "$page" | grep -oE 'android-studio-[0-9]+(\.[0-9]+)+-linux\.tar\.gz' | head -1 | sed -E 's/android-studio-([0-9.]+)-linux.*/\1/')
-    [ -n "$sver" ] || { echo "android studio: version not found on developer.android.com" >&2; return 1; }
-    url="https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${sver}/android-studio-${sver}-linux.tar.gz"
+    url=$(echo "$page" | grep -oE 'https://[a-zA-Z0-9./_-]*/ide-zips/[0-9.]+/android-studio-[a-zA-Z0-9._-]+-linux\.tar\.gz' | head -1)
+    [ -n "$url" ] || { echo "android studio: Linux archive URL not found on developer.android.com" >&2; return 1; }
+    sver=$(echo "$url" | grep -oE 'ide-zips/[0-9.]+' | cut -d/ -f2)
     ver="android-studio-${sver}"
     if [ ! -f /opt/android-studio/.version ] || [ "$(cat /opt/android-studio/.version)" != "$ver" ]; then
         curl -fL -o /tmp/android-studio.tgz "$url"
@@ -123,7 +127,8 @@ step_android() {
         desktop_entry android-studio "Android Studio" "/opt/android-studio/bin/studio.sh" "/opt/android-studio/bin/studio.png" "IDE Android (Google)"
     fi
     # shared SDK
-    tname=$(echo "$page" | grep -oE 'commandlinetools-linux-[0-9]+_latest\.zip' | head -1)
+    # Command-line tools: newest name listed in Google's repository manifest.
+    tname=$(curl -fsSL https://dl.google.com/android/repository/repository2-3.xml | grep -oE 'commandlinetools-linux-[0-9]+_latest\.zip' | sort -t- -k3 -n | tail -1)
     tools="https://dl.google.com/android/repository/${tname}"
     [ -n "$tname" ] || { echo "android sdk: command-line tools name not found" >&2; return 1; }
     mkdir -p /opt/android-sdk/cmdline-tools
