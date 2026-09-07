@@ -178,7 +178,8 @@ step_sage() {
     fi
     chmod -R a+rX /opt/sage
     ln -sf /opt/sage/bin/sage /usr/local/bin/sage
-    desktop_entry sagemath "SageMath" "/usr/local/bin/sage -n jupyter" "utilities-terminal" "SageMath (notebook Jupyter)"
+    local ic; ic=$(ls /opt/sage/share/jupyter/kernels/sagemath*/logo-64x64.png 2>/dev/null | head -1)
+    desktop_entry sagemath "SageMath" "/usr/local/bin/sage -n jupyter" "${ic:-utilities-terminal}" "SageMath (notebook Jupyter)"
 }
 step_webapps() {
     # Teams has no Linux client any more (Microsoft: use the PWA); Overleaf is
@@ -210,7 +211,8 @@ step_anaconda() {
     rm -rf /opt/anaconda3 && bash /tmp/anaconda.sh -b -p /opt/anaconda3 >/dev/null && rm -f /tmp/anaconda.sh
     echo "$name" > /opt/anaconda3/.installed
     chmod -R a+rX /opt/anaconda3
-    desktop_entry anaconda-navigator "Anaconda Navigator" "/opt/anaconda3/bin/anaconda-navigator" "/opt/anaconda3/lib/python3*/site-packages/anaconda_navigator/static/images/anaconda-icon-256x256.png" "Anaconda Distribution (Navigator, Spyder, JupyterLab)"
+    local ic; ic=$(ls /opt/anaconda3/lib/python3*/site-packages/anaconda_navigator/static/images/anaconda-icon-256x256.png 2>/dev/null | head -1)  # a .desktop file does not expand globs
+    desktop_entry anaconda-navigator "Anaconda Navigator" "/opt/anaconda3/bin/anaconda-navigator" "${ic:-anaconda-navigator}" "Anaconda Distribution (Navigator, Spyder, JupyterLab)"
     sed -i 's/^Categories=.*/Categories=Development;Science;/' /usr/share/applications/anaconda-navigator.desktop
     # `conda` reste Miniforge ; Anaconda s'active avec : source /opt/anaconda3/bin/activate
 }

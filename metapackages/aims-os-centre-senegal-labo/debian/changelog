@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+24) trixie; urgency=medium
+
+  * aims-labo-extras: real icons for the Anaconda Navigator and SageMath
+    launchers (the Anaconda icon path contained an unexpanded glob, so the
+    tile was blank in the app grid; Sage used a generic terminal icon).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 21:10:00 +0000
+
 aims-os-centre-senegal-labo (2.1+23) trixie; urgency=medium
 
   * aims-vm: attaches the second disk of a base image when present (the
