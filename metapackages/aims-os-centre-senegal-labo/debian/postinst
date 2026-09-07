@@ -93,6 +93,14 @@ case "$1" in
         # IPv4-only campus: apply the sysctl now, not only at next boot.
         sysctl -q -p /etc/sysctl.d/60-aims-labo-ipv6.conf >/dev/null 2>&1 || true
 
+        # Hourly self-repair + live log copy to the campus server.
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload >/dev/null 2>&1 || true
+            deb-systemd-helper enable aims-labo-ensure.timer >/dev/null 2>&1 || true
+            deb-systemd-invoke start aims-labo-ensure.timer >/dev/null 2>&1 || true
+            deb-systemd-invoke restart rsyslog.service >/dev/null 2>&1 || true
+        fi
+
         # Apply the sshd drop-in on a running system. deb-systemd-invoke
         # honours policy-rc.d, so this is a no-op inside a build chroot.
         if [ -d /run/systemd/system ]; then

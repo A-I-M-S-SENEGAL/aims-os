@@ -13,3 +13,7 @@ files/usr/sbin/aims-labo-extras                         usr/sbin/
 files/etc/modprobe.d/aims-labo-nouveau.conf              etc/modprobe.d/
 files/etc/sysctl.d/60-aims-labo-ipv6.conf               etc/sysctl.d/
 files/etc/apt/apt.conf.d/03aims-labo-ipv4                etc/apt/apt.conf.d/
+files/usr/sbin/aims-labo-ensure                        usr/sbin/
+files/lib/systemd/system/aims-labo-ensure.service       lib/systemd/system/
+files/lib/systemd/system/aims-labo-ensure.timer         lib/systemd/system/
+files/etc/rsyslog.d/50-aims-labo.conf                   etc/rsyslog.d/

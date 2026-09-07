@@ -1,0 +1,10 @@
+[Unit]
+Description=AIMS labo — vérification horaire
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=1h
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

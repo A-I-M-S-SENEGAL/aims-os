@@ -22,6 +22,7 @@ Depends:
  systemd-timesyncd,
  grub2-common,
  polkitd,
+ rsyslog,
 # Lab software beyond aims-os-everything (validated 2026-09-05):
  vlc,
  scilab,
@@ -71,6 +72,11 @@ Description: AIMS OS — AIMS Senegal lab workstation profile (IT remote access)
     aims-db helper. Vendor software (VS Code, Google Chrome, Zotero,
     Bruno, draw.io, Julia, Ghidra, Android Studio + SDK, GeoGebra) is
     fetched by aims-labo-extras on the golden machine.
+  * students have sudo (directory rule, decided 2026-09-07): an hourly
+    timer (aims-labo-ensure) restores the IT access, firewall, GRUB and
+    account locks if a student broke them, and sudo/auth logs are
+    copied live to the campus server (rsyslog), out of the student's
+    reach.
   * a UFW rule opening port 22 to the campus LAN (192.168.10.0/24)
     only, since aims-os-core enables UFW with deny-in. Removed when
     the package is removed.

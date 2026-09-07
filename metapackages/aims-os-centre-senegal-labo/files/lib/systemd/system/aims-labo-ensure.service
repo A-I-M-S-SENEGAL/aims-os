@@ -1,0 +1,7 @@
+[Unit]
+Description=AIMS labo — remise en état de l'accès IT et du durcissement
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/aims-labo-ensure

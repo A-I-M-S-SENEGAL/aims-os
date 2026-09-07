@@ -1,3 +1,14 @@
+aims-os-centre-senegal-labo (2.1+12) trixie; urgency=medium
+
+  * Students now have sudo (directory rule etudiants-sudo). Two safety
+    nets: aims-labo-ensure, run hourly by a systemd timer, reinstalls
+    the package files if altered and restores SSH, the firewall rule,
+    the sleep masks, time sync, the locked local accounts and grub.cfg,
+    reporting every repair with the last sudo command; and rsyslog
+    forwards authpriv (sudo, logins) and local5 to the campus server.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 13:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+11) trixie; urgency=medium
 
   * aims-labo-extras: every download retries up to six times with a

@@ -6,3 +6,4 @@ aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-grub-password]
 aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-extras]
 aims-os-centre-senegal-labo: no-manual-page [usr/bin/aims-db]
 aims-os-centre-senegal-labo: appstream-metadata-missing-modalias-provide *
+aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-ensure]

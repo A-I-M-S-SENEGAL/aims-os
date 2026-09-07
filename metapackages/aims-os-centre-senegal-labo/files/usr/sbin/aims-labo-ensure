@@ -1,0 +1,48 @@
+#!/bin/bash
+# aims-labo-ensure — remet en place ce dont l'équipe IT a besoin sur un poste
+# du labo (clé SSH IT et sa politique, pare-feu, GRUB, compte local, veille,
+# journaux). Lancé toutes les heures par aims-labo-ensure.timer. Les étudiants
+# ont sudo (décision du 7 septembre 2026) : ce script répare les maladresses
+# et signale les réparations au serveur (syslog local5).
+set -u
+export DEBIAN_FRONTEND=noninteractive
+PKG=aims-os-centre-senegal-labo
+fixed=()
+note() { logger -t aims-labo-ensure -p local5.notice -- "$*"; }
+# 1. Fichiers livrés par le paquet modifiés ou absents → réinstallation
+if ! dpkg -V "$PKG" >/dev/null 2>&1 || [ -n "$(dpkg -V "$PKG" 2>/dev/null)" ]; then
+    apt-get -q -y install --reinstall -o Dpkg::Options::=--force-confnew -o Dpkg::Options::=--force-confmiss "$PKG" >/dev/null 2>&1 && fixed+=("paquet-labo")
+fi
+# 2. Services
+systemctl is-enabled ssh >/dev/null 2>&1 || { systemctl enable ssh >/dev/null 2>&1; fixed+=("ssh-enable"); }
+systemctl is-active ssh >/dev/null 2>&1 || { systemctl start ssh >/dev/null 2>&1; fixed+=("ssh-start"); }
+sshd -t 2>/dev/null || fixed+=("sshd-config-INVALIDE")
+ufw status 2>/dev/null | grep -q "Status: active" || { ufw --force enable >/dev/null 2>&1; fixed+=("ufw-enable"); }
+ufw status 2>/dev/null | grep -q "192.168.10.0/24" || { ufw allow from 192.168.10.0/24 to any port 22 proto tcp >/dev/null 2>&1; fixed+=("ufw-ssh-rule"); }
+for t in sleep.target suspend.target hibernate.target hybrid-sleep.target; do
+    [ "$(systemctl is-enabled $t 2>/dev/null)" = "masked" ] || { ln -sf /dev/null /etc/systemd/system/$t; fixed+=("mask-$t"); }
+done
+systemctl is-enabled systemd-timesyncd >/dev/null 2>&1 || { systemctl enable --now systemd-timesyncd >/dev/null 2>&1; fixed+=("timesyncd"); }
+systemctl is-active rsyslog >/dev/null 2>&1 || { systemctl enable --now rsyslog >/dev/null 2>&1; fixed+=("rsyslog"); }
+systemctl is-active sssd >/dev/null 2>&1 || { systemctl enable --now sssd >/dev/null 2>&1; fixed+=("sssd"); }
+# 3. Comptes
+getent passwd aimsit >/dev/null || { adduser --quiet --disabled-password --gecos "AIMS IT" --shell /bin/bash aimsit; fixed+=("aimsit-recree"); }
+[ "$(passwd -S aimsit 2>/dev/null | awk '{print $2}')" = "L" ] || { passwd -l aimsit >/dev/null 2>&1; fixed+=("aimsit-lock"); }
+if getent passwd aims >/dev/null; then
+    [ "$(passwd -S aims | awk '{print $2}')" = "L" ] || { passwd -l aims >/dev/null 2>&1; fixed+=("aims-lock"); }
+    id -nG aims | grep -qw sudo && { gpasswd -d aims sudo >/dev/null 2>&1; fixed+=("aims-sudo-retire"); }
+fi
+# 4. GRUB : mot de passe et entrées libres
+if [ -s /etc/aims-os/grub-password.pbkdf2 ]; then
+    grep -q "set superusers" /boot/grub/grub.cfg 2>/dev/null || { update-grub >/dev/null 2>&1; fixed+=("grub-cfg"); }
+else
+    fixed+=("grub-password-ABSENT")
+fi
+# 5. Bilan
+last_sudo="$(journalctl _COMM=sudo --since -1h --no-pager -o cat 2>/dev/null | grep -E "COMMAND=" | tail -1 | sed -E 's/^ *//' | cut -c1-200)"
+if [ ${#fixed[@]} -gt 0 ]; then
+    note "REPARE: ${fixed[*]} | dernier sudo: ${last_sudo:-aucun}"
+else
+    logger -t aims-labo-ensure -p local5.info -- "ok"
+fi
+exit 0
