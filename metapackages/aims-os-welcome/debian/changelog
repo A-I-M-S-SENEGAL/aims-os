@@ -1,3 +1,11 @@
+aims-os-welcome (2.1+3) trixie; urgency=medium
+
+  * The install scripts landed in /usr/share/aims-os/install/install/
+    (dh_install destination named the directory twice). They now live
+    in /usr/share/aims-os/install/ as documented.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 15:30:00 +0000
+
 aims-os-welcome (2.1+2) trixie; urgency=medium
 
   * runtimes.sh: verify every Bun / Deno / uv download against the

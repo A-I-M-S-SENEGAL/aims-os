@@ -158,8 +158,9 @@ step_zoom() {
 }
 step_rstudio() {
     log "RStudio (AIMS OS install script, Posit deb)"
-    [ -x /usr/share/aims-os/install/rstudio.sh ] || { echo "rstudio.sh missing (aims-os-welcome)" >&2; return 1; }
-    /usr/share/aims-os/install/rstudio.sh >/dev/null 2>&1 || /usr/share/aims-os/install/rstudio.sh
+    local rs; rs=$(ls /usr/share/aims-os/install/rstudio.sh /usr/share/aims-os/install/install/rstudio.sh 2>/dev/null | head -1)
+    [ -n "$rs" ] || { echo "rstudio.sh missing (aims-os-welcome)" >&2; return 1; }
+    "$rs" >/dev/null 2>&1 || "$rs"
     dpkg -s rstudio >/dev/null 2>&1
 }
 step_sage() {
