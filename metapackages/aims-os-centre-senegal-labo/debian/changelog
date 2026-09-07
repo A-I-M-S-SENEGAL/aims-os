@@ -1,3 +1,10 @@
+aims-os-centre-senegal-labo (2.1+25) trixie; urgency=medium
+
+  * aims-labo-extras: locate the Anaconda Navigator icon with find
+    (Anaconda 2026.07 keeps it under static/images/common/).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 07 Sep 2026 21:20:00 +0000
+
 aims-os-centre-senegal-labo (2.1+24) trixie; urgency=medium
 
   * aims-labo-extras: real icons for the Anaconda Navigator and SageMath

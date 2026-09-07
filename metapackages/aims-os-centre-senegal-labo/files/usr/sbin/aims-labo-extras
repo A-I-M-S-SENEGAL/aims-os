@@ -211,7 +211,7 @@ step_anaconda() {
     rm -rf /opt/anaconda3 && bash /tmp/anaconda.sh -b -p /opt/anaconda3 >/dev/null && rm -f /tmp/anaconda.sh
     echo "$name" > /opt/anaconda3/.installed
     chmod -R a+rX /opt/anaconda3
-    local ic; ic=$(ls /opt/anaconda3/lib/python3*/site-packages/anaconda_navigator/static/images/anaconda-icon-256x256.png 2>/dev/null | head -1)  # a .desktop file does not expand globs
+    local ic; ic=$(find /opt/anaconda3/lib/python3.*/site-packages/anaconda_navigator/static/images -name "anaconda-icon-256x256.png" 2>/dev/null | head -1)  # 2026.07 moved it under common/
     desktop_entry anaconda-navigator "Anaconda Navigator" "/opt/anaconda3/bin/anaconda-navigator" "${ic:-anaconda-navigator}" "Anaconda Distribution (Navigator, Spyder, JupyterLab)"
     sed -i 's/^Categories=.*/Categories=Development;Science;/' /usr/share/applications/anaconda-navigator.desktop
     # `conda` reste Miniforge ; Anaconda s'active avec : source /opt/anaconda3/bin/activate
