@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+32) trixie; urgency=medium
+
+  * GNS3 icon: render the vector logo at 64, 96, 128, 256 and 512 pixels.
+    Upstream ships 16, 32 and 48 only, and the app grid was stretching the
+    48 pixel one, which is why the logo looked wrong.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 18:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+31) trixie; urgency=medium
 
   * GNS3 launcher: use the icon the GUI ships instead of a generic theme

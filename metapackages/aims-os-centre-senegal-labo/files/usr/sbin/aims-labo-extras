@@ -274,7 +274,7 @@ step_gns3() {
     # system PyQt6 instead of building it.
     log "GNS3 (pipx + dynamips and ubridge built from source)"
     apt-get -q -y install pipx python3-pyqt6 python3-pyqt6.qtsvg python3-pyqt6.qtwebsockets \
-        xterm build-essential cmake libelf-dev libpcap-dev uuid-dev git >/dev/null
+        xterm build-essential cmake libelf-dev libpcap-dev uuid-dev git imagemagick >/dev/null
     export PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin
     for pkg in gns3-server gns3-gui; do
         if [ -d "/opt/pipx/venvs/$pkg" ]; then
@@ -321,6 +321,17 @@ step_gns3() {
         src=$(ls /opt/pipx/venvs/gns3-gui/lib/python3*/site-packages/gns3/linux/icons/hicolor/$size/apps/gns3.* 2>/dev/null | head -1)
         [ -n "$src" ] && install -D -m 644 "$src" "/usr/share/icons/hicolor/$size/apps/gns3.${src##*.}"
     done
+    # Upstream ships 16, 32 and 48 pixels only, so the app grid, which draws
+    # icons much larger, was blowing up the 48 pixel one. Render the vector
+    # file at the sizes GNOME actually uses.
+    if command -v magick >/dev/null 2>&1 && [ -f /usr/share/icons/hicolor/scalable/apps/gns3.svg ]; then
+        for s in 64 96 128 256 512; do
+            magick -background none /usr/share/icons/hicolor/scalable/apps/gns3.svg \
+                -resize ${s}x${s} "/tmp/gns3-$s.png" 2>/dev/null \
+                && install -D -m 644 "/tmp/gns3-$s.png" "/usr/share/icons/hicolor/${s}x${s}/apps/gns3.png"
+            rm -f "/tmp/gns3-$s.png"
+        done
+    fi
     gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
     desktop_entry gns3 "GNS3" "/usr/local/bin/gns3" "gns3" "GNS3 (simulation réseau)"
     sed -i 's/^Categories=.*/Categories=Education;Network;/' /usr/share/applications/gns3.desktop
