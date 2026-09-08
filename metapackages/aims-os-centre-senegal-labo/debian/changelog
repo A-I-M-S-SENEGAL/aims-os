@@ -1,3 +1,10 @@
+aims-os-centre-senegal-labo (2.1+40) trixie; urgency=medium
+
+  * acrobat step: the update service lives under ControlSet001 in Wine, not
+    CurrentControlSet; disable it there and rename armsvc.exe as well.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 22:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+39) trixie; urgency=medium
 
   * acrobat step: disable RdrCEF, the embedded Chromium that crashed under
