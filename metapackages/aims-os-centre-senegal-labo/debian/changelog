@@ -1,3 +1,19 @@
+aims-os-centre-senegal-labo (2.1+29) trixie; urgency=medium
+
+  * aims-labo-extras: three new steps, all validated by Hakim on
+    8 September 2026.
+    - climat: cdo, nco, ncview, netcdf-bin, hdf5-tools, grads, MetPy,
+      eccodes, cfgrib, xarray, cartopy.
+    - reseau: FRR, Mininet, Open vSwitch, iperf3, mtr, tcpdump, VPCS,
+      traceroute, nmap.
+    - gns3: GNS3 has no Debian package, so the server and the GUI come from
+      pipx with the system PyQt6, and its two helpers, ubridge and dynamips,
+      are built from source. ubridge gets network capabilities rather than
+      setuid root.
+  * The weekly update timer refreshes the three.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 16:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+28) trixie; urgency=medium
 
   * SSH: MaxAuthTries back to the OpenSSH default of 6. Each key a client

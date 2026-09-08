@@ -9,7 +9,8 @@
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
 #                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda
-#                               nodejs dbeaver runtimes gnuplot packettracer vmimages
+#                               nodejs dbeaver runtimes gnuplot climat reseau gns3
+#                               packettracer vmimages
 # =============================================================================
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || { echo "root required" >&2; exit 1; }
@@ -244,6 +245,70 @@ step_packettracer() {
     /usr/lib/aims-os/packettracer-fix
     dpkg -s packettracer >/dev/null 2>&1
 }
+step_climat() {
+    # Climate science teaching set, all from Debian 13: NetCDF and GRIB
+    # readers, the two command line toolboxes every course uses, and the
+    # Python side (MetPy, cfgrib, eccodes, xarray, cartopy).
+    log "Climate tools (cdo, nco, ncview, NetCDF, GRIB, MetPy)"
+    apt-get -q -y install cdo nco ncview netcdf-bin hdf5-tools grads \
+        python3-metpy python3-eccodes python3-cfgrib python3-xarray \
+        python3-cartopy python3-netcdf4 >/dev/null
+    command -v cdo >/dev/null && command -v ncview >/dev/null
+}
+
+step_reseau() {
+    # Network teaching set from Debian 13. GNS3 itself is not packaged, see
+    # step_gns3.
+    log "Network tools (FRR, Mininet, Open vSwitch, iperf3, mtr, VPCS)"
+    apt-get -q -y install frr frr-pythontools mininet openvswitch-switch \
+        iperf3 mtr tcpdump vpcs traceroute nmap >/dev/null
+    # FRR ships disabled; a classroom router is started by hand during the
+    # lab, so only make sure the daemons file exists.
+    command -v vtysh >/dev/null && command -v mn >/dev/null
+}
+
+step_gns3() {
+    # GNS3 has no Debian package. Upstream ships Python wheels, and the two
+    # helpers it needs, dynamips and ubridge, are not in Debian 13 either, so
+    # they are built here. --system-site-packages lets the GUI find the
+    # system PyQt6 instead of building it.
+    log "GNS3 (pipx + dynamips and ubridge built from source)"
+    apt-get -q -y install pipx python3-pyqt6 python3-pyqt6.qtsvg python3-pyqt6.qtwebsockets \
+        xterm build-essential cmake libelf-dev libpcap-dev uuid-dev git >/dev/null
+    export PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin
+    for pkg in gns3-server gns3-gui; do
+        if [ -d "/opt/pipx/venvs/$pkg" ]; then
+            pipx upgrade "$pkg" >/dev/null 2>&1 || true
+        else
+            pipx install --system-site-packages "$pkg" >/dev/null || return 1
+        fi
+    done
+    # ubridge: bridges a virtual machine interface to a capture interface.
+    if ! command -v ubridge >/dev/null; then
+        local d; d=$(mktemp -d)
+        git clone -q --depth 1 https://github.com/GNS3/ubridge.git "$d/ubridge" \
+            && make -s -C "$d/ubridge" >/dev/null 2>&1 \
+            && install -m 0755 "$d/ubridge/ubridge" /usr/local/bin/ubridge
+        rm -rf "$d"
+    fi
+    # Capabilities rather than setuid root, and no password to type.
+    [ -x /usr/local/bin/ubridge ] && setcap cap_net_admin,cap_net_raw=ep /usr/local/bin/ubridge 2>/dev/null || true
+    # dynamips: emulates the Cisco routers GNS3 drives.
+    if ! command -v dynamips >/dev/null; then
+        local d; d=$(mktemp -d)
+        if git clone -q --depth 1 https://github.com/GNS3/dynamips.git "$d/dynamips"; then
+            ( cd "$d/dynamips" && mkdir -p build && cd build \
+              && cmake -DCMAKE_BUILD_TYPE=Release .. >/dev/null 2>&1 \
+              && make -s -j"$(nproc)" >/dev/null 2>&1 && make install >/dev/null 2>&1 )
+        fi
+        rm -rf "$d"
+    fi
+    ldconfig 2>/dev/null || true
+    desktop_entry gns3 "GNS3" "/usr/local/bin/gns3" "network-workgroup" "GNS3 (simulation réseau)"
+    sed -i 's/^Categories=.*/Categories=Education;Network;/' /usr/share/applications/gns3.desktop
+    command -v gns3 >/dev/null && command -v gns3server >/dev/null
+}
+
 step_vmimages() {
     # Base images for aims-vm: the Cisco Cybersecurity LabVM (converted from
     # Cisco's OVA by IT, served from the campus server) and a Debian 13
@@ -267,7 +332,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot packettracer vmimages)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot climat reseau gns3 packettracer vmimages)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi
