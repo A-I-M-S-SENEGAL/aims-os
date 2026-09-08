@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+33) trixie; urgency=medium
+
+  * aims-labo-ensure: put a home directory back to 0700 when it has been
+    opened wider. Students hold sudo, and a chmod 777 on a home exposes that
+    person's files to the whole class. Staff read a student's files with
+    sudo, which needs no permission change and leaves a line in the central
+    log.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 18:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+32) trixie; urgency=medium
 
   * GNS3 icon: render the vector logo at 64, 96, 128, 256 and 512 pixels.

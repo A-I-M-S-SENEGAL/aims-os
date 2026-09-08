@@ -40,6 +40,18 @@ if [ -s /etc/aims-os/grub-password.pbkdf2 ]; then
 else
     fixed+=("grub-password-ABSENT")
 fi
+# 3b. Dossiers personnels : 0700. Les étudiants ont sudo, un « chmod 777 »
+# sur un dossier personnel ouvrirait les fichiers de la personne à toute la
+# promotion. Pour lire les fichiers d'un étudiant, l'équipe IT passe par sudo,
+# qui lit sans changer les droits et laisse une trace dans le journal central.
+for home in /home/*; do
+    [ -d "$home" ] || continue
+    perms=$(stat -c %a "$home" 2>/dev/null) || continue
+    case "$perms" in
+        700|750) ;;
+        *) chmod 0700 "$home" 2>/dev/null && fixed+=("droits-$(basename "$home")") ;;
+    esac
+done
 # 4b. Packet Tracer : lanceur non interactif (sinon boucle de licence, voir
 # /usr/lib/aims-os/packettracer-fix)
 if [ -x /opt/pt/packettracer.AppImage ]; then
