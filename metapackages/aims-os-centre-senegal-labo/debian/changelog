@@ -1,3 +1,10 @@
+aims-os-centre-senegal-labo (2.1+31) trixie; urgency=medium
+
+  * GNS3 launcher: use the icon the GUI ships instead of a generic theme
+    icon, copied out of the virtual environment into the system icon set.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 17:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+30) trixie; urgency=medium
 
   * apt: six retries and a 40 second timeout. The campus link drops one

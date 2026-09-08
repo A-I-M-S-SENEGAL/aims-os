@@ -314,7 +314,15 @@ step_gns3() {
         rm -rf "$d"
     fi
     ldconfig 2>/dev/null || true
-    desktop_entry gns3 "GNS3" "/usr/local/bin/gns3" "network-workgroup" "GNS3 (simulation réseau)"
+    # The GUI ships its own icon set inside the venv; copy it where the
+    # desktop can find it (a venv path would break on the next upgrade).
+    local src
+    for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256 scalable; do
+        src=$(ls /opt/pipx/venvs/gns3-gui/lib/python3*/site-packages/gns3/linux/icons/hicolor/$size/apps/gns3.* 2>/dev/null | head -1)
+        [ -n "$src" ] && install -D -m 644 "$src" "/usr/share/icons/hicolor/$size/apps/gns3.${src##*.}"
+    done
+    gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
+    desktop_entry gns3 "GNS3" "/usr/local/bin/gns3" "gns3" "GNS3 (simulation réseau)"
     sed -i 's/^Categories=.*/Categories=Education;Network;/' /usr/share/applications/gns3.desktop
     command -v gns3 >/dev/null && command -v gns3server >/dev/null
 }
