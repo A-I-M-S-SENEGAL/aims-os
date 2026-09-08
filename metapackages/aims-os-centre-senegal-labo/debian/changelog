@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+30) trixie; urgency=medium
+
+  * apt: six retries and a 40 second timeout. The campus link drops one
+    connection in six and the cache then answers 503, which used to stop an
+    install on its first missed file.
+  * aims-labo-extras: retry a git clone up to four times, for the same
+    reason (the dynamips clone timed out on the first try).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 17:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+29) trixie; urgency=medium
 
   * aims-labo-extras: three new steps, all validated by Hakim on

@@ -1,0 +1,6 @@
+// Le lien du campus perd une connexion sur six, et le cache apt du serveur
+// répond alors 503. Sans ces réglages, une installation de plusieurs
+// centaines de paquets s'arrête sur le premier fichier manqué.
+Acquire::Retries "6";
+Acquire::http::Timeout "40";
+Acquire::https::Timeout "40";

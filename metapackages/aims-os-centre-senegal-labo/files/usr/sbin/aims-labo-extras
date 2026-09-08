@@ -283,10 +283,20 @@ step_gns3() {
             pipx install --system-site-packages "$pkg" >/dev/null || return 1
         fi
     done
+    # The campus link drops one connection in six, and a git clone does not
+    # retry on its own.
+    clone_retry() { # url dest
+        local i
+        for i in 1 2 3 4; do
+            git clone -q --depth 1 "$1" "$2" && return 0
+            rm -rf "$2"; sleep 10
+        done
+        echo "clone failed: $1" >&2; return 1
+    }
     # ubridge: bridges a virtual machine interface to a capture interface.
     if ! command -v ubridge >/dev/null; then
         local d; d=$(mktemp -d)
-        git clone -q --depth 1 https://github.com/GNS3/ubridge.git "$d/ubridge" \
+        clone_retry https://github.com/GNS3/ubridge.git "$d/ubridge" \
             && make -s -C "$d/ubridge" >/dev/null 2>&1 \
             && install -m 0755 "$d/ubridge/ubridge" /usr/local/bin/ubridge
         rm -rf "$d"
@@ -296,7 +306,7 @@ step_gns3() {
     # dynamips: emulates the Cisco routers GNS3 drives.
     if ! command -v dynamips >/dev/null; then
         local d; d=$(mktemp -d)
-        if git clone -q --depth 1 https://github.com/GNS3/dynamips.git "$d/dynamips"; then
+        if clone_retry https://github.com/GNS3/dynamips.git "$d/dynamips"; then
             ( cd "$d/dynamips" && mkdir -p build && cd build \
               && cmake -DCMAKE_BUILD_TYPE=Release .. >/dev/null 2>&1 \
               && make -s -j"$(nproc)" >/dev/null 2>&1 && make install >/dev/null 2>&1 )
