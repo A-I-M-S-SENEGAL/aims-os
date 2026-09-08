@@ -411,7 +411,7 @@ step_acrobat() {
     curl -fL -o /tmp/AcroRdrDC.exe "$url"
     # /sAll silent, /rs no reboot, EULA accepted on behalf of the institution
     wine /tmp/AcroRdrDC.exe /sAll /rs /msi EULA_ACCEPT=YES >/dev/null 2>&1 || true
-    wineserver -w 2>/dev/null || true; rm -f /tmp/AcroRdrDC.exe
+    timeout 120 wineserver -w 2>/dev/null || wineserver -k 2>/dev/null || true; rm -f /tmp/AcroRdrDC.exe
     [ -f "/opt/acrobat/prefix/drive_c/Program Files/Adobe/Acrobat Reader DC/Reader/AcroRd32.exe" ] \
         || { echo "acrobat: AcroRd32.exe missing after install" >&2; return 1; }
     # no updater (it cannot work here) and no protected mode (breaks under Wine)
@@ -442,7 +442,7 @@ R
     # without it; the four RdrCEF processes and the crash go away.
     local cef="/opt/acrobat/prefix/drive_c/Program Files/Adobe/Acrobat Reader DC/Reader/AcroCEF/RdrCEF.exe"
     [ -f "$cef" ] && mv "$cef" "$cef.disabled"
-    wine regedit /S /tmp/acro.reg >/dev/null 2>&1; wineserver -w 2>/dev/null || true; rm -f /tmp/acro.reg
+    wine regedit /S /tmp/acro.reg >/dev/null 2>&1; timeout 120 wineserver -w 2>/dev/null || wineserver -k 2>/dev/null || true; rm -f /tmp/acro.reg
     # icon from the executable, for the launcher
     local ico; ico=$(mktemp -d)
     wrestool -x -t 14 -o "$ico" "/opt/acrobat/prefix/drive_c/Program Files/Adobe/Acrobat Reader DC/Reader/AcroRd32.exe" 2>/dev/null || true
