@@ -9,7 +9,7 @@
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
 #                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda
-#                               nodejs dbeaver runtimes gnuplot climat reseau gns3
+#                               nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf
 #                               packettracer vmimages
 # =============================================================================
 set -euo pipefail
@@ -338,6 +338,35 @@ step_gns3() {
     command -v gns3 >/dev/null && command -v gns3server >/dev/null
 }
 
+step_pdf() {
+    # PDF work beyond plain reading: forms, annotations, signatures, merging,
+    # OCR of scanned documents. All from Debian 13.
+    # Government forms (visa applications, tax forms) are often XFA PDFs,
+    # which Evince and Okular cannot render; Firefox's built-in viewer can,
+    # its XFA engine was written for exactly those forms. Firefox does not
+    # declare application/pdf on Debian, so the launcher below makes it
+    # appear in "Open with".
+    log "PDF tools (Okular, Xournal++, PDF Arranger, OCRmyPDF) and a Firefox forms launcher"
+    apt-get -q -y install okular xournalpp pdfarranger ocrmypdf \
+        tesseract-ocr-fra tesseract-ocr-eng qpdf pdfsam >/dev/null
+    cat > /usr/share/applications/aims-pdf-formulaire.desktop <<'D'
+[Desktop Entry]
+Type=Application
+Name=Formulaire PDF (Firefox)
+Name[en]=PDF form (Firefox)
+Comment=Ouvre un formulaire administratif (visa, impôts) dans Firefox, qui gère les formulaires XFA
+Comment[en]=Open a government form (visa, tax) in Firefox, which handles XFA forms
+Exec=firefox-esr --new-window %f
+Icon=firefox-esr
+Terminal=false
+MimeType=application/pdf;
+Categories=Office;Viewer;
+NoDisplay=false
+D
+    update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+    command -v okular >/dev/null && command -v xournalpp >/dev/null && command -v ocrmypdf >/dev/null
+}
+
 step_vmimages() {
     # Base images for aims-vm: the Cisco Cybersecurity LabVM (converted from
     # Cisco's OVA by IT, served from the campus server) and a Debian 13
@@ -361,7 +390,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot climat reseau gns3 packettracer vmimages)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf packettracer vmimages)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi

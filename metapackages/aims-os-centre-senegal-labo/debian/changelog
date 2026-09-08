@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+34) trixie; urgency=medium
+
+  * New pdf step: Okular, Xournal++, PDF Arranger, OCRmyPDF with French and
+    English OCR data, qpdf, PDFsam, and a "Formulaire PDF (Firefox)" entry in
+    "Open with", because government forms (visa, tax) are XFA PDFs that only
+    Firefox's viewer renders on Linux. Asked by Hakim on 8 September 2026.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 19:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+33) trixie; urgency=medium
 
   * aims-labo-ensure: put a home directory back to 0700 when it has been
