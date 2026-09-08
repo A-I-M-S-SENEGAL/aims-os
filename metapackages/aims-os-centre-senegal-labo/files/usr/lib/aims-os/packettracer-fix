@@ -1,0 +1,36 @@
+#!/bin/bash
+# Cisco Packet Tracer ships as an AppImage that asks the student to accept the
+# Cisco licence in a terminal on first start. Launched from the GNOME app grid
+# it has no terminal, the read fails at once and the script asks again in a
+# loop: on 8 September 2026 that loop wrote 930 000 lines into the journal in
+# three minutes and the machine became unusable, so no application would open.
+# AIMS accepted the licence when the package was deployed (debconf), so start
+# the AppImage with DEBIAN_FRONTEND=noninteractive. Packet Tracer then records
+# the acceptance itself, in the student's home, and never prompts.
+# The AppImage also installs its icon only in the home of the first account
+# that ran it, hence the icon copy below.
+set -u
+aim=/opt/pt/packettracer.AppImage
+[ -x "$aim" ] || exit 0
+changed=0
+for d in /usr/share/applications/CiscoPacketTracer*.desktop; do
+    [ -f "$d" ] || continue
+    grep -q '^Exec=env DEBIAN_FRONTEND=noninteractive' "$d" && continue
+    sed -i -E 's#^Exec=(/opt/pt/packettracer\.AppImage)#Exec=env DEBIAN_FRONTEND=noninteractive \1#' "$d" && changed=1
+done
+icon=$(grep -h -m1 '^Icon=' /usr/share/applications/CiscoPacketTracer-*.desktop 2>/dev/null | cut -d= -f2)
+dest="/usr/share/icons/hicolor/48x48/apps/${icon}.png"
+if [ -n "$icon" ] && [ ! -f "$dest" ]; then
+    tmp=$(mktemp -d)
+    ( cd "$tmp" && "$aim" --appimage-extract "opt/pt/art/app.png" ) >/dev/null 2>&1
+    if [ -s "$tmp/squashfs-root/opt/pt/art/app.png" ]; then
+        install -D -m 644 "$tmp/squashfs-root/opt/pt/art/app.png" "$dest"
+        changed=1
+    fi
+    rm -rf "$tmp"
+fi
+if [ "$changed" = 1 ]; then
+    update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+    gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
+fi
+exit 0

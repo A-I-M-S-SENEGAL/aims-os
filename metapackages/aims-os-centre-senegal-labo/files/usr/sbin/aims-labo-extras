@@ -234,11 +234,14 @@ step_packettracer() {
     name=$(curl -fsSL "$base/" | grep -oE 'CiscoPacketTracer_[0-9]+_Ubuntu_64bit\.deb' | sort -u | tail -1)
     [ -n "$name" ] || { echo "packet tracer: no .deb on $base/ (upload it there first)" >&2; return 1; }
     local ver; ver=$(echo "$name" | grep -oE '_[0-9]+_' | tr -d _)
-    if dpkg -s packettracer >/dev/null 2>&1 && dpkg-query -W -f='${Version}' packettracer | tr -d . | grep -q "^${ver}"; then return 0; fi
+    if dpkg -s packettracer >/dev/null 2>&1 && dpkg-query -W -f='${Version}' packettracer | tr -d . | grep -q "^${ver}"; then
+        /usr/lib/aims-os/packettracer-fix; return 0
+    fi
     curl -fsSL -o /tmp/packettracer.deb "$base/$name"
     echo "packettracer packettracer/eula boolean true" | debconf-set-selections 2>/dev/null || true
     echo "packettracer packettracer/show-eula boolean false" | debconf-set-selections 2>/dev/null || true
     apt-get -q -y install /tmp/packettracer.deb 2>&1 | grep -E "^(E:|Setting up packettracer)"; rm -f /tmp/packettracer.deb
+    /usr/lib/aims-os/packettracer-fix
     dpkg -s packettracer >/dev/null 2>&1
 }
 step_vmimages() {

@@ -1,3 +1,16 @@
+aims-os-centre-senegal-labo (2.1+26) trixie; urgency=medium
+
+  * New /usr/lib/aims-os/packettracer-fix: start the Packet Tracer AppImage
+    with DEBIAN_FRONTEND=noninteractive and install its icon system wide.
+    Started from the app grid, Packet Tracer asked for the licence on a
+    terminal it did not have and looped, writing 930 000 journal lines in
+    three minutes; the machine then opened no application at all.
+  * Call it from the packettracer step and from aims-labo-ensure.
+  * journald: cap the journal at 1 GB and rate limit each unit, so one
+    runaway program can no longer fill the disk or the processor.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 13:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+25) trixie; urgency=medium
 
   * aims-labo-extras: locate the Anaconda Navigator icon with find

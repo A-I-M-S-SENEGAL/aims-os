@@ -38,6 +38,13 @@ if [ -s /etc/aims-os/grub-password.pbkdf2 ]; then
 else
     fixed+=("grub-password-ABSENT")
 fi
+# 4b. Packet Tracer : lanceur non interactif (sinon boucle de licence, voir
+# /usr/lib/aims-os/packettracer-fix)
+if [ -x /opt/pt/packettracer.AppImage ]; then
+    grep -q '^Exec=env DEBIAN_FRONTEND=noninteractive' /usr/share/applications/CiscoPacketTracer-*.desktop 2>/dev/null || {
+        /usr/lib/aims-os/packettracer-fix; fixed+=("packettracer-lanceur")
+    }
+fi
 # 5. Bilan
 last_sudo="$(journalctl _COMM=sudo --since -1h --no-pager -o cat 2>/dev/null | grep -E "COMMAND=" | tail -1 | sed -E 's/^ *//' | cut -c1-200)"
 if [ ${#fixed[@]} -gt 0 ]; then
