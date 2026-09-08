@@ -1,3 +1,14 @@
+aims-os-centre-senegal-labo (2.1+38) trixie; urgency=medium
+
+  * sshd: a Match block at the end of the main file keeps the local aimsit
+    account key-only, whatever password a student with sudo may set on it
+    locally. Appended by postinst and checked hourly by aims-labo-ensure.
+    Directory passwords (admin, IT staff) cannot be changed from a machine
+    at all, verified: passwd as root answers "Password reset by root is not
+    supported".
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 21:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+37) trixie; urgency=medium
 
   * polkit: the IT group (admins) and the students (etudiants, who hold sudo

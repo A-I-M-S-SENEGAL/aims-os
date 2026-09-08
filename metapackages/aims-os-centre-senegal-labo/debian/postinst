@@ -111,6 +111,13 @@ case "$1" in
             deb-systemd-invoke restart rsyslog.service >/dev/null 2>&1 || true
         fi
 
+        # aimsit never authenticates with a password, even if a student with
+        # sudo sets one locally. A Match block must end the main file: inside
+        # a drop-in it would swallow the rest of sshd_config.
+        if ! grep -q "^Match User aimsit" /etc/ssh/sshd_config; then
+            printf '\n# aims-os-centre-senegal-labo : le compte IT local entre par clé seulement\nMatch User aimsit\n    PasswordAuthentication no\n    KbdInteractiveAuthentication no\n' >> /etc/ssh/sshd_config
+        fi
+
         # Apply the sshd drop-in on a running system. deb-systemd-invoke
         # honours policy-rc.d, so this is a no-op inside a build chroot.
         if [ -d /run/systemd/system ]; then

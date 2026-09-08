@@ -16,6 +16,14 @@ fi
 # 2. Services
 systemctl is-enabled ssh >/dev/null 2>&1 || { systemctl enable ssh >/dev/null 2>&1; fixed+=("ssh-enable"); }
 systemctl is-active ssh >/dev/null 2>&1 || { systemctl start ssh >/dev/null 2>&1; fixed+=("ssh-start"); }
+# aimsit : clé uniquement, même si un étudiant (sudo) lui pose un mot de
+# passe local. Un bloc Match doit clore le fichier principal : dans un
+# drop-in il avalerait la suite de sshd_config.
+if ! grep -q "^Match User aimsit" /etc/ssh/sshd_config; then
+    printf '\n# aims-os-centre-senegal-labo : le compte IT local entre par clé seulement\nMatch User aimsit\n    PasswordAuthentication no\n    KbdInteractiveAuthentication no\n' >> /etc/ssh/sshd_config
+    sshd -t 2>/dev/null && systemctl reload ssh >/dev/null 2>&1
+    fixed+=("sshd-match-aimsit")
+fi
 sshd -t 2>/dev/null || fixed+=("sshd-config-INVALIDE")
 ufw status 2>/dev/null | grep -q "Status: active" || { ufw --force enable >/dev/null 2>&1; fixed+=("ufw-enable"); }
 ufw status 2>/dev/null | grep -q "192.168.10.0/24" || { ufw limit from 192.168.10.0/24 to any port 22 proto tcp >/dev/null 2>&1; fixed+=("ufw-ssh-rule"); }
