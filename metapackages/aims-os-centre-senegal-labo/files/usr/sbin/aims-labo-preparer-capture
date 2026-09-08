@@ -5,6 +5,12 @@
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || { echo "sudo requis" >&2; exit 1; }
 read -r -p "Préparer ce poste pour la capture et l'ETEINDRE ? (oui/non) " ok; [ "$ok" = "oui" ] || exit 1
+# initramfs générique : une image clonée doit démarrer sur un autre matériel
+# (MODULES=dep ne garde que les pilotes du poste modèle).
+if ! grep -q "^MODULES=most" /etc/initramfs-tools/initramfs.conf; then
+    sed -i 's/^MODULES=.*/MODULES=most/' /etc/initramfs-tools/initramfs.conf
+    echo "initramfs générique (MODULES=most)…"; update-initramfs -u -k all >/dev/null 2>&1 || true
+fi
 [ -f /etc/ipa/default.conf ] && ipa-client-install --uninstall -U >/dev/null 2>&1 || true
 for u in $(ls /home 2>/dev/null); do case "$u" in aims|aimsit) ;; *) userdel -r "$u" >/dev/null 2>&1 || rm -rf "/home/$u" ;; esac; done
 rm -rf /var/lib/sss/db/* /var/lib/sss/mc/* 2>/dev/null || true

@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+41) trixie; urgency=medium
+
+  * aims-labo-preparer-capture: switch the initramfs to MODULES=most before
+    capture, so the image boots on other hardware (the golden machine was
+    on MODULES=dep).
+  * aims-labo-ensure: regenerate the SSH host keys when missing, which is
+    the state of a freshly cloned machine; sshd refused to start without.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 23:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+40) trixie; urgency=medium
 
   * acrobat step: the update service lives under ControlSet001 in Wine, not
