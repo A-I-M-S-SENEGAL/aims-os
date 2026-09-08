@@ -381,8 +381,22 @@ step_acrobat() {
     if [ -f /opt/acrobat/prefix/.aims-version ] && [ "$(cat /opt/acrobat/prefix/.aims-version)" = "$ver" ]; then
         return 0
     fi
-    dpkg --print-foreign-architectures | grep -q i386 || { dpkg --add-architecture i386; apt-get -q update >/dev/null; }
-    apt-get -q -y install wine wine32:i386 wine64 fonts-wine cabextract icoutils >/dev/null
+    if ! dpkg --print-foreign-architectures | grep -q i386; then
+        dpkg --add-architecture i386
+        # Vendor repositories that publish amd64 only would now warn about a
+        # missing i386 index on every apt update: pin them to amd64.
+        for f in /etc/apt/sources.list.d/*.list; do
+            [ -f "$f" ] || continue
+            grep -q "arch=" "$f" || sed -i -E 's/^deb (\[)?/deb [arch=amd64 /; s/\[arch=amd64 \[/[arch=amd64 /' "$f"
+        done
+        for f in /etc/apt/sources.list.d/*.sources; do
+            [ -f "$f" ] || continue
+            grep -qi "^Architectures:" "$f" || sed -i '/^URIs:/i Architectures: amd64' "$f"
+        done
+        apt-get -q update >/dev/null
+    fi
+    apt-get -q -y install wine wine32:i386 wine64 fonts-wine cabextract icoutils imagemagick >/dev/null
+    command -v wineserver >/dev/null || { echo "acrobat: wine incomplet (installation apt échouée ?)" >&2; return 1; }
     if [ ! -x /usr/local/bin/winetricks ]; then
         # winetricks sits in Debian contrib, which the lab does not enable
         curl -fsSL -o /usr/local/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
@@ -397,7 +411,7 @@ step_acrobat() {
     curl -fL -o /tmp/AcroRdrDC.exe "$url"
     # /sAll silent, /rs no reboot, EULA accepted on behalf of the institution
     wine /tmp/AcroRdrDC.exe /sAll /rs /msi EULA_ACCEPT=YES >/dev/null 2>&1 || true
-    wineserver -w; rm -f /tmp/AcroRdrDC.exe
+    wineserver -w 2>/dev/null || true; rm -f /tmp/AcroRdrDC.exe
     [ -f "/opt/acrobat/prefix/drive_c/Program Files/Adobe/Acrobat Reader DC/Reader/AcroRd32.exe" ] \
         || { echo "acrobat: AcroRd32.exe missing after install" >&2; return 1; }
     # no updater (it cannot work here) and no protected mode (breaks under Wine)
@@ -416,7 +430,7 @@ REGEDIT4
 [HKEY_CURRENT_USER\Software\Adobe\Acrobat Reader\DC\AVGeneral]
 "bDisplayAboutDialog"=dword:00000000
 R
-    wine regedit /S /tmp/acro.reg >/dev/null 2>&1; wineserver -w; rm -f /tmp/acro.reg
+    wine regedit /S /tmp/acro.reg >/dev/null 2>&1; wineserver -w 2>/dev/null || true; rm -f /tmp/acro.reg
     # icon from the executable, for the launcher
     local ico; ico=$(mktemp -d)
     wrestool -x -t 14 -o "$ico" "/opt/acrobat/prefix/drive_c/Program Files/Adobe/Acrobat Reader DC/Reader/AcroRd32.exe" 2>/dev/null || true

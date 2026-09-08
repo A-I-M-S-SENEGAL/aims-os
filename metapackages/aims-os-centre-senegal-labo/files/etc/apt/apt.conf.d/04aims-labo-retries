@@ -4,3 +4,7 @@
 Acquire::Retries "6";
 Acquire::http::Timeout "40";
 Acquire::https::Timeout "40";
+
+// Un étudiant peut lancer apt au même moment que la réparation horaire ou
+// l'installateur : attendre le verrou plutôt que d'échouer.
+DPkg::Lock::Timeout "300";

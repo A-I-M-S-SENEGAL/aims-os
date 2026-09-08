@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+36) trixie; urgency=medium
+
+  * apt: wait up to five minutes for the dpkg lock instead of failing. A
+    student running apt at the same time made the Acrobat step fail halfway.
+  * acrobat step: stop if wine is incomplete rather than carry on, and pin
+    the vendor repositories to amd64 when the i386 architecture is added, so
+    apt update stops warning about missing i386 indexes.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 20:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+35) trixie; urgency=medium
 
   * New acrobat step and /usr/bin/aims-acrobat: Adobe Acrobat Reader DC
