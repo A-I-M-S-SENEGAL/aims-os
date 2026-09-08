@@ -1,3 +1,17 @@
+aims-os-centre-senegal-labo (2.1+27) trixie; urgency=medium
+
+  * SSH: accept passwords as well as the IT key, for the IT team only.
+    Logins are gated on AllowGroups: the local aimsit account through the
+    new system group aims-ssh, the IT staff through the directory group
+    admins, which HBAC rule admins-partout already allows. Three attempts
+    per connection, 30 second grace, and the firewall rule becomes
+    "ufw limit" so repeated attempts from one address are dropped.
+  * packettracer-fix: write the licence acceptance in /etc/skel, copied by
+    pam_mkhomedir into every new home, and in the homes that already exist,
+    so no account ever meets the prompt.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 14:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+26) trixie; urgency=medium
 
   * New /usr/lib/aims-os/packettracer-fix: start the Packet Tracer AppImage

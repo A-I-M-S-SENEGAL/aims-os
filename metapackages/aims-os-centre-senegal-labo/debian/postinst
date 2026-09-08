@@ -11,6 +11,12 @@ case "$1" in
                 --shell /bin/bash aimsit
         fi
 
+        # The sshd drop-in gates logins on AllowGroups: the local IT account
+        # belongs to aims-ssh, the IT staff to the directory group admins.
+        getent group aims-ssh >/dev/null || addgroup --quiet --system aims-ssh
+        id -nG aimsit 2>/dev/null | grep -qw aims-ssh || \
+            adduser --quiet aimsit aims-ssh
+
         # Keep it out of the GDM login list: it has no password anyway.
         mkdir -p -m 0700 /var/lib/AccountsService/users
         if [ ! -f /var/lib/AccountsService/users/aimsit ]; then
@@ -21,8 +27,10 @@ case "$1" in
         # aims-os-core enables UFW with deny-in (hook 0030-ufw-defaults),
         # so sshd is unreachable until a rule opens it. Campus LAN only:
         # off site the IT team hops through server 2 anyway.
+        # limit, not allow: passwords are accepted for the IT group since
+        # 8 September 2026, so repeated attempts from one address are dropped.
         if command -v ufw >/dev/null 2>&1; then
-            ufw allow from 192.168.10.0/24 to any port 22 proto tcp \
+            ufw limit from 192.168.10.0/24 to any port 22 proto tcp \
                 comment "AIMS IT SSH (aims-os-centre-senegal-labo)" \
                 >/dev/null 2>&1 || true
         fi

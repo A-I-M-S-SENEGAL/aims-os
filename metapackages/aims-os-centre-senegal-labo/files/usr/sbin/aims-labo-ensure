@@ -18,7 +18,7 @@ systemctl is-enabled ssh >/dev/null 2>&1 || { systemctl enable ssh >/dev/null 2>
 systemctl is-active ssh >/dev/null 2>&1 || { systemctl start ssh >/dev/null 2>&1; fixed+=("ssh-start"); }
 sshd -t 2>/dev/null || fixed+=("sshd-config-INVALIDE")
 ufw status 2>/dev/null | grep -q "Status: active" || { ufw --force enable >/dev/null 2>&1; fixed+=("ufw-enable"); }
-ufw status 2>/dev/null | grep -q "192.168.10.0/24" || { ufw allow from 192.168.10.0/24 to any port 22 proto tcp >/dev/null 2>&1; fixed+=("ufw-ssh-rule"); }
+ufw status 2>/dev/null | grep -q "192.168.10.0/24" || { ufw limit from 192.168.10.0/24 to any port 22 proto tcp >/dev/null 2>&1; fixed+=("ufw-ssh-rule"); }
 for t in sleep.target suspend.target hibernate.target hybrid-sleep.target; do
     [ "$(systemctl is-enabled $t 2>/dev/null)" = "masked" ] || { ln -sf /dev/null /etc/systemd/system/$t; fixed+=("mask-$t"); }
 done
@@ -27,6 +27,8 @@ systemctl is-active rsyslog >/dev/null 2>&1 || { systemctl enable --now rsyslog 
 systemctl is-active sssd >/dev/null 2>&1 || { systemctl enable --now sssd >/dev/null 2>&1; fixed+=("sssd"); }
 # 3. Comptes
 getent passwd aimsit >/dev/null || { adduser --quiet --disabled-password --gecos "AIMS IT" --shell /bin/bash aimsit; fixed+=("aimsit-recree"); }
+getent group aims-ssh >/dev/null || { addgroup --quiet --system aims-ssh; fixed+=("groupe-aims-ssh"); }
+id -nG aimsit 2>/dev/null | grep -qw aims-ssh || { adduser --quiet aimsit aims-ssh >/dev/null 2>&1; fixed+=("aimsit-aims-ssh"); }
 [ "$(passwd -S aimsit 2>/dev/null | awk '{print $2}')" = "L" ] || { passwd -l aimsit >/dev/null 2>&1; fixed+=("aimsit-lock"); }
 if getent passwd aims >/dev/null; then
     [ "$(passwd -S aims | awk '{print $2}')" = "L" ] || { passwd -l aims >/dev/null 2>&1; fixed+=("aims-lock"); }
@@ -41,9 +43,11 @@ fi
 # 4b. Packet Tracer : lanceur non interactif (sinon boucle de licence, voir
 # /usr/lib/aims-os/packettracer-fix)
 if [ -x /opt/pt/packettracer.AppImage ]; then
-    grep -q '^Exec=env DEBIAN_FRONTEND=noninteractive' /usr/share/applications/CiscoPacketTracer-*.desktop 2>/dev/null || {
-        /usr/lib/aims-os/packettracer-fix; fixed+=("packettracer-lanceur")
-    }
+    pt_prod=$(grep -h -m1 '^Icon=' /usr/share/applications/CiscoPacketTracer-*.desktop 2>/dev/null | cut -d= -f2)
+    if ! grep -q '^Exec=env DEBIAN_FRONTEND=noninteractive' /usr/share/applications/CiscoPacketTracer-*.desktop 2>/dev/null \
+       || { [ -n "$pt_prod" ] && [ ! -f "/etc/skel/.local/.packettracer/eula-$pt_prod" ]; }; then
+        /usr/lib/aims-os/packettracer-fix; fixed+=("packettracer-licence")
+    fi
 fi
 # 5. Bilan
 last_sudo="$(journalctl _COMM=sudo --since -1h --no-pager -o cat 2>/dev/null | grep -E "COMMAND=" | tail -1 | sed -E 's/^ *//' | cut -c1-200)"

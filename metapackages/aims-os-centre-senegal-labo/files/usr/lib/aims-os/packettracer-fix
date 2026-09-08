@@ -4,31 +4,62 @@
 # it has no terminal, the read fails at once and the script asks again in a
 # loop: on 8 September 2026 that loop wrote 930 000 lines into the journal in
 # three minutes and the machine became unusable, so no application would open.
-# AIMS accepted the licence when the package was deployed (debconf), so start
-# the AppImage with DEBIAN_FRONTEND=noninteractive. Packet Tracer then records
-# the acceptance itself, in the student's home, and never prompts.
-# The AppImage also installs its icon only in the home of the first account
-# that ran it, hence the icon copy below.
+# AIMS accepted the licence when the package was deployed (debconf question of
+# the .deb), so this script records the acceptance for everybody:
+#   - the desktop launchers start the AppImage with DEBIAN_FRONTEND=noninteractive;
+#   - the acceptance file is written in /etc/skel, which pam_mkhomedir copies
+#     into the home of every new directory account, and in the homes that
+#     already exist;
+#   - the application icon is installed system wide, the AppImage only puts it
+#     in the home of the first account that ran it.
+# Run by the packettracer step of aims-labo-extras and, every hour, by
+# aims-labo-ensure, so a new Packet Tracer version is covered too.
 set -u
 aim=/opt/pt/packettracer.AppImage
 [ -x "$aim" ] || exit 0
 changed=0
+
 for d in /usr/share/applications/CiscoPacketTracer*.desktop; do
     [ -f "$d" ] || continue
     grep -q '^Exec=env DEBIAN_FRONTEND=noninteractive' "$d" && continue
     sed -i -E 's#^Exec=(/opt/pt/packettracer\.AppImage)#Exec=env DEBIAN_FRONTEND=noninteractive \1#' "$d" && changed=1
 done
-icon=$(grep -h -m1 '^Icon=' /usr/share/applications/CiscoPacketTracer-*.desktop 2>/dev/null | cut -d= -f2)
-dest="/usr/share/icons/hicolor/48x48/apps/${icon}.png"
-if [ -n "$icon" ] && [ ! -f "$dest" ]; then
-    tmp=$(mktemp -d)
-    ( cd "$tmp" && "$aim" --appimage-extract "opt/pt/art/app.png" ) >/dev/null 2>&1
-    if [ -s "$tmp/squashfs-root/opt/pt/art/app.png" ]; then
-        install -D -m 644 "$tmp/squashfs-root/opt/pt/art/app.png" "$dest"
+
+# Icon= holds the product name the AppImage uses for its acceptance file,
+# for instance Cisco_Packet_Tracer_9.0.1.
+prod=$(grep -h -m1 '^Icon=' /usr/share/applications/CiscoPacketTracer-*.desktop 2>/dev/null | cut -d= -f2)
+[ -n "$prod" ] || exit 0
+icon="/usr/share/icons/hicolor/48x48/apps/${prod}.png"
+eula_rel=".local/.packettracer/eula-${prod}"
+
+tmp=$(mktemp -d)
+( cd "$tmp" && "$aim" --appimage-extract "opt/pt/art/app.png" && "$aim" --appimage-extract "license.txt" ) >/dev/null 2>&1
+art="$tmp/squashfs-root/opt/pt/art/app.png"
+lic="$tmp/squashfs-root/license.txt"
+
+if [ ! -f "$icon" ] && [ -s "$art" ]; then
+    install -D -m 644 "$art" "$icon"
+    changed=1
+fi
+
+if [ -s "$lic" ]; then
+    # New accounts: pam_mkhomedir copies /etc/skel at first login.
+    if [ ! -f "/etc/skel/$eula_rel" ]; then
+        install -D -m 644 "$lic" "/etc/skel/$eula_rel"
         changed=1
     fi
-    rm -rf "$tmp"
+    # Accounts whose home already exists, local ones and directory ones.
+    for home in /home/*; do
+        [ -d "$home" ] || continue
+        user=$(stat -c %U "$home" 2>/dev/null) || continue
+        [ "$user" = UNKNOWN ] && continue
+        id "$user" >/dev/null 2>&1 || continue
+        [ -f "$home/$eula_rel" ] && continue
+        install -D -o "$user" -g "$(id -gn "$user")" -m 644 "$lic" "$home/$eula_rel" 2>/dev/null && changed=1
+    done
 fi
+rm -rf "$tmp"
+
 if [ "$changed" = 1 ]; then
     update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
     gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
