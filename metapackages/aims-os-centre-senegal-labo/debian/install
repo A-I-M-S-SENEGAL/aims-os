@@ -31,3 +31,4 @@ files/usr/bin/aims-acrobat                              usr/bin/
 files/etc/polkit-1/rules.d/49-aims-labo-admin.rules     etc/polkit-1/rules.d/
 files/usr/bin/aims-mot-de-passe                         usr/bin/
 files/usr/share/applications/aims-mot-de-passe.desktop  usr/share/applications/
+files/lib/systemd/system/ssh.service.d/aims-labo-hostkeys.conf  lib/systemd/system/ssh.service.d/

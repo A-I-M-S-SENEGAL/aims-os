@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+42) trixie; urgency=medium
+
+  * ssh.service drop-in: generate missing host keys before the config
+    check, so a freshly cloned machine accepts SSH from its first boot
+    instead of after the first hourly repair.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 23:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+41) trixie; urgency=medium
 
   * aims-labo-preparer-capture: switch the initramfs to MODULES=most before
