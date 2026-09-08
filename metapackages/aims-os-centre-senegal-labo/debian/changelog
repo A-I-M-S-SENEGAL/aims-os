@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+43) trixie; urgency=medium
+
+  * aims-labo-ensure: regenerate host keys when none is left (not only the
+    ed25519 one), create /run/sshd before sshd -t (the check failed for
+    that reason alone on the first clone boot), and log the reason when
+    the config really is invalid.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 23:50:00 +0000
+
 aims-os-centre-senegal-labo (2.1+42) trixie; urgency=medium
 
   * ssh.service drop-in: generate missing host keys before the config

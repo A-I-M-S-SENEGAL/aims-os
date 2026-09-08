@@ -16,7 +16,10 @@ fi
 # 2. Services
 # Un poste fraîchement cloné n'a plus de clés d'hôte SSH (retirées avant la
 # capture) : sans elles sshd refuse de démarrer.
-[ -f /etc/ssh/ssh_host_ed25519_key ] || { ssh-keygen -A >/dev/null 2>&1; fixed+=("ssh-cles-hote"); }
+if ! ls /etc/ssh/ssh_host_*_key >/dev/null 2>&1; then ssh-keygen -A >/dev/null 2>&1; fixed+=("ssh-cles-hote"); fi
+# sshd -t exige /run/sshd, que systemd ne crée qu'au premier démarrage réussi
+# du service : sans lui la vérification échoue à tort (vu le 8 septembre 2026).
+install -d -m 0755 /run/sshd 2>/dev/null || true
 systemctl is-enabled ssh >/dev/null 2>&1 || { systemctl enable ssh >/dev/null 2>&1; fixed+=("ssh-enable"); }
 systemctl is-active ssh >/dev/null 2>&1 || { systemctl start ssh >/dev/null 2>&1; fixed+=("ssh-start"); }
 # aimsit : clé uniquement, même si un étudiant (sudo) lui pose un mot de
@@ -27,7 +30,7 @@ if ! grep -q "^Match User aimsit" /etc/ssh/sshd_config; then
     sshd -t 2>/dev/null && systemctl reload ssh >/dev/null 2>&1
     fixed+=("sshd-match-aimsit")
 fi
-sshd -t 2>/dev/null || fixed+=("sshd-config-INVALIDE")
+sshd -t 2>/dev/null || fixed+=("sshd-config-INVALIDE($(sshd -t 2>&1 | head -1 | tr -d '\n' | cut -c1-70))")
 ufw status 2>/dev/null | grep -q "Status: active" || { ufw --force enable >/dev/null 2>&1; fixed+=("ufw-enable"); }
 ufw status 2>/dev/null | grep -q "192.168.10.0/24" || { ufw limit from 192.168.10.0/24 to any port 22 proto tcp >/dev/null 2>&1; fixed+=("ufw-ssh-rule"); }
 for t in sleep.target suspend.target hibernate.target hybrid-sleep.target; do
