@@ -429,7 +429,19 @@ REGEDIT4
 
 [HKEY_CURRENT_USER\Software\Adobe\Acrobat Reader\DC\AVGeneral]
 "bDisplayAboutDialog"=dword:00000000
+
+[HKEY_CURRENT_USER\Software\Wine\WineDbg]
+"ShowCrashDialog"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\AdobeARMservice]
+"Start"=dword:00000004
 R
+    # RdrCEF, the embedded Chromium behind the cloud "Home" page and the
+    # sign-in dialogs, crashes under Wine (seen 8 September 2026: "Program
+    # Error" over a PDF that was otherwise displayed fine). Reader works
+    # without it; the four RdrCEF processes and the crash go away.
+    local cef="/opt/acrobat/prefix/drive_c/Program Files/Adobe/Acrobat Reader DC/Reader/AcroCEF/RdrCEF.exe"
+    [ -f "$cef" ] && mv "$cef" "$cef.disabled"
     wine regedit /S /tmp/acro.reg >/dev/null 2>&1; wineserver -w 2>/dev/null || true; rm -f /tmp/acro.reg
     # icon from the executable, for the launcher
     local ico; ico=$(mktemp -d)

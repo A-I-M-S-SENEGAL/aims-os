@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+39) trixie; urgency=medium
+
+  * acrobat step: disable RdrCEF, the embedded Chromium that crashed under
+    Wine with a "Program Error" box over an otherwise fine PDF, stop the
+    Adobe ARM update service, and hide the Wine crash dialog. First real
+    run on 8 September 2026 displayed the document correctly.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 22:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+38) trixie; urgency=medium
 
   * sshd: a Match block at the end of the main file keeps the local aimsit
