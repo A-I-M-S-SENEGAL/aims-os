@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Changer mon mot de passe
+Name[en]=Change my password
+Comment=Changer le mot de passe de votre compte AIMS (valable sur tous les postes)
+Comment[en]=Change the password of your AIMS account (valid on every lab machine)
+Exec=/usr/bin/aims-mot-de-passe
+Icon=dialog-password
+Terminal=true
+Categories=Settings;System;
+Keywords=mot de passe;password;compte;

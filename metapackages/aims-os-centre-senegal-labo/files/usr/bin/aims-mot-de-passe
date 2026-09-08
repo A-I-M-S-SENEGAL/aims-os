@@ -1,0 +1,19 @@
+#!/bin/bash
+# aims-mot-de-passe — change the password of a directory account from a lab
+# machine. GNOME Settings cannot do it: its Users panel only handles local
+# accounts, and asks for an administrator password that does not exist here.
+# passwd goes through pam_sss, which talks to FreeIPA, so the new password is
+# valid on every lab machine at once.
+set -u
+echo "Changement du mot de passe de $USER (compte AIMS, valable sur tous les postes)."
+echo "Mot de passe actuel, puis deux fois le nouveau (8 caractères minimum)."
+echo
+if passwd; then
+    echo
+    echo "Mot de passe changé."
+else
+    echo
+    echo "Échec : vérifiez le mot de passe actuel et la longueur du nouveau."
+fi
+echo
+read -rp "Appuyez sur Entrée pour fermer." _

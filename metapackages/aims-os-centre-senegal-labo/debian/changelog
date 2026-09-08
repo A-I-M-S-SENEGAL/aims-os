@@ -1,3 +1,16 @@
+aims-os-centre-senegal-labo (2.1+37) trixie; urgency=medium
+
+  * polkit: the IT group (admins) and the students (etudiants, who hold sudo
+    already) may answer graphical administrator prompts with their own
+    password. The default rule points at the local sudo group, empty on lab
+    machines, so every prompt failed, seen in Settings > Users on
+    8 September 2026.
+  * New "Changer mon mot de passe" entry and /usr/bin/aims-mot-de-passe:
+    GNOME Settings cannot change a directory password, passwd through SSSD
+    can.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 21:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+36) trixie; urgency=medium
 
   * apt: wait up to five minutes for the dpkg lock instead of failing. A

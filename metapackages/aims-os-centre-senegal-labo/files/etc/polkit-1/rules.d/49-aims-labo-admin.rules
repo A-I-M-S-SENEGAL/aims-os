@@ -1,0 +1,12 @@
+// Who may answer a graphical "Authentication required" prompt on a lab
+// machine. polkit's default is the local sudo group, which is empty here:
+// the local accounts are locked and every prompt (user settings, software
+// installation, printers) failed for everybody, seen on 8 September 2026.
+// Directory groups are resolved through SSSD like any other group.
+//   admins    : the IT team, with its own password
+//   etudiants : students, who already hold sudo on their machine (decision of
+//               7 September 2026), so the graphical prompt asks for their own
+//               password instead of one nobody knows
+polkit.addAdminRule(function(action, subject) {
+    return ["unix-group:admins", "unix-group:etudiants", "unix-group:sudo"];
+});
