@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+28) trixie; urgency=medium
+
+  * SSH: MaxAuthTries back to the OpenSSH default of 6. Each key a client
+    offers counts as an attempt, so 3 cut the connection with "Too many
+    authentication failures" before the password was ever asked.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 15:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+27) trixie; urgency=medium
 
   * SSH: accept passwords as well as the IT key, for the IT team only.
