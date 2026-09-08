@@ -1,0 +1,32 @@
+#!/bin/bash
+# aims-acrobat — Adobe Acrobat Reader DC (Windows) under Wine, for the PDF
+# forms nothing else renders on Linux: XFA forms from immigration and tax
+# administrations. Adobe stopped its Linux reader in 2013.
+#
+# The IT team builds one Wine prefix in /opt/acrobat/prefix (aims-labo-extras
+# acrobat). Wine prefixes are per user, so the first run copies it into the
+# account's home, about 700 MB, then every run starts from that copy.
+#
+#   aims-acrobat [fichier.pdf]
+set -u
+tpl=/opt/acrobat/prefix
+me="${XDG_DATA_HOME:-$HOME/.local/share}/aims-acrobat"
+exe='C:\Program Files\Adobe\Acrobat Reader DC\Reader\AcroRd32.exe'
+
+[ -d "$tpl" ] || { echo "Acrobat Reader n'est pas installé sur ce poste (demander à l'équipe IT)." >&2; exit 1; }
+if [ ! -f "$me/.aims-ready" ]; then
+    rm -rf "$me"; mkdir -p "$me"
+    cp -a "$tpl/." "$me/" || { echo "copie du profil Wine impossible" >&2; exit 1; }
+    # the template belongs to root: make the copy ours and point the
+    # Windows user folders at this account
+    rm -rf "$me/drive_c/users"/*
+    touch "$me/.aims-ready"
+fi
+export WINEPREFIX="$me" WINEARCH=win32 WINEDEBUG=-all
+# no Mono/Gecko download prompts: Reader needs neither
+export WINEDLLOVERRIDES="mscoree,mshtml="
+if [ $# -gt 0 ]; then
+    exec wine "$exe" "$(winepath -w "$1" 2>/dev/null)"
+else
+    exec wine "$exe"
+fi

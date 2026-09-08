@@ -27,3 +27,4 @@ files/usr/bin/aims-vm                                   usr/bin/
 files/usr/lib/aims-os/packettracer-fix                  usr/lib/aims-os/
 files/etc/systemd/journald.conf.d/60-aims-labo.conf     etc/systemd/journald.conf.d/
 files/etc/apt/apt.conf.d/04aims-labo-retries               etc/apt/apt.conf.d/
+files/usr/bin/aims-acrobat                              usr/bin/

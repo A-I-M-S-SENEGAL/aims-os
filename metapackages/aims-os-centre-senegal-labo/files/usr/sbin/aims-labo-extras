@@ -9,7 +9,7 @@
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
 #                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda
-#                               nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf
+#                               nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf acrobat
 #                               packettracer vmimages
 # =============================================================================
 set -euo pipefail
@@ -367,6 +367,82 @@ D
     command -v okular >/dev/null && command -v xournalpp >/dev/null && command -v ocrmypdf >/dev/null
 }
 
+step_acrobat() {
+    # Adobe Acrobat Reader DC (Windows build) under Wine, asked by Hakim on
+    # 8 September 2026 for the XFA forms of immigration and tax offices,
+    # which no Linux reader renders. Adobe dropped its Linux reader in 2013.
+    # Reader DC is 32-bit: i386 multiarch plus wine32. One template prefix is
+    # built here, root owned; /usr/bin/aims-acrobat copies it per account.
+    # Version 20.013.20064 is the last classic 32-bit release reported to run
+    # under Wine; the unified 64-bit Acrobat (2021+) does not.
+    log "Adobe Acrobat Reader DC under Wine (/opt/acrobat, ~1.5 GB)"
+    local ver=2001320064 lang=fr_FR
+    local url="https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/$ver/AcroRdrDC${ver}_$lang.exe"
+    if [ -f /opt/acrobat/prefix/.aims-version ] && [ "$(cat /opt/acrobat/prefix/.aims-version)" = "$ver" ]; then
+        return 0
+    fi
+    dpkg --print-foreign-architectures | grep -q i386 || { dpkg --add-architecture i386; apt-get -q update >/dev/null; }
+    apt-get -q -y install wine wine32:i386 wine64 fonts-wine cabextract icoutils >/dev/null
+    if [ ! -x /usr/local/bin/winetricks ]; then
+        # winetricks sits in Debian contrib, which the lab does not enable
+        curl -fsSL -o /usr/local/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+        chmod 0755 /usr/local/bin/winetricks
+    fi
+    export WINEPREFIX=/opt/acrobat/prefix WINEARCH=win32 WINEDEBUG=-all WINEDLLOVERRIDES="mscoree,mshtml="
+    rm -rf /opt/acrobat; install -d -m 0755 /opt/acrobat
+    wineboot -i >/dev/null 2>&1
+    # fonts, rich edit and script hosts Reader expects; corefonts for the forms
+    winetricks -q -f atmlib riched20 wsh57 mspatcha msftedit corefonts >/dev/null 2>&1 || true
+    winetricks -q win10 >/dev/null 2>&1 || true
+    curl -fL -o /tmp/AcroRdrDC.exe "$url"
+    # /sAll silent, /rs no reboot, EULA accepted on behalf of the institution
+    wine /tmp/AcroRdrDC.exe /sAll /rs /msi EULA_ACCEPT=YES >/dev/null 2>&1 || true
+    wineserver -w; rm -f /tmp/AcroRdrDC.exe
+    [ -f "/opt/acrobat/prefix/drive_c/Program Files/Adobe/Acrobat Reader DC/Reader/AcroRd32.exe" ] \
+        || { echo "acrobat: AcroRd32.exe missing after install" >&2; return 1; }
+    # no updater (it cannot work here) and no protected mode (breaks under Wine)
+    cat > /tmp/acro.reg <<'R'
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Adobe\Adobe ARM\1.0\ARM]
+"iCheckReader"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\Software\Adobe\Adobe ARM\Legacy\Reader\{AC76BA86-7AD7-1033-7B44-AC0F074E4100}]
+"Mode"=dword:00000000
+
+[HKEY_CURRENT_USER\Software\Adobe\Acrobat Reader\DC\Privileged]
+"bProtectedMode"=dword:00000000
+
+[HKEY_CURRENT_USER\Software\Adobe\Acrobat Reader\DC\AVGeneral]
+"bDisplayAboutDialog"=dword:00000000
+R
+    wine regedit /S /tmp/acro.reg >/dev/null 2>&1; wineserver -w; rm -f /tmp/acro.reg
+    # icon from the executable, for the launcher
+    local ico; ico=$(mktemp -d)
+    wrestool -x -t 14 -o "$ico" "/opt/acrobat/prefix/drive_c/Program Files/Adobe/Acrobat Reader DC/Reader/AcroRd32.exe" 2>/dev/null || true
+    local first; first=$(ls "$ico"/*.ico 2>/dev/null | head -1)
+    if [ -n "$first" ] && command -v magick >/dev/null 2>&1; then
+        magick "$first[0]" -resize 256x256 /usr/share/icons/hicolor/256x256/apps/aims-acrobat.png 2>/dev/null \
+            && gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1
+    fi
+    rm -rf "$ico"
+    echo "$ver" > /opt/acrobat/prefix/.aims-version
+    chmod -R a+rX /opt/acrobat
+    cat > /usr/share/applications/aims-acrobat.desktop <<'D'
+[Desktop Entry]
+Type=Application
+Name=Adobe Acrobat Reader
+Comment=Lecteur Adobe (Windows, via Wine) pour les formulaires XFA des administrations
+Comment[en]=Adobe Reader (Windows build, via Wine) for XFA government forms
+Exec=/usr/bin/aims-acrobat %f
+Icon=aims-acrobat
+Terminal=false
+MimeType=application/pdf;
+Categories=Office;Viewer;
+D
+    update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+}
+
 step_vmimages() {
     # Base images for aims-vm: the Cisco Cybersecurity LabVM (converted from
     # Cisco's OVA by IT, served from the campus server) and a Debian 13
@@ -390,7 +466,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf packettracer vmimages)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf acrobat packettracer vmimages)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi

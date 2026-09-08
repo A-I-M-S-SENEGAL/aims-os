@@ -1,3 +1,14 @@
+aims-os-centre-senegal-labo (2.1+35) trixie; urgency=medium
+
+  * New acrobat step and /usr/bin/aims-acrobat: Adobe Acrobat Reader DC
+    20.013.20064, the Windows build, under Wine, for the XFA forms that no
+    Linux reader renders. One template Wine prefix under /opt/acrobat, which
+    aims-acrobat copies into the account on first run, since a Wine prefix
+    belongs to one user. The updater and protected mode are turned off, both
+    being broken under Wine.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 08 Sep 2026 20:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+34) trixie; urgency=medium
 
   * New pdf step: Okular, Xournal++, PDF Arranger, OCRmyPDF with French and
