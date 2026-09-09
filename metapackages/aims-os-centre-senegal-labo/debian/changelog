@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+44) trixie; urgency=medium
+
+  * Hide the Settings > Users entry from application search (diversion of
+    its desktop file, NoDisplay=true): it cannot change a directory
+    password and misled a student on 9 September 2026. "mot de passe" now
+    finds only "Changer mon mot de passe". The panel stays reachable inside
+    Settings. Restored by aims-labo-ensure, removed on package removal.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 09 Sep 2026 09:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+43) trixie; urgency=medium
 
   * aims-labo-ensure: regenerate host keys when none is left (not only the

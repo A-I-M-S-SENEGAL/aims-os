@@ -56,6 +56,24 @@ case "$1" in
         # The diverted name must match grub-mkconfig's ignore list
         # (*.dpkg-*): with any other name the original script runs too
         # and every entry shows twice (seen on labo-hp-01, 2026-09-07).
+        # Settings > Users cannot change a directory password and misleads
+        # students (9 September 2026): hide its entry from application
+        # search, so "mot de passe" finds only "Changer mon mot de passe".
+        # The panel stays reachable inside Settings. Diversion, so that
+        # gnome-control-center upgrades land at the diverted name.
+        UPANEL=/usr/share/applications/gnome-user-accounts-panel.desktop
+        UDIV="${UPANEL}.dpkg-divert-aims"
+        if [ -f "${UPANEL}" ] || [ -f "${UDIV}" ]; then
+            if ! dpkg-divert --list "${UPANEL}" 2>/dev/null | grep -q "${UDIV}"; then
+                dpkg-divert --quiet --add --rename --package aims-os-centre-senegal-labo \
+                    --divert "${UDIV}" "${UPANEL}"
+            fi
+            if [ -f "${UDIV}" ]; then
+                { grep -v '^NoDisplay=' "${UDIV}"; echo 'NoDisplay=true'; } > "${UPANEL}"
+                chmod 0644 "${UPANEL}"
+            fi
+        fi
+
         DIV=/etc/grub.d/10_linux.dpkg-divert-aims
         if [ -f /etc/grub.d/10_linux.aims-original ]; then
             # migrate the 2.1+4..2.1+7 diversion
