@@ -66,6 +66,16 @@ for home in /home/*; do
         *) chmod 0700 "$home" 2>/dev/null && fixed+=("droits-$(basename "$home")") ;;
     esac
 done
+# 4. bis EFI : un clone n'a pas d'entrée NVRAM, le firmware lance
+# \EFI\BOOT\BOOTX64.EFI qui lit grub.cfg dans son propre dossier ; sans
+# ce fichier le poste tombe sur « grub> » (vu le 9 septembre 2026). On garde
+# une copie du stub de l'installateur à côté du chargeur de secours.
+if [ -d /boot/efi/EFI/BOOT ]; then
+    src=$(ls /boot/efi/EFI/*/grub.cfg 2>/dev/null | grep -viE "/EFI/BOOT/" | head -1)
+    if [ -n "$src" ] && ! cmp -s "$src" /boot/efi/EFI/BOOT/grub.cfg; then
+        cp -f "$src" /boot/efi/EFI/BOOT/grub.cfg && fixed+=("efi-boot-grubcfg")
+    fi
+fi
 # 4a. Paramètres > Utilisateurs masqué de la recherche d'applications (il ne
 # sait pas changer un mot de passe de l'annuaire) ; remis par le postinst.
 UPANEL=/usr/share/applications/gnome-users-panel.desktop

@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+46) trixie; urgency=medium
+
+  * EFI: copy the installer's grub.cfg stub next to the fallback loader
+    (\EFI\BOOT). A clone has no NVRAM entry and boots through that path;
+    the signed GRUB reads grub.cfg from its own folder and, finding none,
+    dropped to a "grub>" prompt on the first deployed machine
+    (9 September 2026). Done in postinst and kept by aims-labo-ensure.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 09 Sep 2026 13:20:00 +0000
+
 aims-os-centre-senegal-labo (2.1+45) trixie; urgency=medium
 
   * The Users panel entry is gnome-users-panel.desktop on GNOME 48, not

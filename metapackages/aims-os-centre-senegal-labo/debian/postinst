@@ -129,6 +129,15 @@ case "$1" in
             deb-systemd-invoke restart rsyslog.service >/dev/null 2>&1 || true
         fi
 
+        # EFI fallback loader: a clone has no NVRAM entry, the firmware runs
+        # \EFI\BOOT\BOOTX64.EFI, which reads grub.cfg from its own folder.
+        # The installer leaves that file under \EFI\<id>\ only, so a clone
+        # dropped to "grub>" (9 September 2026). Keep a copy next to it.
+        if [ -d /boot/efi/EFI/BOOT ]; then
+            src=$(ls /boot/efi/EFI/*/grub.cfg 2>/dev/null | grep -viE "/EFI/BOOT/" | head -1)
+            [ -n "$src" ] && cp -f "$src" /boot/efi/EFI/BOOT/grub.cfg || true
+        fi
+
         # aimsit never authenticates with a password, even if a student with
         # sudo sets one locally. A Match block must end the main file: inside
         # a drop-in it would swallow the rest of sshd_config.
