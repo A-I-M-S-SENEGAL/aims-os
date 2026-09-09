@@ -14,6 +14,6 @@ for img in docker.io/library/postgres:17 docker.io/library/mariadb:11 docker.io/
 [ -x /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager ] && (yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/opt/android-sdk --update >/dev/null 2>&1; chmod -R a+rX /opt/android-sdk) && note "android sdk: ok"
 [ -x /opt/sage/bin/sage ] && /opt/miniforge3/bin/mamba update -y -q -p /opt/sage -c conda-forge sage >/dev/null 2>&1 && note "sage: ok"
 [ -x /opt/anaconda3/bin/conda ] && /opt/anaconda3/bin/conda update -n base -y -q conda >/dev/null 2>&1 && note "anaconda: conda ok"
-if /usr/sbin/aims-labo-extras repos code chrome bruno zotero drawio julia ghidra android zoom runtimes nodejs dbeaver climat reseau gns3 pdf packettracer vmimages >/tmp/aims-labo-update.log 2>&1; then note "extras: ok"; else note "extras: échec partiel, voir /tmp/aims-labo-update.log"; fi
+if /usr/sbin/aims-labo-extras repos code chrome bruno zotero drawio julia ghidra android zoom runtimes nodejs dbeaver rstudio climat reseau gns3 pdf packettracer vmimages >/tmp/aims-labo-update.log 2>&1; then note "extras: ok"; else note "extras: échec partiel, voir /tmp/aims-labo-update.log"; fi
 apt-get -q -y autoremove >/dev/null 2>&1; apt-get -q clean
 note "fin"

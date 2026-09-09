@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+48) trixie; urgency=medium
+
+  * RStudio: the welcome script pins one version, so the students saw the
+    "Update Available" box (9 September 2026). The rstudio step now reads
+    the current build from Posit's download page and installs it when
+    newer; the weekly update runs it; /etc/rstudio/rstudio-prefs.json turns
+    the in-app update check off.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 09 Sep 2026 15:10:00 +0000
+
 aims-os-centre-senegal-labo (2.1+47) trixie; urgency=medium
 
   * EFI fallback: install the full signed chain under \EFI\BOOT (shim as

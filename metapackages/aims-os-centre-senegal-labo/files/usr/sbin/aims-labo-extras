@@ -162,10 +162,24 @@ step_zoom() {
     dpkg -s zoom >/dev/null 2>&1
 }
 step_rstudio() {
-    log "RStudio (AIMS OS install script, Posit deb)"
-    local rs; rs=$(ls /usr/share/aims-os/install/rstudio.sh /usr/share/aims-os/install/install/rstudio.sh 2>/dev/null | head -1)
-    [ -n "$rs" ] || { echo "rstudio.sh missing (aims-os-welcome)" >&2; return 1; }
-    "$rs" >/dev/null 2>&1 || "$rs"
+    # The welcome script pins one version, so RStudio never moved and the
+    # students saw its "Update Available" box (9 September 2026). Read the
+    # current Debian/Ubuntu 22 build from Posit's download page instead and
+    # install it when it is newer than what dpkg has.
+    log "RStudio (Posit, latest Debian/Ubuntu 22 build)"
+    need curl
+    local url ver cur
+    url=$(curl -fsSL https://posit.co/download/rstudio-desktop/ | grep -oE 'https://download1\.rstudio\.org/electron/jammy/amd64/rstudio-[0-9.]+-[0-9]+-amd64\.deb' | head -1)
+    if [ -z "$url" ]; then
+        # fall back to the pinned welcome script rather than fail
+        local rs; rs=$(ls /usr/share/aims-os/install/rstudio.sh /usr/share/aims-os/install/install/rstudio.sh 2>/dev/null | head -1)
+        [ -n "$rs" ] && { "$rs" >/dev/null 2>&1 || "$rs"; }
+        dpkg -s rstudio >/dev/null 2>&1; return
+    fi
+    ver=$(echo "$url" | grep -oE 'rstudio-[0-9.]+-[0-9]+' | sed 's/^rstudio-//; s/-\([0-9]*\)$/+\1/')   # 2026.08.2+200
+    cur=$(dpkg-query -W -f='${Version}' rstudio 2>/dev/null || true)
+    if [ -n "$cur" ] && dpkg --compare-versions "$cur" ge "$ver"; then return 0; fi
+    curl -fL -o /tmp/rstudio.deb "$url" && apt-get -q -y install /tmp/rstudio.deb 2>&1 | grep -E "^(E:|Setting up rstudio)"; rm -f /tmp/rstudio.deb
     dpkg -s rstudio >/dev/null 2>&1
 }
 step_sage() {
