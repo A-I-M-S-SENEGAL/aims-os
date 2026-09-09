@@ -8,7 +8,7 @@ case "$1" in
             dpkg-divert --quiet --remove --rename --package aims-os-centre-senegal-labo /etc/grub.d/10_linux
             command -v update-grub >/dev/null 2>&1 && update-grub >/dev/null 2>&1 || true
         fi
-        UPANEL=/usr/share/applications/gnome-user-accounts-panel.desktop
+        UPANEL=/usr/share/applications/gnome-users-panel.desktop
         if dpkg-divert --list "${UPANEL}" 2>/dev/null | grep -q "aims"; then
             rm -f "${UPANEL}"
             dpkg-divert --quiet --remove --rename --package aims-os-centre-senegal-labo "${UPANEL}" || true

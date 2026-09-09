@@ -68,7 +68,7 @@ for home in /home/*; do
 done
 # 4a. Paramètres > Utilisateurs masqué de la recherche d'applications (il ne
 # sait pas changer un mot de passe de l'annuaire) ; remis par le postinst.
-UPANEL=/usr/share/applications/gnome-user-accounts-panel.desktop
+UPANEL=/usr/share/applications/gnome-users-panel.desktop
 if [ -f "${UPANEL}.dpkg-divert-aims" ] && ! grep -q '^NoDisplay=true' "$UPANEL" 2>/dev/null; then
     { grep -v '^NoDisplay=' "${UPANEL}.dpkg-divert-aims"; echo 'NoDisplay=true'; } > "$UPANEL"; fixed+=("panneau-utilisateurs")
 fi

@@ -61,7 +61,7 @@ case "$1" in
         # search, so "mot de passe" finds only "Changer mon mot de passe".
         # The panel stays reachable inside Settings. Diversion, so that
         # gnome-control-center upgrades land at the diverted name.
-        UPANEL=/usr/share/applications/gnome-user-accounts-panel.desktop
+        UPANEL=/usr/share/applications/gnome-users-panel.desktop
         UDIV="${UPANEL}.dpkg-divert-aims"
         if [ -f "${UPANEL}" ] || [ -f "${UDIV}" ]; then
             if ! dpkg-divert --list "${UPANEL}" 2>/dev/null | grep -q "${UDIV}"; then
