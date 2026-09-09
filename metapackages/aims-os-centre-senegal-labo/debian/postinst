@@ -135,7 +135,15 @@ case "$1" in
         # dropped to "grub>" (9 September 2026). Keep a copy next to it.
         if [ -d /boot/efi/EFI/BOOT ]; then
             src=$(ls /boot/efi/EFI/*/grub.cfg 2>/dev/null | grep -viE "/EFI/BOOT/" | head -1)
-            [ -n "$src" ] && cp -f "$src" /boot/efi/EFI/BOOT/grub.cfg || true
+            if [ -n "$src" ]; then
+                d=$(dirname "$src")
+                # full signed chain: shim (Microsoft-signed, Secure Boot ok)
+                # as the fallback loader, then grub, MokManager, the stub.
+                [ -f "$d/shimx64.efi" ] && cp -f "$d/shimx64.efi" /boot/efi/EFI/BOOT/BOOTX64.EFI || true
+                [ -f "$d/grubx64.efi" ] && cp -f "$d/grubx64.efi" /boot/efi/EFI/BOOT/grubx64.efi || true
+                [ -f "$d/mmx64.efi" ] && cp -f "$d/mmx64.efi" /boot/efi/EFI/BOOT/mmx64.efi || true
+                cp -f "$src" /boot/efi/EFI/BOOT/grub.cfg || true
+            fi
         fi
 
         # aimsit never authenticates with a password, even if a student with

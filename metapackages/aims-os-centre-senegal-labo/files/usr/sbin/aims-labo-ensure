@@ -72,8 +72,13 @@ done
 # une copie du stub de l'installateur à côté du chargeur de secours.
 if [ -d /boot/efi/EFI/BOOT ]; then
     src=$(ls /boot/efi/EFI/*/grub.cfg 2>/dev/null | grep -viE "/EFI/BOOT/" | head -1)
-    if [ -n "$src" ] && ! cmp -s "$src" /boot/efi/EFI/BOOT/grub.cfg; then
-        cp -f "$src" /boot/efi/EFI/BOOT/grub.cfg && fixed+=("efi-boot-grubcfg")
+    if [ -n "$src" ]; then
+        d=$(dirname "$src"); changed=0
+        for f in shimx64.efi:BOOTX64.EFI grubx64.efi:grubx64.efi mmx64.efi:mmx64.efi grub.cfg:grub.cfg; do
+            from="$d/${f%%:*}"; to="/boot/efi/EFI/BOOT/${f##*:}"
+            [ -f "$from" ] && ! cmp -s "$from" "$to" && cp -f "$from" "$to" && changed=1
+        done
+        [ "$changed" = 1 ] && fixed+=("efi-boot-chaine")
     fi
 fi
 # 4a. Paramètres > Utilisateurs masqué de la recherche d'applications (il ne

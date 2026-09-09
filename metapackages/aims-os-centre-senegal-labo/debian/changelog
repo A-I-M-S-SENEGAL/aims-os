@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+47) trixie; urgency=medium
+
+  * EFI fallback: install the full signed chain under \EFI\BOOT (shim as
+    BOOTX64.EFI, grub, MokManager, grub.cfg), not only the stub. A bare
+    grub copy there boots only with Secure Boot off; with shim first,
+    a clone boots with Secure Boot on as well.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 09 Sep 2026 14:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+46) trixie; urgency=medium
 
   * EFI: copy the installer's grub.cfg stub next to the fallback loader
