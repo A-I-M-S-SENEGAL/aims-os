@@ -1,0 +1,84 @@
+name: Nettoyage des ISO sur R2
+
+# Les ISO pèsent 8 à 9 Go chacune et R2 les garde indéfiniment, une par tag.
+# Ce workflow liste ce qui est stocké et, sur demande explicite, supprime les
+# anciens tags en gardant les plus récents. Le dossier latest/ n'est jamais
+# touché : c'est l'alias que les utilisateurs téléchargent.
+#
+# Toujours lancer en mode "lister" d'abord, vérifier, puis "supprimer".
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "lister (aucune suppression) ou supprimer"
+        type: choice
+        options: [lister, supprimer]
+        default: lister
+      garder:
+        description: "Nombre de tags les plus récents à conserver"
+        type: string
+        default: "2"
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: ${{ inputs.action }} les ISO sur R2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inventaire et nettoyage
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION:    auto
+          R2_ENDPOINT:           ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET:             ${{ secrets.R2_BUCKET }}
+          ACTION:                ${{ inputs.action }}
+          GARDER:                ${{ inputs.garder }}
+        run: |
+          set -euo pipefail
+          s3() { aws s3 "$@" --endpoint-url "${R2_ENDPOINT}"; }
+
+          echo "=== Contenu du bucket, par dossier"
+          s3 ls "s3://${R2_BUCKET}/" | awk '{print $NF}' | sed 's#/$##' | sort > /tmp/dossiers
+          while read -r d; do
+            [ -n "$d" ] || continue
+            taille=$(s3 ls "s3://${R2_BUCKET}/${d}/" --recursive --summarize \
+                     | awk '/Total Size/ {printf "%.1f Go", $3/1073741824}')
+            date=$(s3 ls "s3://${R2_BUCKET}/${d}/" --recursive | head -1 | awk '{print $1}')
+            printf "  %-14s %-10s %s\n" "$d" "${taille:-0}" "${date:-}"
+          done < /tmp/dossiers
+
+          # Tags de version uniquement : latest/ et tout autre dossier restent intouchés.
+          grep -E '^v[0-9]+\.[0-9]+' /tmp/dossiers | sort -V > /tmp/tags || true
+          total=$(wc -l < /tmp/tags | tr -d ' ')
+          echo
+          echo "=== ${total} tag(s) de version, du plus ancien au plus récent :"
+          cat /tmp/tags | sed 's/^/  /'
+
+          garder="${GARDER}"
+          a_supprimer=$(( total > garder ? total - garder : 0 ))
+          if [ "$a_supprimer" -eq 0 ]; then
+            echo; echo "Rien à supprimer : ${total} tag(s) présent(s), ${garder} à conserver."
+            exit 0
+          fi
+          head -n "$a_supprimer" /tmp/tags > /tmp/vieux
+          echo
+          echo "=== À supprimer (${a_supprimer}), en conservant les ${garder} plus récents :"
+          cat /tmp/vieux | sed 's/^/  /'
+
+          if [ "${ACTION}" != "supprimer" ]; then
+            echo; echo "Mode lecture seule : rien n'a été supprimé."
+            exit 0
+          fi
+
+          while read -r t; do
+            [ -n "$t" ] || continue
+            echo "--- suppression de ${t}/"
+            s3 rm "s3://${R2_BUCKET}/${t}/" --recursive
+          done < /tmp/vieux
+          echo
+          echo "=== Contenu après nettoyage"
+          s3 ls "s3://${R2_BUCKET}/" | sed 's/^/  /'
