@@ -1,5 +1,5 @@
 [Unit]
-Description=AIMS OS first-boot user setup (docker/wireshark group membership)
+Description=AIMS OS first-boot setup (EFI fallback loader, apt repo, user groups)
 Documentation=https://github.com/A-I-M-S-SENEGAL/aims-os
 After=multi-user.target
 ConditionPathExists=!/var/lib/aims-os/firstboot.done

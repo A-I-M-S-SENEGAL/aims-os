@@ -2,7 +2,7 @@
 # =============================================================================
 # AIMS OS — first-boot user setup
 # =============================================================================
-# Runs once on the FIRST boot of an installed system. Two jobs:
+# Runs once on the FIRST boot of an installed system. Three jobs:
 #
 #   1. Activate the AIMS apt repository: copy the inert .sources file
 #      shipped under /usr/share/aims-os/apt/ into
@@ -96,6 +96,30 @@ users=$(getent passwd | awk -F: '
 if [ -z "${users}" ]; then
     echo "No non-system user found — postponing (sentinel NOT created)."
     exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# EFI fallback loader: some firmwares (and every cloned machine) boot through
+# \EFI\BOOT\BOOTX64.EFI rather than the NVRAM entry Calamares created.
+# Calamares copies a bare GRUB there, without the grub.cfg stub that points at
+# the root partition, so those machines drop to a "grub>" prompt (seen on a
+# ThinkPad X270 and on FOG clones, 9-14 September 2026). Put the whole signed
+# chain next to it: shim first, so it also works with Secure Boot on.
+# ---------------------------------------------------------------------------
+esp=/boot/efi/EFI
+if [ -d "${esp}" ]; then
+    src=$(ls "${esp}"/*/grub.cfg 2>/dev/null | grep -viE "/(BOOT|boot)/" | head -1)
+    if [ -n "${src}" ]; then
+        d=$(dirname "${src}")
+        mkdir -p "${esp}/BOOT"
+        [ -f "${d}/shimx64.efi" ] && cp -f "${d}/shimx64.efi" "${esp}/BOOT/BOOTX64.EFI"
+        [ -f "${d}/grubx64.efi" ] && cp -f "${d}/grubx64.efi" "${esp}/BOOT/grubx64.efi"
+        [ -f "${d}/mmx64.efi" ]   && cp -f "${d}/mmx64.efi"   "${esp}/BOOT/mmx64.efi"
+        cp -f "${src}" "${esp}/BOOT/grub.cfg"
+        echo "EFI fallback loader completed from ${d}."
+    else
+        echo "No EFI/*/grub.cfg found — nothing to complete."
+    fi
 fi
 
 for grp in docker wireshark; do
