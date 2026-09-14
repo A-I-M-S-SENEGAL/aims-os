@@ -42,12 +42,13 @@ jobs:
           s3() { aws s3 "$@" --endpoint-url "${R2_ENDPOINT}"; }
 
           echo "=== Contenu du bucket, par dossier"
-          s3 ls "s3://${R2_BUCKET}/" | awk '{print $NF}' | sed 's#/$##' | sort > /tmp/dossiers
+          s3 ls "s3://${R2_BUCKET}/" > /tmp/racine.txt
+          awk '{print $NF}' /tmp/racine.txt | sed 's#/$##' | sort > /tmp/dossiers
           while read -r d; do
             [ -n "$d" ] || continue
-            taille=$(s3 ls "s3://${R2_BUCKET}/${d}/" --recursive --summarize \
-                     | awk '/Total Size/ {printf "%.1f Go", $3/1073741824}')
-            date=$(s3 ls "s3://${R2_BUCKET}/${d}/" --recursive | head -1 | awk '{print $1}')
+            s3 ls "s3://${R2_BUCKET}/${d}/" --recursive --summarize > /tmp/sum.txt 2>/dev/null || true
+            taille=$(awk '/Total Size/ {printf "%.1f Go", $3/1073741824}' /tmp/sum.txt)
+            date=$(s3 ls "s3://${R2_BUCKET}/${d}/" --recursive > /tmp/liste-"$d".txt 2>/dev/null; awk 'NR==1{print $1}' /tmp/liste-"$d".txt)
             printf "  %-14s %-10s %s\n" "$d" "${taille:-0}" "${date:-}"
           done < /tmp/dossiers
 
@@ -81,4 +82,4 @@ jobs:
           done < /tmp/vieux
           echo
           echo "=== Contenu après nettoyage"
-          s3 ls "s3://${R2_BUCKET}/" | sed 's/^/  /'
+          s3 ls "s3://${R2_BUCKET}/" > /tmp/final.txt; sed 's/^/  /' /tmp/final.txt
