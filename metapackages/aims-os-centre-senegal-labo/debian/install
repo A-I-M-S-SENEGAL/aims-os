@@ -33,3 +33,5 @@ files/usr/bin/aims-mot-de-passe                         usr/bin/
 files/usr/share/applications/aims-mot-de-passe.desktop  usr/share/applications/
 files/lib/systemd/system/ssh.service.d/aims-labo-hostkeys.conf  lib/systemd/system/ssh.service.d/
 files/etc/rstudio/rstudio-prefs.json                    etc/rstudio/
+files/usr/lib/aims-os/aims-labo-ecran                    usr/lib/aims-os/
+files/lib/systemd/system/aims-labo-ecran.service       lib/systemd/system/

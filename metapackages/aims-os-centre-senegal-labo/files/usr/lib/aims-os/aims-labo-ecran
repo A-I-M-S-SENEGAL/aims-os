@@ -1,0 +1,34 @@
+#!/bin/bash
+# aims-labo-ecran — fait apparaître sur l'écran de connexion le ou les
+# étudiants attribués à ce poste, et retire ceux qui ne le sont plus.
+#
+# GDM ne liste que les comptes connus d'AccountsService ; un compte de
+# l'annuaire n'y entre normalement qu'après sa première ouverture de session,
+# donc l'écran restait vide et l'étudiant devait taper son identifiant. Le
+# poste lit sa règle d'accès dans l'annuaire avec sa propre clé, puis demande
+# à AccountsService de mettre ces comptes en cache. Lancé au démarrage et
+# toutes les heures par aims-labo-ensure.
+set -u
+[ -f /etc/krb5.keytab ] || exit 0
+command -v ipa >/dev/null 2>&1 || exit 0
+fqdn=$(hostname -f 2>/dev/null); court=${fqdn%%.*}
+[ -n "$court" ] && [ "$court" != aims-clone ] || exit 0
+export KRB5CCNAME=/run/aims-labo-ecran.cc
+kinit -k "host/$fqdn" 2>/dev/null || exit 0
+voulus=$(ipa hbacrule-show --raw "poste-$court" 2>/dev/null | awk '/^  memberuser_user:/ {print $2}')
+kdestroy -q 2>/dev/null; rm -f "$KRB5CCNAME"
+acc() { busctl call org.freedesktop.Accounts /org/freedesktop/Accounts org.freedesktop.Accounts "$1" s "$2" >/dev/null 2>&1; }
+changes=""
+for u in $voulus; do
+    [ -f "/var/lib/AccountsService/users/$u" ] && continue
+    acc CacheUser "$u" && changes="$changes +$u"
+done
+for f in /var/lib/AccountsService/users/*; do
+    [ -f "$f" ] || continue
+    u=$(basename "$f")
+    grep -q "^$u:" /etc/passwd && continue          # compte local : on ne touche pas
+    echo "$voulus" | grep -qx "$u" && continue
+    acc UncacheUser "$u" && changes="$changes -$u"
+done
+[ -n "$changes" ] && logger -t aims-labo-ecran -p local5.info -- "ecran de connexion :$changes"
+exit 0

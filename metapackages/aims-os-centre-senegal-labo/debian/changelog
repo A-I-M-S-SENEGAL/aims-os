@@ -1,3 +1,14 @@
+aims-os-centre-senegal-labo (2.1+49) trixie; urgency=medium
+
+  * New aims-labo-ecran (boot service + hourly): the machine reads its own
+    HBAC rule with its host key and caches the attributed student in
+    AccountsService, so the login screen lists that student instead of an
+    empty "username" field. Students no longer attributed are removed from
+    the list; local accounts are left alone. Asked by Hakim on
+    16 September 2026.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 16 Sep 2026 09:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+48) trixie; urgency=medium
 
   * RStudio: the welcome script pins one version, so the students saw the

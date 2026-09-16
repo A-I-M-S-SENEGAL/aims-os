@@ -81,6 +81,8 @@ if [ -d /boot/efi/EFI/BOOT ]; then
         [ "$changed" = 1 ] && fixed+=("efi-boot-chaine")
     fi
 fi
+# 3c. Écran de connexion : l'étudiant attribué à ce poste y apparaît
+[ -x /usr/lib/aims-os/aims-labo-ecran ] && /usr/lib/aims-os/aims-labo-ecran
 # 4a. Paramètres > Utilisateurs masqué de la recherche d'applications (il ne
 # sait pas changer un mot de passe de l'annuaire) ; remis par le postinst.
 UPANEL=/usr/share/applications/gnome-users-panel.desktop

@@ -1,0 +1,14 @@
+[Unit]
+Description=AIMS labo — afficher l'étudiant attribué sur l'écran de connexion
+After=network-online.target sssd.service accounts-daemon.service
+Wants=network-online.target
+Before=display-manager.service
+ConditionPathExists=/etc/krb5.keytab
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/aims-os/aims-labo-ecran
+TimeoutStartSec=40s
+
+[Install]
+WantedBy=multi-user.target
