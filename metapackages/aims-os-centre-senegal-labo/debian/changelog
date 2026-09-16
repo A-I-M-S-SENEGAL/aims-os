@@ -1,3 +1,11 @@
+aims-os-centre-senegal-labo (2.1+50) trixie; urgency=medium
+
+  * aims-labo-ecran: parse the rule members from the raw DN output
+    ("memberuser: uid=…"); 2.1+49 looked for a memberuser_user field that
+    the raw mode never prints, so no student was ever cached.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 16 Sep 2026 18:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+49) trixie; urgency=medium
 
   * New aims-labo-ecran (boot service + hourly): the machine reads its own

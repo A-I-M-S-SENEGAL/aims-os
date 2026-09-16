@@ -15,7 +15,8 @@ fqdn=$(hostname -f 2>/dev/null); court=${fqdn%%.*}
 [ -n "$court" ] && [ "$court" != aims-clone ] || exit 0
 export KRB5CCNAME=/run/aims-labo-ecran.cc
 kinit -k "host/$fqdn" 2>/dev/null || exit 0
-voulus=$(ipa hbacrule-show --raw "poste-$court" 2>/dev/null | awk '/^  memberuser_user:/ {print $2}')
+# En sortie brute, les membres sont des DN : « memberuser: uid=student08,cn=users,… »
+voulus=$(ipa hbacrule-show --raw "poste-$court" 2>/dev/null | awk -F'[=,]' '/^  memberuser: uid=/ {print $2}')
 kdestroy -q 2>/dev/null; rm -f "$KRB5CCNAME"
 acc() { busctl call org.freedesktop.Accounts /org/freedesktop/Accounts org.freedesktop.Accounts "$1" s "$2" >/dev/null 2>&1; }
 changes=""
