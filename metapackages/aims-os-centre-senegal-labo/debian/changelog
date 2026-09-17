@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+51) trixie; urgency=medium
+
+  * pwquality drop-in: no local dictionary check. pam_pwquality sits first in
+    Debian's password stack and refused the simple passwords students chose
+    when their temporary password expired ("fails the dictionary check"),
+    three times, then the login failed. The directory policy (8 characters,
+    lockout) stays the only rule.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 17 Sep 2026 12:40:00 +0000
+
 aims-os-centre-senegal-labo (2.1+50) trixie; urgency=medium
 
   * aims-labo-ecran: parse the rule members from the raw DN output

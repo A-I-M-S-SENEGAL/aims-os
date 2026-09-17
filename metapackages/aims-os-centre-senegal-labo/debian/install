@@ -35,3 +35,4 @@ files/lib/systemd/system/ssh.service.d/aims-labo-hostkeys.conf  lib/systemd/syst
 files/etc/rstudio/rstudio-prefs.json                    etc/rstudio/
 files/usr/lib/aims-os/aims-labo-ecran                    usr/lib/aims-os/
 files/lib/systemd/system/aims-labo-ecran.service       lib/systemd/system/
+files/etc/security/pwquality.conf.d/60-aims-labo.conf   etc/security/pwquality.conf.d/
