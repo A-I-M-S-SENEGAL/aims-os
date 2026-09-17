@@ -81,6 +81,19 @@ if [ -d /boot/efi/EFI/BOOT ]; then
         [ "$changed" = 1 ] && fixed+=("efi-boot-chaine")
     fi
 fi
+# 2b. Wi-Fi : un profil hérité de l'image est attaché au nom de la carte du
+# poste modèle (connection.interface-name=wlp3s0). Sur un poste dont la carte
+# porte un autre nom, NetworkManager refuse le profil (« aucun périphérique
+# adapté ») et le Wi-Fi ne monte jamais (vu le 17 septembre 2026). On délie
+# les profils sans-fil de toute carte : ils valent alors pour n'importe laquelle.
+if command -v nmcli >/dev/null 2>&1 && [ -d /run/systemd/system ]; then
+    while IFS=: read -r nom type iface; do
+        [ "$type" = "802-11-wireless" ] || continue
+        [ -n "$iface" ] || continue
+        nmcli connection modify "$nom" connection.interface-name "" >/dev/null 2>&1 \
+            && fixed+=("wifi-profil-$nom")
+    done <<< "$(nmcli -t -f NAME,TYPE,connection.interface-name connection show 2>/dev/null)"
+fi
 # 3c. Écran de connexion : l'étudiant attribué à ce poste y apparaît
 [ -x /usr/lib/aims-os/aims-labo-ecran ] && /usr/lib/aims-os/aims-labo-ecran
 # 4a. Paramètres > Utilisateurs masqué de la recherche d'applications (il ne
