@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+53) trixie; urgency=medium
+
+  * ensure: the 2.1+52 Wi-Fi fix never ran. "nmcli connection show" in list
+    mode rejects the connection.interface-name field, so the loop read
+    nothing. Read the setting per profile with "nmcli -g" instead. Found on
+    labo-dell-01 (Dell Latitude 5430, card wlp0s20f3), 25 September 2026.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Fri, 25 Sep 2026 16:30:00 +0000
+
 aims-os-centre-senegal-labo (2.1+52) trixie; urgency=medium
 
   * ensure: unbind wireless profiles from a card name. The Wi-Fi profile

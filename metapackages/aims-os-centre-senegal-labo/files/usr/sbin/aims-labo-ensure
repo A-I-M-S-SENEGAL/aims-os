@@ -86,13 +86,17 @@ fi
 # porte un autre nom, NetworkManager refuse le profil (« aucun périphérique
 # adapté ») et le Wi-Fi ne monte jamais (vu le 17 septembre 2026). On délie
 # les profils sans-fil de toute carte : ils valent alors pour n'importe laquelle.
+# La liste « nmcli connection show » n'accepte pas le champ
+# connection.interface-name (2.1+52 le lui demandait, la boucle ne voyait
+# jamais rien) : on lit ce réglage profil par profil avec -g.
 if command -v nmcli >/dev/null 2>&1 && [ -d /run/systemd/system ]; then
-    while IFS=: read -r nom type iface; do
+    while IFS=: read -r nom type; do
         [ "$type" = "802-11-wireless" ] || continue
+        iface=$(nmcli -g connection.interface-name connection show "$nom" 2>/dev/null)
         [ -n "$iface" ] || continue
         nmcli connection modify "$nom" connection.interface-name "" >/dev/null 2>&1 \
             && fixed+=("wifi-profil-$nom")
-    done <<< "$(nmcli -t -f NAME,TYPE,connection.interface-name connection show 2>/dev/null)"
+    done <<< "$(nmcli -t -f NAME,TYPE connection show 2>/dev/null)"
 fi
 # 3c. Écran de connexion : l'étudiant attribué à ce poste y apparaît
 [ -x /usr/lib/aims-os/aims-labo-ecran ] && /usr/lib/aims-os/aims-labo-ecran
