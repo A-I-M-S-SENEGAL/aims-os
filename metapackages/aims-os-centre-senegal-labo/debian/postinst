@@ -129,6 +129,15 @@ case "$1" in
             deb-systemd-invoke start aims-labo-update.timer >/dev/null 2>&1 || true
             deb-systemd-invoke start aims-labo-ensure.timer >/dev/null 2>&1 || true
             deb-systemd-invoke restart rsyslog.service >/dev/null 2>&1 || true
+            # Wi-Fi sans économie d'énergie : relire la configuration de
+            # NetworkManager et couper la veille tout de suite, sans
+            # reconnexion (une mise à jour arrive souvent par ce Wi-Fi).
+            nmcli general reload conf >/dev/null 2>&1 || true
+            if command -v iw >/dev/null 2>&1; then
+                for d in $(ls /sys/class/net 2>/dev/null | grep '^wl'); do
+                    iw dev "$d" set power_save off >/dev/null 2>&1 || true
+                done
+            fi
         fi
 
         # EFI fallback loader: a clone has no NVRAM entry, the firmware runs

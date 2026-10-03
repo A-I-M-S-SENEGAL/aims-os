@@ -1,3 +1,13 @@
+aims-os-centre-senegal-labo (2.1+54) trixie; urgency=medium
+
+  * Wi-Fi power saving off on lab machines: NetworkManager drop-in
+    (wifi.powersave = 2), applied live by postinst with iw (no reconnect)
+    and re-checked hourly by aims-labo-ensure. With the driver default
+    (on), sleeping cards missed pings and SSH and powered-on machines
+    looked switched off to the IT tools (2 October 2026). Depends on iw.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 03 Oct 2026 09:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+53) trixie; urgency=medium
 
   * ensure: the 2.1+52 Wi-Fi fix never ran. "nmcli connection show" in list

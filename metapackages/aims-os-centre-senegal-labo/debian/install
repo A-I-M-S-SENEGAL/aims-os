@@ -36,3 +36,4 @@ files/etc/rstudio/rstudio-prefs.json                    etc/rstudio/
 files/usr/lib/aims-os/aims-labo-ecran                    usr/lib/aims-os/
 files/lib/systemd/system/aims-labo-ecran.service       lib/systemd/system/
 files/etc/security/pwquality.conf.d/60-aims-labo.conf   etc/security/pwquality.conf.d/
+files/etc/NetworkManager/conf.d/60-aims-labo-wifi.conf   etc/NetworkManager/conf.d/

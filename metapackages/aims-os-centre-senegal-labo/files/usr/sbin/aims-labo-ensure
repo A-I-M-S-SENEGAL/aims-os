@@ -98,6 +98,15 @@ if command -v nmcli >/dev/null 2>&1 && [ -d /run/systemd/system ]; then
             && fixed+=("wifi-profil-$nom")
     done <<< "$(nmcli -t -f NAME,TYPE connection show 2>/dev/null)"
 fi
+# 2c. Wi-Fi sans économie d'énergie : NetworkManager l'applique à chaque
+# connexion (conf.d/60-aims-labo-wifi.conf) ; ceci rattrape une carte encore en
+# veille sans couper la connexion.
+if command -v iw >/dev/null 2>&1; then
+    for d in $(ls /sys/class/net 2>/dev/null | grep '^wl'); do
+        iw dev "$d" get power_save 2>/dev/null | grep -q ': on' \
+            && iw dev "$d" set power_save off >/dev/null 2>&1 && fixed+=("wifi-veille-$d")
+    done
+fi
 # 3c. Écran de connexion : l'étudiant attribué à ce poste y apparaît
 [ -x /usr/lib/aims-os/aims-labo-ecran ] && /usr/lib/aims-os/aims-labo-ecran
 # 4a. Paramètres > Utilisateurs masqué de la recherche d'applications (il ne

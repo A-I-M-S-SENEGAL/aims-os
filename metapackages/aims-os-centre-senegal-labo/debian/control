@@ -18,6 +18,7 @@ Depends:
  aims-os-centre-senegal,
  adduser,
  dconf-cli,
+ iw,
  openssh-server,
  systemd-timesyncd,
  grub2-common,
