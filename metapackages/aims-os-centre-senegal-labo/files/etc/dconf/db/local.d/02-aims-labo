@@ -10,3 +10,15 @@ power-button-action='interactive'
 
 [org/gnome/desktop/session]
 idle-delay=uint32 900
+
+# Ctrl+Alt+T ouvre le Terminal, comme sous Ubuntu : GNOME sous Debian ne le
+# définit pas (demande de Hakim, 5 octobre 2026). La touche T est au même
+# endroit en AZERTY et en QWERTY, le raccourci vaut donc sur tous les postes ;
+# il ne touche pas aux dispositions de clavier propres à chaque poste.
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/aims-terminal/']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/aims-terminal]
+name='Terminal'
+command='gnome-terminal'
+binding='<Primary><Alt>t'

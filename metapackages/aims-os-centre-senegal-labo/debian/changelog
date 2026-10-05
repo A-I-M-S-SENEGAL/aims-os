@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+55) trixie; urgency=medium
+
+  * Ctrl+Alt+T opens GNOME Terminal, as on Ubuntu (custom media-keys
+    binding in the lab dconf defaults). The T key sits at the same place on
+    AZERTY and QWERTY, so it works on every machine whatever its per-seat
+    keyboard layout.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 05 Oct 2026 10:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+54) trixie; urgency=medium
 
   * Wi-Fi power saving off on lab machines: NetworkManager drop-in
