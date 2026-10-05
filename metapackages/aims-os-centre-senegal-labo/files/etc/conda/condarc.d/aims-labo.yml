@@ -1,0 +1,9 @@
+# AIMS OS (aims-os-centre-senegal-labo) : environnements et paquets conda dans
+# le dossier personnel. /opt/miniforge3 appartient à root : conda se rabattait
+# seul sur ~/.conda, mais mamba 2 essayait d'écrire dans /opt et échouait
+# (« Could not open lockfile /opt/miniforge3/pkgs/pkgs.lock », 5 octobre 2026).
+envs_dirs:
+  - ~/.conda/envs
+  - /opt/miniforge3/envs
+pkgs_dirs:
+  - ~/.conda/pkgs

@@ -1,0 +1,20 @@
+# AIMS OS (aims-os-centre-senegal-labo) : conda activate pour tous les
+# comptes, sans conda init. Ce n'est pas une complétion : bash-completion
+# charge ce dossier dans chaque bash interactif (Terminal, VS Code, Jupyter),
+# seul point d'entrée système pour ces shells sous Debian sans modifier
+# /etc/bash.bashrc, qui appartient au paquet bash. On charge seulement les
+# fonctions de Miniforge : aucun environnement n'est activé, python3 reste
+# celui du poste. Un `conda init` fait par l'étudiant garde la main.
+if [ -r /opt/miniforge3/etc/profile.d/conda.sh ] && ! declare -F conda >/dev/null; then
+    . /opt/miniforge3/etc/profile.d/conda.sh
+    # mamba 2 exige sa propre initialisation pour activate ; conda s'en charge,
+    # les environnements sont les mêmes (~/.conda/envs).
+    if ! declare -F mamba >/dev/null; then
+        mamba() {
+            case "${1:-}" in
+                activate|deactivate) conda "$@" ;;
+                *) command mamba "$@" ;;
+            esac
+        }
+    fi
+fi

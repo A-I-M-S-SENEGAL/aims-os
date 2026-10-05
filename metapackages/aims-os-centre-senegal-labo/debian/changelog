@@ -1,3 +1,19 @@
+aims-os-centre-senegal-labo (2.1+58) trixie; urgency=medium
+
+  * conda activate works in every Terminal without `conda init`:
+    /etc/bash_completion.d/aims-conda loads Miniforge's shell functions
+    (bash-completion sources that directory in each interactive bash,
+    while /etc/bash.bashrc belongs to bash). No environment is
+    activated, python3 stays the system one, and `mamba activate` is
+    handed to conda.
+  * conda and mamba keep environments and the package cache in the home
+    directory (/etc/conda/condarc.d/aims-labo.yml). /opt/miniforge3 is
+    root's: conda fell back to ~/.conda by itself, but mamba 2 tried to
+    lock /opt/miniforge3/pkgs and every `mamba create` failed for
+    students (5 October 2026).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 05 Oct 2026 20:08:02 +0000
+
 aims-os-centre-senegal-labo (2.1+57) trixie; urgency=medium
 
   * Alt+Shift no longer switches the keyboard layout. The image turns on
