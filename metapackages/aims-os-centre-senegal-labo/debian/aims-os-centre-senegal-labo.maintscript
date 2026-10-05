@@ -1,1 +1,2 @@
 rm_conffile /etc/ssh/sshd_config.d/40-aims-labo.conf 2.1+3~ aims-os-centre-senegal-labo
+rm_conffile /etc/polkit-1/rules.d/50-aims-labo-network.rules 2.1+56~ aims-os-centre-senegal-labo

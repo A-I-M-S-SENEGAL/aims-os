@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+56) trixie; urgency=medium
+
+  * Drop the polkit rule that reserved NetworkManager to administrators
+    (50-aims-labo-network.rules, since 2.1+4). Hakim's decision of
+    5 October 2026: students may change Wi-Fi on every machine, HP and
+    Dell. The obsolete conffile is removed on upgrade (rm_conffile).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 05 Oct 2026 15:00:00 +0000
+
 aims-os-centre-senegal-labo (2.1+55) trixie; urgency=medium
 
   * Ctrl+Alt+T opens GNOME Terminal, as on Ubuntu (custom media-keys
