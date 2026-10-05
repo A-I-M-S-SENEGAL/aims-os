@@ -1,0 +1,10 @@
+[Unit]
+Description=AIMS labo — paquet du labo 5 min après le démarrage, puis toutes les 4 h
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=4h
+RandomizedDelaySec=3min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=AIMS labo — mise à jour du paquet du labo
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/aims-labo-paquet
+Nice=10
+IOSchedulingClass=idle

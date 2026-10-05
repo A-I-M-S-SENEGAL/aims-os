@@ -39,3 +39,6 @@ files/etc/security/pwquality.conf.d/60-aims-labo.conf   etc/security/pwquality.c
 files/etc/NetworkManager/conf.d/60-aims-labo-wifi.conf   etc/NetworkManager/conf.d/
 files/etc/bash_completion.d/aims-conda                  etc/bash_completion.d/
 files/etc/conda/condarc.d/aims-labo.yml                 etc/conda/condarc.d/
+files/usr/sbin/aims-labo-paquet                        usr/sbin/
+files/lib/systemd/system/aims-labo-paquet.service       lib/systemd/system/
+files/lib/systemd/system/aims-labo-paquet.timer         lib/systemd/system/

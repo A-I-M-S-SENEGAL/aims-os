@@ -1,3 +1,15 @@
+aims-os-centre-senegal-labo (2.1+59) trixie; urgency=medium
+
+  * A machine that was off during an aims-labo-pousser run catches up by
+    itself: aims-labo-paquet.timer installs the latest lab package 5 min
+    after each boot, then every 4 h. unattended-upgrades already covered
+    the AIMS repository, but Debian's apt timers wait up to 12 h at random.
+  * aims-labo-paquet clears the AIMS apt lists when one of them is missing
+    from the InRelease, the stuck index seen on labo-hp-08 and labo-hp-30
+    on 5 October 2026 (apt kept saying the package was up to date).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 05 Oct 2026 20:16:14 +0000
+
 aims-os-centre-senegal-labo (2.1+58) trixie; urgency=medium
 
   * conda activate works in every Terminal without `conda init`:

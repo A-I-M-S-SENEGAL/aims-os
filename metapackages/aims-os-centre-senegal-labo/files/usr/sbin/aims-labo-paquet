@@ -1,0 +1,29 @@
+#!/bin/bash
+# aims-labo-paquet — installe la dernière version du paquet du labo.
+# Lancé par aims-labo-paquet.timer 5 minutes après chaque démarrage, puis
+# toutes les 4 heures : un poste éteint pendant un passage d'aims-labo-pousser
+# (serveur 2) se rattrape tout seul. Les autres paquets suivent
+# unattended-upgrades, une fois par jour.
+# Index AIMS bloqué (labo-hp-08 et 30, 5 octobre 2026) : InRelease récent mais
+# listes Packages anciennes, et apt répondait « déjà à jour » sans jamais les
+# retélécharger. Si une liste AIMS manque dans son InRelease, on vide les index
+# AIMS et on recommence.
+set -u
+export DEBIAN_FRONTEND=noninteractive
+note() { logger -t aims-labo-paquet -p local5.info -- "$*"; }
+L=/var/lib/apt/lists
+apt-get -q -o DPkg::Lock::Timeout=600 update >/dev/null 2>&1
+inr=$(ls "$L"/*aims-os*_InRelease 2>/dev/null | head -1)
+for f in "$L"/*aims-os*_Packages; do
+    [ -n "$inr" ] && [ -e "$f" ] || break
+    grep -q "$(sha256sum < "$f" | cut -c1-64)" "$inr" && continue
+    rm -f "$L"/a-i-m-s-senegal.github.io_aims-os_*
+    apt-get -q -o DPkg::Lock::Timeout=600 update >/dev/null 2>&1
+    note "index AIMS incohérent : rechargé"
+    break
+done
+avant=$(dpkg-query -W -f='${Version}' aims-os-centre-senegal-labo 2>/dev/null)
+apt-get -q -y -o DPkg::Lock::Timeout=600 -o Dpkg::Options::=--force-confdef \
+    -o Dpkg::Options::=--force-confold install --only-upgrade aims-os-centre-senegal-labo >/dev/null 2>&1
+apres=$(dpkg-query -W -f='${Version}' aims-os-centre-senegal-labo 2>/dev/null)
+[ "$avant" = "$apres" ] || note "paquet du labo : $avant -> $apres"

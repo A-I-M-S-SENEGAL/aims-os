@@ -127,6 +127,10 @@ case "$1" in
             deb-systemd-invoke start aims-labo-ecran.service >/dev/null 2>&1 || true
             deb-systemd-helper enable aims-labo-update.timer >/dev/null 2>&1 || true
             deb-systemd-invoke start aims-labo-update.timer >/dev/null 2>&1 || true
+            # Postes éteints pendant un passage d'aims-labo-pousser : le
+            # paquet du labo se met à jour 5 min après chaque démarrage.
+            deb-systemd-helper enable aims-labo-paquet.timer >/dev/null 2>&1 || true
+            deb-systemd-invoke start aims-labo-paquet.timer >/dev/null 2>&1 || true
             deb-systemd-invoke start aims-labo-ensure.timer >/dev/null 2>&1 || true
             deb-systemd-invoke restart rsyslog.service >/dev/null 2>&1 || true
             # Wi-Fi sans économie d'énergie : relire la configuration de
