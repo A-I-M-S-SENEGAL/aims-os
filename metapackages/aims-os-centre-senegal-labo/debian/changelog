@@ -1,3 +1,17 @@
+aims-os-centre-senegal-labo (2.1+57) trixie; urgency=medium
+
+  * Alt+Shift no longer switches the keyboard layout. The image turns on
+    grp:alt_shift_toggle (00-aims-os); students flipped to AZERTY without
+    noticing, and the lock screen, which keeps the session's layout,
+    then refused their password (labo-dell-03, 5 October 2026).
+    Super+Space and the top-bar keyboard menu still switch.
+  * GNOME no longer reopens a session on the last layout used:
+    mru-sources is empty and locked (locks/02-aims-labo), so every
+    session starts on the machine's first layout (US on the Dells and
+    the English seats, AZERTY elsewhere).
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 05 Oct 2026 17:39:17 +0000
+
 aims-os-centre-senegal-labo (2.1+56) trixie; urgency=medium
 
   * Drop the polkit rule that reserved NetworkManager to administrators

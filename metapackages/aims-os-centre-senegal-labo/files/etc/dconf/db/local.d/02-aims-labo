@@ -22,3 +22,15 @@ custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybin
 name='Terminal'
 command='gnome-terminal'
 binding='<Primary><Alt>t'
+
+# Alt+Maj ne change plus de clavier. L'image (00-aims-os) active l'option
+# grp:alt_shift_toggle : des étudiants passaient en AZERTY sans le voir, et
+# l'écran de verrouillage, qui garde le clavier de la session, refusait alors
+# leur mot de passe (labo-dell-03, 5 octobre 2026). Touche Windows + Espace et
+# le menu du clavier en haut à droite changent toujours de clavier.
+# mru-sources vide et verrouillé (locks/02-aims-labo) : GNOME ne reprend plus
+# le dernier clavier utilisé, chaque session s'ouvre sur le premier clavier du
+# poste (US sur les Dell et les postes en anglais, AZERTY ailleurs).
+[org/gnome/desktop/input-sources]
+xkb-options=@as []
+mru-sources=@a(ss) []
