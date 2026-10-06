@@ -12,3 +12,14 @@ aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-preparer-capture
 aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-update]
 aims-os-centre-senegal-labo: no-manual-page [usr/bin/aims-vm]
 aims-os-centre-senegal-labo: no-manual-page [usr/sbin/aims-labo-paquet]
+aims-os-centre-senegal-labo: no-manual-page [usr/bin/aims-acrobat]
+aims-os-centre-senegal-labo: no-manual-page [usr/bin/aims-mot-de-passe]
+# The JupyterLab launchers point into /opt: aims-labo-extras installs
+# /opt/jupyterlab from PyPI, and Anaconda lives in /opt/anaconda3. TryExec
+# keeps each launcher hidden until its target exists.
+aims-os-centre-senegal-labo: desktop-command-not-in-package opt/jupyterlab/bin/jupyter-lab [usr/share/applications/aims-jupyterlab.desktop]
+aims-os-centre-senegal-labo: desktop-command-not-in-package opt/anaconda3/bin/jupyter-lab [usr/share/applications/aims-jupyterlab-anaconda.desktop]
+# aims-conda is not a completion: it must be sourced at every interactive
+# bash start, and bash-completion loads /etc/bash_completion.d eagerly while
+# /usr/share/bash-completion/completions is only read per command.
+aims-os-centre-senegal-labo: package-installs-into-obsolete-dir *
