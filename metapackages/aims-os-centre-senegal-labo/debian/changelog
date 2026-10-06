@@ -1,3 +1,17 @@
+aims-os-centre-senegal-labo (2.1+60) trixie; urgency=medium
+
+  * JupyterLab for students: a "JupyterLab" launcher and `jupyter lab`
+    in the Terminal, from /opt/jupyterlab (PyPI on the system Python, so
+    its python3 kernel is /usr/bin/python3 with numpy, pandas… from apt).
+    Debian's jupyterlab needs Debian's Node.js, which apt refuses next to
+    NodeSource's. Installed once in the background by the postinst
+    (aims-labo-extras jupyterlab), then updated weekly by aims-labo-update.
+  * "JupyterLab (Anaconda)" launcher for the JupyterLab that Anaconda
+    already ships, with Anaconda's Python and libraries.
+  * Both launchers stay hidden (TryExec) until their JupyterLab exists.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 06 Oct 2026 03:58:14 +0000
+
 aims-os-centre-senegal-labo (2.1+59) trixie; urgency=medium
 
   * A machine that was off during an aims-labo-pousser run catches up by

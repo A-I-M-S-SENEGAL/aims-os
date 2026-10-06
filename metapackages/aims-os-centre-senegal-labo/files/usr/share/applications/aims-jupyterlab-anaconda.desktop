@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=JupyterLab (Anaconda)
+Comment=JupyterLab d'Anaconda, avec le Python et les bibliothèques d'Anaconda
+Comment[en]=Anaconda's JupyterLab, with Anaconda's Python and libraries
+Exec=/opt/anaconda3/bin/jupyter-lab %f
+TryExec=/opt/anaconda3/bin/jupyter-lab
+Icon=notebook
+Terminal=true
+StartupNotify=true
+Categories=Development;Education;
+Keywords=python;jupyter;notebook;anaconda;

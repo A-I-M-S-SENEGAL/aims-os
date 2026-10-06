@@ -131,6 +131,10 @@ case "$1" in
             # paquet du labo se met à jour 5 min après chaque démarrage.
             deb-systemd-helper enable aims-labo-paquet.timer >/dev/null 2>&1 || true
             deb-systemd-invoke start aims-labo-paquet.timer >/dev/null 2>&1 || true
+            # JupyterLab sur le Python du poste : installé une fois en tâche
+            # de fond (pip, hors dpkg), puis mis à jour par aims-labo-update.
+            [ -x /opt/jupyterlab/bin/jupyter-lab ] || systemd-run --quiet --no-block --collect \
+                --unit=aims-labo-jupyterlab /usr/sbin/aims-labo-extras jupyterlab >/dev/null 2>&1 || true
             deb-systemd-invoke start aims-labo-ensure.timer >/dev/null 2>&1 || true
             deb-systemd-invoke restart rsyslog.service >/dev/null 2>&1 || true
             # Wi-Fi sans économie d'énergie : relire la configuration de

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=JupyterLab
+Comment=Notebooks Jupyter avec le Python du poste (numpy, pandas…)
+Comment[en]=Jupyter notebooks with the machine's Python (numpy, pandas…)
+Exec=/opt/jupyterlab/bin/jupyter-lab %f
+TryExec=/opt/jupyterlab/bin/jupyter-lab
+Icon=notebook
+Terminal=true
+StartupNotify=true
+MimeType=application/x-ipynb+json;
+Categories=Development;Education;
+Keywords=python;jupyter;notebook;

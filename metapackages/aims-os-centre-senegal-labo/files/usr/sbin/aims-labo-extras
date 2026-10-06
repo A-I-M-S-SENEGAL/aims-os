@@ -8,7 +8,7 @@
 #
 #   aims-labo-extras            everything
 #   aims-labo-extras <step>...  only some steps: repos code chrome zotero bruno
-#                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda
+#                               drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda jupyterlab
 #                               nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf acrobat
 #                               packettracer vmimages
 # =============================================================================
@@ -235,6 +235,17 @@ aims_script() { # run one of the aims-os-welcome install scripts (either path la
     local sc; sc=$(ls "/usr/share/aims-os/install/$1" "/usr/share/aims-os/install/install/$1" 2>/dev/null | head -1)
     [ -n "$sc" ] || { echo "$1 missing (aims-os-welcome)" >&2; return 1; }
     "$sc" >/dev/null 2>&1 || "$sc"
+}
+step_jupyterlab() {
+    # JupyterLab on the machine's own Python: its python3 kernel is
+    # /usr/bin/python3, so notebooks see the numpy/pandas installed by apt.
+    # Debian's jupyterlab package needs Debian's Node.js, which apt refuses
+    # next to NodeSource's (step_nodejs); hence a PyPI venv in /opt.
+    log "JupyterLab (/opt/jupyterlab, PyPI on the system Python)"
+    [ -x /opt/jupyterlab/bin/python3 ] || python3 -m venv --system-site-packages /opt/jupyterlab
+    /opt/jupyterlab/bin/pip install -q --upgrade --disable-pip-version-check --retries 6 --timeout 30 jupyterlab
+    ln -sf /opt/jupyterlab/bin/jupyter-lab /usr/local/bin/jupyter-lab
+    chmod -R a+rX /opt/jupyterlab
 }
 step_nodejs()   { log "Node.js LTS (NodeSource, script AIMS OS)"; aims_script nodejs.sh; node --version >/dev/null 2>&1; }
 step_dbeaver()  { log "DBeaver CE (dbeaver.io, script AIMS OS)"; aims_script dbeaver.sh; dpkg -s dbeaver-ce >/dev/null 2>&1; }
@@ -510,7 +521,7 @@ step_dbimages() {
     podman images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep -E "postgres|mariadb|redis|mongo"
 }
 
-steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf acrobat packettracer vmimages)
+steps=("$@"); [ ${#steps[@]} -gt 0 ] || steps=(repos code chrome bruno zotero drawio julia ghidra android geogebra dbimages zoom rstudio sage webapps texlive anaconda jupyterlab nodejs dbeaver runtimes gnuplot climat reseau gns3 pdf acrobat packettracer vmimages)
 failed=""
 for s in "${steps[@]}"; do
     if ! "step_$s"; then failed="$failed $s"; log "step $s FAILED (continuing)"; fi
