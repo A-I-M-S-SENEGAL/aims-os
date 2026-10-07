@@ -35,10 +35,13 @@ binding='<Primary><Alt>t'
 xkb-options=@as []
 mru-sources=@a(ss) []
 
-# Clavier visuel à un clic : l'icône d'accessibilité reste dans la barre du
-# haut, et son menu affiche ou masque le clavier visuel. Les étudiants qui ne
-# connaissent pas l'AZERTY y trouvent < > | { } [ ] (demande de Hakim,
-# 7 octobre 2026). Pas screen-keyboard-enabled : GNOME ferait surgir le
-# clavier à chaque champ de texte, même avec le vrai clavier.
+# Clavier visuel activé pour tous (décision de Hakim, 7 octobre 2026) : il
+# s'affiche dès qu'on clique dans un champ de texte, avec la disposition du
+# poste, et les étudiants qui ne connaissent pas l'AZERTY y trouvent
+# < > | { } [ ]. Pas verrouillé : chacun peut l'éteindre depuis l'icône
+# d'accessibilité, qui reste dans la barre du haut.
 [org/gnome/desktop/a11y]
 always-show-universal-access-status=true
+
+[org/gnome/desktop/a11y/applications]
+screen-keyboard-enabled=true

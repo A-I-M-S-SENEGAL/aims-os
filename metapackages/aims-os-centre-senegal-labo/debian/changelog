@@ -1,3 +1,12 @@
+aims-os-centre-senegal-labo (2.1+62) trixie; urgency=medium
+
+  * Screen keyboard on by default for every account (Hakim's decision,
+    7 October 2026): it shows up on each text field with the machine's
+    layout, so students new to AZERTY find < > | { } [ ]. Not locked:
+    anyone can switch it off from the accessibility icon in the top bar.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 07 Oct 2026 16:21:48 +0000
+
 aims-os-centre-senegal-labo (2.1+61) trixie; urgency=medium
 
   * The accessibility icon stays in the top bar, so the screen keyboard is
