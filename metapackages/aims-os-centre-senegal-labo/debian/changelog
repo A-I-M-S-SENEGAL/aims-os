@@ -1,3 +1,14 @@
+aims-os-centre-senegal-labo (2.1+61) trixie; urgency=medium
+
+  * The accessibility icon stays in the top bar, so the screen keyboard is
+    one click away: students new to AZERTY find < > | { } [ ] on it.
+    screen-keyboard-enabled stays off, otherwise GNOME pops the screen
+    keyboard up on every text field even with the physical keyboard.
+  * Lintian overrides for the JupyterLab launchers, the conda hook in
+    /etc/bash_completion.d and two tools without a man page.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Wed, 07 Oct 2026 15:22:57 +0000
+
 aims-os-centre-senegal-labo (2.1+60) trixie; urgency=medium
 
   * JupyterLab for students: a "JupyterLab" launcher and `jupyter lab`
