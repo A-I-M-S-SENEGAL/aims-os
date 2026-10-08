@@ -1,0 +1,29 @@
+#!/bin/sh
+# aims-labo-zoom — Zoom sans Vulkan. Zoom 7.2 plante (« stack smashing
+# detected ») juste après avoir initialisé Vulkan dans son navigateur intégré :
+# 48 plantages pour 93 lancements sur le labo, HP comme Dell (octobre 2026).
+# Sans pilote Vulkan visible, Zoom se rabat sur OpenGL.
+# /usr/bin/zoom (lien du paquet zoom vers /opt/zoom/ZoomLauncher) est dévié vers
+# /usr/bin/zoom.dpkg-divert-aims et remplacé par un lanceur qui masque Vulkan :
+# l'icône, la commande zoom et les liens d'invitation passent tous par lui, et
+# les mises à jour de Zoom arrivent sous le nom dévié.
+# Lancé par le postinst, puis chaque heure par aims-labo-ensure (Zoom peut être
+# installé après le paquet du labo). Écrit « zoom » quand il a changé quelque chose.
+set -e
+Z=/usr/bin/zoom; DIV=/usr/bin/zoom.dpkg-divert-aims
+devie() { dpkg-divert --list "$Z" 2>/dev/null | grep -q "$DIV"; }
+if ! devie; then
+    [ -L "$Z" ] || [ -e "$Z" ] || exit 0
+    dpkg-divert --quiet --add --rename --package aims-os-centre-senegal-labo --divert "$DIV" "$Z"
+fi
+if [ ! -L "$DIV" ] && [ ! -e "$DIV" ]; then
+    # Zoom désinstallé depuis : on rend la place.
+    rm -f "$Z"; dpkg-divert --quiet --remove --package aims-os-centre-senegal-labo "$Z"; echo zoom; exit 0
+fi
+cat > "$Z.aims-tmp" <<'W'
+#!/bin/sh
+# AIMS OS labo — Zoom sans Vulkan, voir /usr/lib/aims-os/aims-labo-zoom.
+export VK_DRIVER_FILES=/dev/null VK_ICD_FILENAMES=/dev/null
+exec /usr/bin/zoom.dpkg-divert-aims "$@"
+W
+if cmp -s "$Z.aims-tmp" "$Z"; then rm -f "$Z.aims-tmp"; else chmod 0755 "$Z.aims-tmp"; mv "$Z.aims-tmp" "$Z"; echo zoom; fi

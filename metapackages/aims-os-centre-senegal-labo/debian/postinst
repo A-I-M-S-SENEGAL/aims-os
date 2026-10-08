@@ -93,6 +93,10 @@ case "$1" in
             fi
         fi
 
+        # Zoom sans Vulkan : /usr/bin/zoom dévié vers un lanceur qui masque
+        # Vulkan (Zoom 7.2 plantait au démarrage, voir aims-labo-zoom).
+        /usr/lib/aims-os/aims-labo-zoom >/dev/null 2>&1 || true
+
         # The local account created by the installer (member of sudo, same
         # password on every clone) must not remain a root path on lab
         # machines: lock it and drop it from sudo. IT uses aimsit (key) and

@@ -1,3 +1,18 @@
+aims-os-centre-senegal-labo (2.1+63) trixie; urgency=medium
+
+  * Zoom without Vulkan: Zoom 7.2 crashed ("stack smashing detected") right
+    after initialising Vulkan in its embedded browser, 48 crashes for 93
+    launches across the lab, HP and Dell alike (October 2026). /usr/bin/zoom
+    is diverted to /usr/bin/zoom.dpkg-divert-aims and replaced by a launcher
+    that hides the Vulkan drivers (VK_DRIVER_FILES, VK_ICD_FILENAMES), so
+    Zoom falls back to OpenGL. The launcher, the zoom command and meeting
+    links all go through it; Zoom upgrades land at the diverted name.
+  * aims-labo-zoom applies it from the postinst and every hour from
+    aims-labo-ensure (Zoom may be installed after the lab package); the
+    postrm restores the original link.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Thu, 08 Oct 2026 13:30:06 +0000
+
 aims-os-centre-senegal-labo (2.1+62) trixie; urgency=medium
 
   * Screen keyboard on by default for every account (Hakim's decision,

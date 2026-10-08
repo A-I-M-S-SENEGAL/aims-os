@@ -124,6 +124,11 @@ if [ -x /opt/pt/packettracer.AppImage ]; then
         /usr/lib/aims-os/packettracer-fix; fixed+=("packettracer-licence")
     fi
 fi
+# 4 ter. Zoom sans Vulkan (voir /usr/lib/aims-os/aims-labo-zoom) : aussi quand
+# Zoom est installé ou mis à jour après le paquet du labo.
+if [ -x /usr/lib/aims-os/aims-labo-zoom ] && [ -n "$(/usr/lib/aims-os/aims-labo-zoom 2>/dev/null)" ]; then
+    fixed+=("zoom-sans-vulkan")
+fi
 # 5. Bilan
 last_sudo="$(journalctl _COMM=sudo --since -1h --no-pager -o cat 2>/dev/null | grep -E "COMMAND=" | tail -1 | sed -E 's/^ *//' | cut -c1-200)"
 if [ ${#fixed[@]} -gt 0 ]; then
