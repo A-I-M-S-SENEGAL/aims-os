@@ -17,6 +17,8 @@ case "$1" in
             rm -f /usr/bin/zoom
             dpkg-divert --quiet --remove --rename --package aims-os-centre-senegal-labo /usr/bin/zoom || true
         fi
+        rm -f /opt/*/etc/fonts/conf.d/00-aims-cache-a-part.conf \
+            /opt/*/envs/*/etc/fonts/conf.d/00-aims-cache-a-part.conf
         if command -v dconf >/dev/null 2>&1; then
             dconf update 2>/dev/null || true
         fi

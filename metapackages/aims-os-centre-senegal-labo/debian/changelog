@@ -1,3 +1,22 @@
+aims-os-centre-senegal-labo (2.1+64) trixie; urgency=medium
+
+  * Each copy of fontconfig under /opt keeps its own font cache. Anaconda
+    ships fontconfig 2.17.1, which names its cache files like Debian's 2.15
+    (*-le64.cache-9) and writes them to the same ~/.cache/fontconfig. Debian's
+    fontconfig then misread them: Zoom crashed in libfontconfig at every
+    launch for two students (labo-dell-04 and labo-dell-05, 65 crashes for
+    65 launches since 7 October 2026), while accounts with a clean cache on
+    the same machines ran it. aims-labo-polices drops a conf.d file giving
+    every /opt fontconfig (Anaconda, Sage, conda environments) its own
+    ~/.cache/fontconfig-<name>; conf.d is read before the stock <cachedir>
+    entries, and conda updates keep the file.
+  * The same helper removes, in every account, the *-le64.cache-9 files that
+    differ from the system ones in /var/cache/fontconfig, so Debian goes back
+    to its own. Run from the postinst and every hour from aims-labo-ensure;
+    the postrm removes the conf.d files.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Sat, 10 Oct 2026 11:59:58 +0000
+
 aims-os-centre-senegal-labo (2.1+63) trixie; urgency=medium
 
   * Zoom without Vulkan: Zoom 7.2 crashed ("stack smashing detected") right

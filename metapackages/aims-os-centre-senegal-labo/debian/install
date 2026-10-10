@@ -45,3 +45,4 @@ files/lib/systemd/system/aims-labo-paquet.timer         lib/systemd/system/
 files/usr/share/applications/aims-jupyterlab.desktop    usr/share/applications/
 files/usr/share/applications/aims-jupyterlab-anaconda.desktop usr/share/applications/
 files/usr/lib/aims-os/aims-labo-zoom                   usr/lib/aims-os/
+files/usr/lib/aims-os/aims-labo-polices                usr/lib/aims-os/

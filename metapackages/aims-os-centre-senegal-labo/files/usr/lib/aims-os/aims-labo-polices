@@ -1,0 +1,45 @@
+#!/bin/sh
+# aims-labo-polices — chaque copie de fontconfig garde son propre cache de polices.
+# Anaconda embarque fontconfig 2.17. Il nomme ses fichiers de cache comme celui
+# de Debian (2.15), « *-le64.cache-9 », et les écrit au même endroit,
+# ~/.cache/fontconfig. Debian les relit de travers : Zoom plantait à chaque
+# lancement chez deux étudiants (Dell 04 et 05, 65 plantages sur 65, octobre 2026).
+# 1. Chaque fontconfig installé sous /opt (Anaconda, Miniforge, Sage...) reçoit
+#    son dossier de cache, ~/.cache/fontconfig-<nom>. conf.d est lu avant les
+#    <cachedir> de son fonts.conf, il écrit donc là. Le fichier n'appartient à
+#    aucun paquet conda : une mise à jour conda le garde.
+# 2. Dans chaque compte, les fichiers *-le64.cache-9 qui diffèrent de ceux du
+#    système (/var/cache/fontconfig, tenu à jour par dpkg) sont retirés et le
+#    système reprend les siens. Ce n'est qu'un cache.
+# Lancé par le postinst, puis chaque heure par aims-labo-ensure. Écrit ce qu'il
+# a changé.
+set -e
+for conf in /opt/*/etc/fonts/fonts.conf /opt/*/envs/*/etc/fonts/fonts.conf; do
+    [ -f "$conf" ] || continue
+    grep -q '<cachedir prefix="xdg">fontconfig</cachedir>' "$conf" || continue
+    pre=${conf%/etc/fonts/fonts.conf}
+    nom=$(echo "${pre#/opt/}" | sed 's|/envs/|-|; s|/|-|g')
+    d=${conf%/fonts.conf}/conf.d; f=$d/00-aims-cache-a-part.conf
+    mkdir -p "$d"
+    cat > "$f.aims-tmp" <<X
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<!-- AIMS OS labo : cache de polices à part pour ce fontconfig, voir /usr/lib/aims-os/aims-labo-polices -->
+<fontconfig>
+  <cachedir prefix="xdg">fontconfig-$nom</cachedir>
+</fontconfig>
+X
+    if cmp -s "$f.aims-tmp" "$f"; then rm -f "$f.aims-tmp"; else chmod 0644 "$f.aims-tmp"; mv "$f.aims-tmp" "$f"; echo "polices-cache-$nom"; fi
+done
+for c in /home/*/.cache/fontconfig; do
+    [ -d "$c" ] && [ ! -L "$c" ] && [ ! -L "${c%/fontconfig}" ] || continue
+    n=0
+    for f in "$c"/*-le64.cache-9; do
+        [ -f "$f" ] && [ ! -L "$f" ] || continue
+        s=/var/cache/fontconfig/${f##*/}
+        [ -f "$s" ] && ! cmp -s "$f" "$s" || continue
+        rm -f "$f"; n=$((n + 1))
+    done
+    [ "$n" -eq 0 ] || echo "polices-$(echo "$c" | cut -d/ -f3)=$n"
+done
+exit 0

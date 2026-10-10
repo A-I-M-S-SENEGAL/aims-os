@@ -129,6 +129,13 @@ fi
 if [ -x /usr/lib/aims-os/aims-labo-zoom ] && [ -n "$(/usr/lib/aims-os/aims-labo-zoom 2>/dev/null)" ]; then
     fixed+=("zoom-sans-vulkan")
 fi
+# 4 quater. Polices : un cache à part pour chaque fontconfig de /opt, et les
+# fichiers de cache d'un compte qui diffèrent de ceux du système retirés (voir
+# /usr/lib/aims-os/aims-labo-polices). Rattrape une installation conda ou un
+# environnement créé après le paquet du labo.
+if [ -x /usr/lib/aims-os/aims-labo-polices ]; then
+    for p in $(/usr/lib/aims-os/aims-labo-polices 2>/dev/null); do fixed+=("$p"); done
+fi
 # 5. Bilan
 last_sudo="$(journalctl _COMM=sudo --since -1h --no-pager -o cat 2>/dev/null | grep -E "COMMAND=" | tail -1 | sed -E 's/^ *//' | cut -c1-200)"
 if [ ${#fixed[@]} -gt 0 ]; then
