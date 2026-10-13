@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    purge)
+        rm -f /var/lib/aims-os/outils.fait /var/lib/aims-os/outils.maj \
+            /var/lib/aims-os/outils.campus /var/log/aims-outils.log
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

@@ -1,0 +1,92 @@
+#!/bin/bash
+# aims-outils — les logiciels du labo AIMS sur un ordinateur personnel.
+# Lancé une première fois par le postinst, puis chaque jour par
+# aims-outils.timer (au démarrage si l'ordinateur était éteint) :
+#  1. premier passage : tous les logiciels que aims-labo-extras installe sur
+#     les postes du labo, environ 40 Go en plus des paquets Debian ; repris le
+#     lendemain s'il n'est pas allé au bout ;
+#  2. ensuite, une fois par semaine, leurs mises à jour (aims-labo-update) ;
+#  3. Packet Tracer et les images de machines virtuelles viennent du serveur
+#     du campus : installés dès que l'ordinateur est sur son réseau.
+# Le paquet du labo lui-même n'est pas installé : il verrouillerait le compte
+# de la personne et ouvrirait l'accès de l'équipe IT. On prend dans sa
+# dernière version publiée l'installateur, la mise à jour de la semaine et ce
+# qui va avec (liste dans /usr/share/aims-os-outils/fichiers : Zoom sans
+# Vulkan, cache de polices à part pour Anaconda, Packet Tracer, lanceurs
+# JupyterLab, aims-vm, aims-db, aims-acrobat). Le prerm les retire.
+# Rien n'est téléchargé sur une connexion limitée (données mobiles, partage
+# de connexion d'un téléphone) : le passage attend le lendemain.
+set -u
+export DEBIAN_FRONTEND=noninteractive APT_CONFIG=/usr/share/aims-os-outils/apt.conf
+V=/var/lib/aims-os
+CAMPUS=http://192.168.10.240/aims/
+[ "$(id -u)" -eq 0 ] || { echo "aims-outils : à lancer avec sudo" >&2; exit 1; }
+if dpkg -s aims-os-centre-senegal-labo >/dev/null 2>&1; then
+    echo "Poste du labo : le paquet du labo s'occupe déjà de tout." >&2; exit 1
+fi
+recent() { [ -n "$(find "$1" -mtime -"$2" 2>/dev/null)" ]; }
+sur_campus() { curl -fsS -m 5 "$CAMPUS" 2>/dev/null | grep -q CiscoPacketTracer; }
+limitee() {
+    local m
+    m=$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
+        org.freedesktop.NetworkManager Metered 2>/dev/null | awk '{print $2}')
+    [ "$m" = 1 ] || [ "$m" = 3 ]   # 1 : oui, 3 : sans doute (partage de connexion)
+}
+mkdir -p $V
+premier=1; [ -f $V/outils.fait ] && premier=0
+campus=1; [ -f $V/outils.campus ] && campus=0
+# Rien à faire aujourd'hui : on sort sans rien écrire.
+if [ $premier = 0 ] && recent $V/outils.maj 7 && { [ $campus = 0 ] || ! sur_campus; }; then exit 0; fi
+if limitee; then echo "Connexion limitée (données mobiles) : rien n'est téléchargé, nouvel essai demain."; exit 0; fi
+exec > >(tee -a /var/log/aims-outils.log) 2>&1
+echo "=== $(date '+%F %T') début"
+if [ $premier = 1 ]; then
+    libre=$(df -BG --output=avail / | tail -1 | tr -dc 0-9)
+    if [ "$libre" -lt 50 ]; then
+        echo "ARRÊT : $libre Go libres sur le disque, il en faut environ 50."
+        echo "Libérer de la place, puis : sudo systemctl start aims-outils"
+        exit 1
+    fi
+fi
+# Installateur et compagnons, pris dans le dernier paquet du labo publié.
+apt-get -q update
+t=$(mktemp -d) || exit 1
+chmod 0755 "$t"; chown _apt "$t" 2>/dev/null; cd "$t" || exit 1
+if apt-get -q download aims-os-centre-senegal-labo && dpkg-deb -x aims-os-centre-senegal-labo_*.deb x; then
+    while read -r f; do
+        [ -n "$f" ] || continue
+        m=0644; [ -x "x/$f" ] && m=0755
+        install -D -m $m "x/$f" "/$f"
+    done < /usr/share/aims-os-outils/fichiers
+elif [ ! -x /usr/sbin/aims-labo-extras ]; then
+    echo "ARRÊT : paquet du labo introuvable dans le dépôt AIMS"; cd / && rm -rf -- "$t"; exit 1
+fi
+cd / && rm -rf -- "$t"
+udevadm control --reload-rules 2>/dev/null; udevadm trigger --subsystem-match=misc 2>/dev/null
+# Le compte de la personne dans les groupes des outils (Docker, Wireshark, machines virtuelles).
+for u in $(getent passwd | awk -F: '$7 ~ /(nologin|false)$/ {next} $3 >= 1000 && $3 < 60000 {print $1}'); do
+    for g in docker wireshark libvirt kvm; do getent group $g >/dev/null && adduser --quiet "$u" $g 2>/dev/null; done
+done
+r=0
+if [ $premier = 1 ]; then
+    # Toutes les étapes du labo, sauf celles du serveur du campus (plus bas).
+    etapes=$(sed -n 's/.*|| steps=(\(.*\))$/\1/p' /usr/sbin/aims-labo-extras | tr ' ' '\n' | grep -vxE 'packettracer|vmimages' | tr '\n' ' ')
+    # shellcheck disable=SC2086
+    /usr/sbin/aims-labo-extras $etapes || r=1
+    [ $r = 0 ] && touch $V/outils.fait $V/outils.maj
+elif ! recent $V/outils.maj 7; then
+    /usr/sbin/aims-labo-update && touch $V/outils.maj
+fi
+if [ $campus = 1 ]; then
+    if sur_campus; then
+        /usr/sbin/aims-labo-extras packettracer vmimages && touch $V/outils.campus
+    else
+        echo "Packet Tracer et les images de machines virtuelles : installés dès que l'ordinateur sera sur le réseau du campus."
+    fi
+fi
+/usr/lib/aims-os/aims-labo-zoom >/dev/null 2>&1; /usr/lib/aims-os/aims-labo-polices >/dev/null 2>&1
+if [ $r = 0 ]; then
+    echo "=== $(date '+%F %T') fin : logiciels à jour"
+else
+    echo "=== $(date '+%F %T') fin : des logiciels ont échoué, voir plus haut. Nouvel essai demain, ou tout de suite : sudo systemctl start aims-outils"
+fi

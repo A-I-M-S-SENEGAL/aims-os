@@ -1,0 +1,4 @@
+aims-os-outils: no-manual-page [usr/sbin/aims-outils]
+# The first pass runs for hours: started with --no-block so that apt does not
+# wait for it. deb-systemd-invoke has no such option and skips static units.
+aims-os-outils: maintainer-script-calls-systemctl [postinst:*]

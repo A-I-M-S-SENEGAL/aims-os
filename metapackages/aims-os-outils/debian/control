@@ -1,0 +1,41 @@
+Source: aims-os-outils
+Section: metapackages
+Priority: optional
+Maintainer: AIMS Senegal IT <hakim@aims-senegal.org>
+Uploaders: AIMS Senegal IT <hakim@aims-senegal.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Browser: https://github.com/A-I-M-S-SENEGAL/aims-os
+Vcs-Git: https://github.com/A-I-M-S-SENEGAL/aims-os.git
+
+Package: aims-os-outils
+Architecture: all
+Depends: ${misc:Depends},
+ aims-os-everything,
+# The Debian packages the lab profile adds on top of every layer.
+ vlc, scilab, qgis, flatpak, gnome-software-plugin-flatpak,
+ qemu-system-x86, qemu-utils, libvirt-daemon-system, libvirt-clients,
+ gnome-boxes, virt-manager, virtinst, virt-viewer,
+ podman, uidmap, slirp4netns,
+# Used by aims-outils itself.
+ adduser, ca-certificates, curl, network-manager, systemd
+Conflicts: aims-os-centre-senegal-labo
+Description: AIMS OS — AIMS Senegal lab software on a personal computer
+ Installs on a personal AIMS OS computer, a student's laptop for
+ instance, the software of the AIMS Senegal (Mbour) lab workstations:
+ every AIMS OS layer, virtual machines, Podman, and through a background
+ service the vendor tools of the lab (RStudio, VS Code, Chrome, Zotero,
+ Zoom, JupyterLab, Anaconda, Julia, SageMath, Android Studio, TeX Live,
+ DBeaver, GNS3, Packet Tracer and more).
+ .
+ Unlike aims-os-centre-senegal-labo, it does not lock local accounts,
+ open remote access for the IT team or join the campus directory. The
+ installer and the weekly update come from the latest published lab
+ package, so a personal computer gets the same versions as the lab.
+ .
+ The first pass downloads about 40 GB and takes several hours; it starts
+ right after installation and resumes the next day if it was cut short.
+ Nothing is downloaded on a metered connection. Packet Tracer and the
+ virtual machine images come once the computer is on the campus network.

@@ -113,6 +113,30 @@ A future AIMS OS release will ship a **first-boot wizard** that asks
 your track and tools, then runs these commands for you. Until then,
 it's manual.
 
+## Every AIMS Senegal lab tool on your computer
+
+To get on your own computer what the Mbour lab workstations have
+(RStudio, VS Code, Chrome, Zotero, Zoom, JupyterLab, Anaconda, Julia,
+SageMath, Android Studio, TeX Live, Packet Tracer...):
+
+```bash
+sudo apt update && sudo apt install aims-os-outils
+```
+
+The Debian packages come first. The other tools then download in the
+background over several hours and need about 50 GB of free space. You
+can keep using the computer meanwhile.
+
+- Follow the install: `sudo journalctl -fu aims-outils`
+- Nothing is downloaded on mobile data. The install waits for Wi-Fi, and
+  picks up again the next day if it was cut short.
+- Packet Tracer and the virtual machine images arrive once the computer
+  is on the campus network.
+- After that, the tools update themselves once a week.
+
+Unlike the lab workstation profile, this package leaves your account
+alone and gives the IT team no access to your computer.
+
 ## What next
 
 - [Pick your track](/en/filieres/regular/)

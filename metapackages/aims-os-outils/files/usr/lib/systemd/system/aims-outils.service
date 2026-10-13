@@ -1,0 +1,12 @@
+[Unit]
+Description=AIMS OS : logiciels du labo (installation, puis mises à jour)
+Documentation=https://github.com/A-I-M-S-SENEGAL/aims-os
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemd-inhibit --what=sleep:idle --who=aims-outils "--why=Installation des logiciels AIMS" /usr/sbin/aims-outils
+TimeoutStartSec=infinity
+Nice=10
+IOSchedulingClass=idle

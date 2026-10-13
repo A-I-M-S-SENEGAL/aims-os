@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        mkdir -p /var/lib/aims-os
+        # First pass right away, in the background: several hours of
+        # downloads. Its apt commands wait for this apt run to finish
+        # (DPkg::Lock::Timeout in /usr/share/aims-os-outils/apt.conf).
+        if [ -d /run/systemd/system ] && [ ! -f /var/lib/aims-os/outils.fait ]; then
+            systemctl daemon-reload >/dev/null 2>&1 || true
+            systemctl start --no-block aims-outils.service >/dev/null 2>&1 || true
+            cat <<'M'
+
+  aims-os-outils : les logiciels du labo s'installent en arrière-plan,
+  pendant plusieurs heures. L'ordinateur reste utilisable.
+  Suivre l'installation : sudo journalctl -fu aims-outils
+  Sur des données mobiles, rien n'est téléchargé : branchez-vous à un Wi-Fi.
+
+M
+        fi
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

@@ -1,0 +1,15 @@
+usr/sbin/aims-labo-extras
+usr/sbin/aims-labo-update
+usr/lib/aims-os/aims-labo-zoom
+usr/lib/aims-os/aims-labo-polices
+usr/lib/aims-os/packettracer-fix
+usr/bin/aims-acrobat
+usr/bin/aims-vm
+usr/bin/aims-db
+usr/share/applications/aims-jupyterlab.desktop
+usr/share/applications/aims-jupyterlab-anaconda.desktop
+etc/profile.d/aims-labo.sh
+etc/conda/condarc.d/aims-labo.yml
+etc/bash_completion.d/aims-conda
+etc/containers/storage.conf.d/aims-labo.conf
+usr/lib/udev/rules.d/60-aims-labo-kvm.rules

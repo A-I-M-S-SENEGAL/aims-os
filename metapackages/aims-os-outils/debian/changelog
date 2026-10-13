@@ -1,0 +1,24 @@
+aims-os-outils (2.1+1) trixie; urgency=medium
+
+  * New package: the AIMS Senegal lab software on a personal computer, for
+    students who want on their own laptop what they use in the lab.
+    aims-os-centre-senegal-labo cannot go there: its postinst locks every
+    local sudo account and it opens IT remote access. aims-os-outils depends
+    on every AIMS OS layer and on the Debian packages the lab profile adds,
+    and its service aims-outils fetches the latest published lab package,
+    takes only the installer (aims-labo-extras), the weekly update
+    (aims-labo-update) and their helpers (Zoom without Vulkan, separate
+    Anaconda font cache, Packet Tracer fix, JupyterLab launchers, aims-vm,
+    aims-db, aims-acrobat), then runs them.
+  * The first pass starts from the postinst without blocking apt (its apt
+    commands wait for the dpkg lock) and is resumed the next day by a daily
+    timer until it completes; afterwards the timer runs the weekly update.
+    A pass that gets cut short is retried the next day instead of the next
+    week, the gap seen on lab machines switched off mid-update.
+  * Nothing is downloaded on a metered connection (mobile data, phone
+    hotspot). Packet Tracer and the virtual machine images, served by the
+    campus server, are installed once the computer reaches it.
+  * Conflicts with aims-os-centre-senegal-labo; removing the package removes
+    the files taken from it, the Zoom diversion and the font cache settings.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Tue, 13 Oct 2026 17:30:02 +0000

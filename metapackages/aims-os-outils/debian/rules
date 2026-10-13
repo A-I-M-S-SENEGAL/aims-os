@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+# Only the timer is enabled and started by debhelper. The service runs for
+# hours on the first pass: the postinst starts it without waiting.
+override_dh_installsystemd:
+	dh_installsystemd aims-outils.timer

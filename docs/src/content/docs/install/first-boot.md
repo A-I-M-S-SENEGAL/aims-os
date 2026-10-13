@@ -115,6 +115,31 @@ Une future version d'AIMS OS proposera un **wizard premier-boot**
 qui vous demande votre filière et vos outils, puis lance ces
 commandes automatiquement. En attendant, c'est manuel.
 
+## Tous les logiciels du labo AIMS Sénégal sur votre ordinateur
+
+Pour avoir sur votre ordinateur ce qu'ont les postes du labo de Mbour
+(RStudio, VS Code, Chrome, Zotero, Zoom, JupyterLab, Anaconda, Julia,
+SageMath, Android Studio, TeX Live, Packet Tracer...) :
+
+```bash
+sudo apt update && sudo apt install aims-os-outils
+```
+
+Les paquets Debian s'installent d'abord. Les autres logiciels se
+téléchargent ensuite en arrière-plan, pendant plusieurs heures, et
+demandent environ 50 Go libres. L'ordinateur reste utilisable pendant ce
+temps.
+
+- Suivre l'installation : `sudo journalctl -fu aims-outils`
+- Rien n'est téléchargé sur des données mobiles. L'installation attend un
+  Wi-Fi, et reprend le lendemain si elle a été interrompue.
+- Packet Tracer et les images de machines virtuelles arrivent quand
+  l'ordinateur est sur le réseau du campus.
+- Ensuite, les logiciels se mettent à jour une fois par semaine.
+
+Contrairement au profil des postes du labo, ce paquet ne touche pas à
+votre compte et ne donne aucun accès à l'équipe informatique.
+
 ## Et après
 
 - [Vérifier votre filière](/filieres/regular/)

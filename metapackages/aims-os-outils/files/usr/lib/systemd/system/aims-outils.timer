@@ -1,0 +1,11 @@
+[Unit]
+Description=AIMS OS : logiciels du labo, passage quotidien (installation à reprendre, mises à jour de la semaine)
+Documentation=https://github.com/A-I-M-S-SENEGAL/aims-os
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove|deconfigure)
+        if [ -d /run/systemd/system ]; then
+            deb-systemd-invoke stop aims-outils.service >/dev/null 2>&1 || true
+        fi
+        # Files aims-outils took from the lab package (the list goes away
+        # with this package, so this runs before the files are removed).
+        if [ -f /usr/share/aims-os-outils/fichiers ]; then
+            while read -r f; do
+                [ -n "${f}" ] && rm -f "/${f}"
+            done < /usr/share/aims-os-outils/fichiers
+        fi
+        # Zoom without Vulkan (aims-labo-zoom): give /usr/bin/zoom back.
+        if dpkg-divert --list /usr/bin/zoom 2>/dev/null | grep -q "aims"; then
+            rm -f /usr/bin/zoom
+            dpkg-divert --quiet --remove --rename --package aims-os-centre-senegal-labo /usr/bin/zoom || true
+        fi
+        # Separate font cache for Anaconda and the other /opt fontconfigs (aims-labo-polices).
+        rm -f /opt/*/etc/fonts/conf.d/00-aims-cache-a-part.conf \
+            /opt/*/envs/*/etc/fonts/conf.d/00-aims-cache-a-part.conf
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

@@ -1,0 +1,5 @@
+files/usr/sbin/aims-outils                          usr/sbin/
+files/usr/lib/systemd/system/aims-outils.service    usr/lib/systemd/system/
+files/usr/lib/systemd/system/aims-outils.timer      usr/lib/systemd/system/
+files/usr/share/aims-os-outils/apt.conf             usr/share/aims-os-outils/
+files/usr/share/aims-os-outils/fichiers             usr/share/aims-os-outils/
