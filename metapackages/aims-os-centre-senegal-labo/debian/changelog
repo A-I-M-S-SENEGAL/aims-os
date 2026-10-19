@@ -1,3 +1,26 @@
+aims-os-centre-senegal-labo (2.1+65) trixie; urgency=medium
+
+  * aims-labo-extras no longer deletes Android Studio, Ghidra or Julia before
+    the new copy is ready. Each of these steps removed /opt/<tool> and then
+    unpacked whatever the download had left. When the download failed, or
+    when the machine was switched off during the weekly run, the tool was
+    gone: labo-hp-20 kept 946 of Android Studio's 4034 files on 19 October
+    2026, and the run still logged "extras: ok". The new archive is now
+    unpacked under /opt/.<tool>-x and swapped in by two renames. The old
+    copy goes only once the new one is in place.
+  * New fetch helper for these downloads: the whole file or a failed step,
+    never a truncated archive. Big files come in closed 32 MiB ranges,
+    resumed after each cut. On 19 October 2026 Google's edgedl cut the
+    1.6 GB Android Studio archive after 20 to 30 MB ("HTTP/2 stream was not
+    closed cleanly: INTERNAL_ERROR"), seven times in a row, from a lab
+    machine and from the server alike, while range requests went through.
+    curl's own --retry starts again from zero, so it never got further.
+  * Android Studio's archive is checked against the SHA-256 listed on
+    developer.android.com. Julia's checksum was computed but ignored; a
+    mismatch now stops the step.
+
+ -- AIMS Senegal IT <hakim@aims-senegal.org>  Mon, 19 Oct 2026 20:03:25 +0000
+
 aims-os-centre-senegal-labo (2.1+64) trixie; urgency=medium
 
   * Each copy of fontconfig under /opt keeps its own font cache. Anaconda

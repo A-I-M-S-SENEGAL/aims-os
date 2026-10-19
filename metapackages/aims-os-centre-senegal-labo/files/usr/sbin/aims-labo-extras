@@ -35,6 +35,58 @@ Categories=Development;
 Terminal=false
 D
 }
+# fetch url out [sha256]: the whole file in $out, or a non-zero status and no $out.
+# Big files come in closed 32 MiB ranges, resumed after each cut: on 19 October
+# 2026 Google's edgedl cut the 1.6 GB Android Studio archive after 20 to 30 MB
+# ("HTTP/2 stream was not closed cleanly"), from the lab and from the server,
+# while ranges went through; curl's own --retry starts again from zero.
+fetch() {
+    local url=$1 out=$2 sha=${3:-} size have end code fails=0
+    rm -f "$out" "$out.part" "$out.chunk"
+    size=$(command curl -4 -sSIL --connect-timeout 20 --max-time 60 "$url" 2>/dev/null | tr -d '\r' | awk '
+        /^HTTP\// {n = 0; r = 0; s = $2}
+        tolower($1) == "content-length:" {n = $2}
+        tolower($1) == "accept-ranges:" && tolower($2) == "bytes" {r = 1}
+        END {print (r && s == 200 ? n + 0 : 0)}') || size=0
+    while [ "${size:-0}" -gt 0 ] && have=$(stat -c %s "$out.part" 2>/dev/null || echo 0) && [ "$have" -lt "$size" ]; do
+        end=$((have + 33554431)); [ "$end" -lt "$size" ] || end=$((size - 1))
+        code=$(command curl -4 -sS -L --connect-timeout 20 --max-time 300 --speed-limit 10000 --speed-time 60 \
+            -r "$have-$end" -o "$out.chunk" -w '%{http_code}' "$url" 2>/dev/null) || true
+        if [ "$code" = 206 ] && [ -s "$out.chunk" ]; then
+            cat "$out.chunk" >> "$out.part"; fails=0    # cut short or not, these bytes are good
+        elif [ "$code" = 200 ]; then
+            size=0                                      # ranges ignored after all: plain download below
+        else
+            fails=$((fails + 1)); [ "$fails" -lt 10 ] || break; sleep 5
+        fi
+        rm -f "$out.chunk"
+    done
+    if [ "${size:-0}" -gt 0 ]; then
+        if [ "$(stat -c %s "$out.part" 2>/dev/null || echo 0)" != "$size" ]; then
+            echo "download incomplete: $url" >&2; rm -f "$out.part" "$out.chunk"; return 1
+        fi
+    else
+        rm -f "$out.part"
+        curl -fsSL -o "$out.part" "$url" || { echo "download failed: $url" >&2; rm -f "$out.part"; return 1; }
+    fi
+    if [ -n "$sha" ] && ! echo "$sha  $out.part" | sha256sum -c --quiet >/dev/null 2>&1; then
+        echo "checksum mismatch: $url" >&2; rm -f "$out.part"; return 1
+    fi
+    mv "$out.part" "$out"
+}
+# swap_in new dest: put a fully unpacked tree in place of $dest (same filesystem:
+# two renames) and delete the old copy only then. Until 2.1+64 the old copy went
+# first: a failed download or a machine switched off mid-run left a broken tree
+# (labo-hp-20's Android Studio, 19 October 2026).
+swap_in() {
+    rm -rf "$2.old"
+    if [ -e "$2" ]; then mv "$2" "$2.old" || return 1; fi
+    if ! mv "$1" "$2"; then
+        if [ -e "$2.old" ]; then mv "$2.old" "$2"; fi
+        return 1
+    fi
+    rm -rf "$2.old"
+}
 
 step_repos() {
     need curl; need gpg
@@ -97,9 +149,14 @@ stable.sort(key=lambda v:[int(x) for x in v.split(".")])
 v=stable[-1]
 for f in d[v]["files"]:
     if f["os"]=="linux" and f["arch"]=="x86_64" and f["kind"]=="archive": print(v,f["url"],f["sha256"]); break')
+    [ -n "${ver:-}" ] && [ -n "${url:-}" ] || { echo "julia: version list not readable" >&2; return 1; }
     if [ -x /opt/julia/bin/julia ] && /opt/julia/bin/julia --version | grep -q "$ver"; then return 0; fi
-    curl -fsSL -o /tmp/julia.tgz "$url"; echo "$sha  /tmp/julia.tgz" | sha256sum -c --quiet
-    rm -rf /opt/julia && mkdir -p /opt/julia && tar -xzf /tmp/julia.tgz -C /opt/julia --strip-components=1 && rm -f /tmp/julia.tgz
+    fetch "$url" /tmp/julia.tgz "$sha" || return 1
+    rm -rf /opt/.julia-x && mkdir -p /opt/.julia-x && tar -xzf /tmp/julia.tgz -C /opt/.julia-x --strip-components=1 \
+        && [ -x /opt/.julia-x/bin/julia ] \
+        || { echo "julia: archive did not unpack" >&2; rm -rf /opt/.julia-x /tmp/julia.tgz; return 1; }
+    rm -f /tmp/julia.tgz
+    swap_in /opt/.julia-x /opt/julia || return 1
     ln -sf /opt/julia/bin/julia /usr/local/bin/julia
 }
 step_ghidra() {
@@ -109,9 +166,17 @@ step_ghidra() {
     [ -n "$url" ] || { echo "ghidra: release URL not found" >&2; return 1; }
     ver=$(echo "$url" | grep -oE 'ghidra_[0-9.]+_PUBLIC')
     [ -f "/opt/ghidra/.version" ] && [ "$(cat /opt/ghidra/.version)" = "$ver" ] && return 0
-    curl -fsSL -o /tmp/ghidra.zip "$url"; rm -rf /opt/ghidra /tmp/ghidra-x && mkdir -p /tmp/ghidra-x && unzip -q /tmp/ghidra.zip -d /tmp/ghidra-x
-    mv /tmp/ghidra-x/ghidra_* /opt/ghidra && echo "$ver" > /opt/ghidra/.version && rm -rf /tmp/ghidra.zip /tmp/ghidra-x
-    chmod +x /opt/ghidra/ghidraRun
+    fetch "$url" /tmp/ghidra.zip || return 1
+    # unpacked under /opt (same filesystem) so that swap_in is two renames
+    local new
+    rm -rf /opt/.ghidra-x && mkdir -p /opt/.ghidra-x && unzip -q /tmp/ghidra.zip -d /opt/.ghidra-x \
+        || { echo "ghidra: archive did not unpack" >&2; rm -rf /opt/.ghidra-x /tmp/ghidra.zip; return 1; }
+    rm -f /tmp/ghidra.zip
+    new=$(ls -d /opt/.ghidra-x/ghidra_* 2>/dev/null | head -1)
+    [ -n "$new" ] && [ -f "$new/ghidraRun" ] || { echo "ghidra: unexpected archive layout" >&2; rm -rf /opt/.ghidra-x; return 1; }
+    echo "$ver" > "$new/.version"; chmod +x "$new/ghidraRun"
+    swap_in "$new" /opt/ghidra || return 1
+    rm -rf /opt/.ghidra-x
     desktop_entry ghidra "Ghidra" "/opt/ghidra/ghidraRun" "/opt/ghidra/support/ghidra.ico" "Rétro-ingénierie (NSA)"
 }
 step_android() {
@@ -125,8 +190,19 @@ step_android() {
     sver=$(echo "$url" | grep -oE 'ide-zips/[0-9.]+' | cut -d/ -f2)
     ver="android-studio-${sver}"
     if [ ! -f /opt/android-studio/.version ] || [ "$(cat /opt/android-studio/.version)" != "$ver" ]; then
-        curl -fL -o /tmp/android-studio.tgz "$url"
-        rm -rf /opt/android-studio && tar -xzf /tmp/android-studio.tgz -C /opt && echo "$ver" > /opt/android-studio/.version && rm -f /tmp/android-studio.tgz
+        # The download table gives each archive's SHA-256 right after its name and size.
+        local name=${url##*/} sha=""
+        sha=$(printf '%s' "$page" | tr '\n' ' ' | grep -oE "$name.{0,600}" | head -1 | grep -oE '[0-9a-f]{64}' | head -1)
+        [ -n "$sha" ] || echo "android studio: no SHA-256 on the download page, size check only" >&2
+        fetch "$url" /tmp/android-studio.tgz "$sha" || return 1
+        rm -rf /opt/.android-studio-x && mkdir -p /opt/.android-studio-x \
+            && tar -xzf /tmp/android-studio.tgz -C /opt/.android-studio-x \
+            && [ -x /opt/.android-studio-x/android-studio/bin/studio.sh ] \
+            || { echo "android studio: archive did not unpack" >&2; rm -rf /opt/.android-studio-x /tmp/android-studio.tgz; return 1; }
+        rm -f /tmp/android-studio.tgz
+        echo "$ver" > /opt/.android-studio-x/android-studio/.version
+        swap_in /opt/.android-studio-x/android-studio /opt/android-studio || return 1
+        rm -rf /opt/.android-studio-x
         desktop_entry android-studio "Android Studio" "/opt/android-studio/bin/studio.sh" "/opt/android-studio/bin/studio.png" "IDE Android (Google)"
     fi
     # shared SDK
